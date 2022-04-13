@@ -320,7 +320,7 @@ void fixDirList(void)
 			perror("shmdt failed);
 		}
 		
-		//"remove" shared memory !warning!
+		//""remove"" shared memory !warning!
 		if (shmctl(shmid, IPC_RMID, NULL) == -1){
 			perror("shmctl failed"); 
 		else {
