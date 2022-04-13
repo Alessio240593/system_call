@@ -1,7 +1,7 @@
 ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
 
 # Syscall-project 
-`DAY LEFT: ~ 56GG`
+`DAYS LEFT: ~ 56GG`
 ---
 ### to do:
 #### CLIENT
