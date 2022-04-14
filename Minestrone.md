@@ -55,6 +55,20 @@ int check_size(const char *path){
 		return buffer.st_size <= 4096;
 	}
 }
+	   
+  
+
+int count_char(int fd){
+	ssize_t Br;
+	char buffer[MAXF_SIZE];
+
+	if((Br = read(fd, buffer, MAXF_SIZE)) == -1){
+		return -1;
+	}
+	else{
+		return Br - 1;
+	}
+}
 
   
 
@@ -320,7 +334,7 @@ void fixDirList(void)
 			perror("shmdt failed);
 		}
 		
-		//remove shared memory
+		//""remove"" shared memory !warning!
 		if (shmctl(shmid, IPC_RMID, NULL) == -1){
 			perror("shmctl failed"); 
 		else {
@@ -369,6 +383,8 @@ void fixDirList(void)
 			perror("shmget:");
 			exit(1);
 		}
+		
+		//attach shared memory
 
 		//create messange queue
 		if((int msgid = msgget(key_t key, int msgflg)) == -1){
