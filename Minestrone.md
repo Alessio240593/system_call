@@ -419,9 +419,4 @@ void fixDirList(void)
 	}
 	
 ```
-	
-
-
-
-
 
