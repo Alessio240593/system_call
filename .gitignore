@@ -4,4 +4,4 @@ obj
 bin
 .idea
 #**/CMakeLists.txt
-cmake-build-debug
+**/cmake-build-debug
