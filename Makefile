@@ -62,9 +62,18 @@ $(SERVER): $(OBJECTS) $(SERVER_OBJS)
 	$(CC) -o $(TARGETDIR)/$(SERVER) $^ $(LIB)
 
 # Compile
-$(BUILDDIR)/%.o: $(SRCDIR)/%.c $(CLIENT_DIR)/%.c $(SERVER_DIR)/%.c
+$(OBJECTS): $(SOURCES)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
+$(CLIENT_OBJS): $(SOURCES) $(CLIENT_SRCS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+$(SERVER_OBJS): $(SOURCES) $(SERVER_SRCS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+
 # Non-File Targets
-.PHONY: all remake clean cleaner
+.PHONY: all remake clean cleaner directories
