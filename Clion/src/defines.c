@@ -102,10 +102,10 @@ void client_sigint_handler(int sig)
         exit(EXIT_FAILURE);
     }
 
-    if ((chdir(argv[1])) == -1){
+   /* if ((chdir(argv[1])) == -1){
         perror("chdir");
         exit(EXIT_SUCCESS % sig);
-    }
+    }*/
 
     printf("Ciao %s, ora inizio l’invio dei file contenuti in %s",
            getenv("USER"), getenv("PWD"));
