@@ -10,22 +10,23 @@ SRCDIR = src
 CLIENT_DIR = $(SRCDIR)/client
 SERVER_DIR = $(SRCDIR)/server
 
-INCDIR = inc
-BUILDDIR  = obj
+INCDIR    = inc
+OBJDIR    = obj
 TARGETDIR = bin
 
 # Flags, Libraries and Includes
-CFLAGS = -Wall -Wextra -Werror -Wpedantic -std=gnu99
+#CFLAGS = -ansi -pedantic -Wall -Wextra -Werror
+CFLAGS = -std=gnu99 -Wall -Wextra -Werror -Wpedantic
 LIB    = -lm
 INC    = -I $(INCDIR)
 
-SOURCES = $(shell find $(SRCDIR) -type f -name *.c)
-CLIENT_SRCS = $(shell find $(CLIENT_DIR) -type f -name *.c)
-SERVER_SRCS = $(shell find $(SERVER_DIR) -type f -name *.c)
+SOURCES     = $(shell find $(SRCDIR) -maxdepth 1 -type f -name *.c)
+CLIENT_SRCS = $(shell find $(CLIENT_DIR) -maxdepth 1 -type f -name *.c)
+SERVER_SRCS = $(shell find $(SERVER_DIR) -maxdepth 1 -type f -name *.c)
 
-OBJECTS = $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.c=.o))
-CLIENT_OBJS = $(patsubst $(CLIENT_DIR)/%,$(BUILDDIR)/%,$(CLIENT_SRCS:.c=.o))
-SERVER_OBJS = $(patsubst $(SERVER_DIR)/%,$(BUILDDIR)/%,$(SERVER_SRCS:.c=.o))
+OBJECTS = $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(SOURCES:.c=.o))
+CLIENT_OBJS = $(patsubst $(CLIENT_DIR)/%,$(OBJDIR)/%,$(CLIENT_SRCS:.c=.o))
+SERVER_OBJS = $(patsubst $(SERVER_DIR)/%,$(OBJDIR)/%,$(SERVER_SRCS:.c=.o))
 
 
 RM = rm
@@ -33,6 +34,8 @@ RMFLAGS = -rf
 
 # Defauilt Make
 all: directories $(CLIENT) $(SERVER)
+client: directories $(CLIENT)
+server: directories $(SERVER)
 
 # Remake
 remake: cleaner all
@@ -40,11 +43,11 @@ remake: cleaner all
 # Make the Directories
 directories:
 	@mkdir -p $(TARGETDIR)
-	@mkdir -p $(BUILDDIR)
+	@mkdir -p $(OBJDIR)
 
 # Clean only Objecst
 clean:
-	@$(RM) $(RMFLAGS) $(BUILDDIR)
+	@$(RM) $(RMFLAGS) $(OBJDIR)
 	@ipcrm -a
 	@echo "Removed object files and executables..."
 
@@ -62,17 +65,18 @@ $(SERVER): $(OBJECTS) $(SERVER_OBJS)
 	$(CC) -o $(TARGETDIR)/$(SERVER) $^ $(LIB)
 
 # Compile
-$(OBJECTS): $(SOURCES)
+# $(OBJECTS): $(SOURCES)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
 $(CLIENT_OBJS): $(SOURCES) $(CLIENT_SRCS)
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
 $(SERVER_OBJS): $(SOURCES) $(SERVER_SRCS)
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
 
 # Non-File Targets

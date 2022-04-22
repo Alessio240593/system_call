@@ -2,4 +2,7 @@
 /// @brief Contiene la definizioni di variabili e
 ///         funzioni specifiche per la gestione delle FIFO.
 
-#pragma once
+#ifndef FIFO_H
+#define FIFO_H
+
+#endif
