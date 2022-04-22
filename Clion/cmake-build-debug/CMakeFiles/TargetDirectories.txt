@@ -1,4 +1,4 @@
-/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion/cmake-build-debug/CMakeFiles/server.dir
-/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion/cmake-build-debug/CMakeFiles/client0.dir
+/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug/CMakeFiles/server.dir
+/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug/CMakeFiles/client0.dir

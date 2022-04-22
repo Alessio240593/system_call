@@ -1,4 +1,4 @@
-/opt/clion-2021.3.4/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/opt/clion-2021.3.4/bin/ninja/linux/ninja -G Ninja /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion
+/opt/clion-2021.3.4/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/opt/clion-2021.3.4/bin/ninja/linux/ninja -G Ninja /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion
 -- The C compiler identification is GNU 11.2.0
 -- The CXX compiler identification is GNU 11.2.0
 -- Detecting C compiler ABI info
@@ -13,4 +13,4 @@
 -- Detecting CXX compile features - done
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion/cmake-build-debug
+-- Build files have been written to: /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug

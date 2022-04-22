@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion/cmake-build-debug"
+			"value" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -579,7 +579,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion"
+			"value" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -1111,7 +1111,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion/cmake-build-debug"
+			"value" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug"
 		},
 		{
 			"name" : "Clion_IS_TOP_LEVEL",
@@ -1135,7 +1135,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion"
+			"value" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion"
 		}
 	],
 	"kind" : "cache",

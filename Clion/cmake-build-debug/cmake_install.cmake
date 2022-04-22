@@ -1,4 +1,4 @@
-# Install script for directory: /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion
+# Install script for directory: /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

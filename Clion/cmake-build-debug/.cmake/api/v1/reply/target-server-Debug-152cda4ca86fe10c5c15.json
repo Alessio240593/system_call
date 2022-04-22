@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion/bin/client0"
+			"path" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/bin/server"
 		}
 	],
 	"backtrace" : 1,
@@ -25,7 +25,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 8,
+				"line" : 9,
 				"parent" : 0
 			},
 			{
@@ -52,11 +52,11 @@
 			[
 				{
 					"backtrace" : 2,
-					"path" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion/src"
+					"path" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/src"
 				},
 				{
 					"backtrace" : 2,
-					"path" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/system_call/Clion/inc"
+					"path" : "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/inc"
 				}
 			],
 			"language" : "C",
@@ -70,12 +70,11 @@
 			},
 			"sourceIndexes" : 
 			[
-				0,
-				1
+				0
 			]
 		}
 	],
-	"id" : "client0::@6890427a1f51a3e7e1df",
+	"id" : "server::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -91,8 +90,8 @@
 		],
 		"language" : "C"
 	},
-	"name" : "client0",
-	"nameOnDisk" : "client0",
+	"name" : "server",
+	"nameOnDisk" : "server",
 	"paths" : 
 	{
 		"build" : ".",
@@ -104,8 +103,7 @@
 			"name" : "Source Files",
 			"sourceIndexes" : 
 			[
-				0,
-				1
+				0
 			]
 		}
 	],
@@ -114,13 +112,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/client/client_0.c",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/defines.c",
+			"path" : "src/server/server.c",
 			"sourceGroupIndex" : 0
 		}
 	],
