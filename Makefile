@@ -1,37 +1,70 @@
-CFLAGS   = -Wall -std=gnu99
-INCLUDES = -I .
-OBJDIR   = obj
+# Compiler and Linker
+CC = gcc
 
-CLIENT_SRCS = defines.c err_exit.c shared_memory.c semaphore.c fifo.c client_0.c
-CLIENT_OBJS = $(addprefix $(OBJDIR)/, $(CLIENT_SRCS:.c=.o))
+# The Target Binary Program
+CLIENT = client_0
+SERVER = server
 
-SERVER_SRCS = defines.c err_exit.c shared_memory.c semaphore.c fifo.c server.c
-SERVER_OBJS = $(addprefix $(OBJDIR)/, $(SERVER_SRCS:.c=.o))
+# Directories, Source, Includes, Objects and Binary
+SRCDIR = src
+CLIENT_DIR = $(SRCDIR)/client
+SERVER_DIR = $(SRCDIR)/server
 
-all: $(OBJDIR) client_0 server
+INCDIR = inc
+BUILDDIR  = obj
+TARGETDIR = bin
 
-client_0: $(CLIENT_OBJS)
-	@echo "Making executable: "$@
-	@$(CC) $^ -o $@  -lm
+# Flags, Libraries and Includes
+CFLAGS = -Wall -Wextra -Werror -Wpedantic -std=gnu99
+LIB    = -lm
+INC    = -I $(INCDIR)
 
-server: $(SERVER_OBJS)
-	@echo "Making executable: "$@
-	@$(CC) $^ -o $@  -lm
+SOURCES = $(shell find $(SRCDIR) -type f -name *.c)
+CLIENT_SRCS = $(shell find $(CLIENT_DIR) -type f -name *.c)
+SERVER_SRCS = $(shell find $(SERVER_DIR) -type f -name *.c)
+
+OBJECTS = $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.c=.o))
+CLIENT_OBJS = $(patsubst $(CLIENT_DIR)/%,$(BUILDDIR)/%,$(CLIENT_SRCS:.c=.o))
+SERVER_OBJS = $(patsubst $(SERVER_DIR)/%,$(BUILDDIR)/%,$(SERVER_SRCS:.c=.o))
 
 
-$(OBJDIR):
-	@mkdir -p $(OBJDIR)
+RM = rm
+RMFLAGS = -rf
 
-$(OBJDIR)/%.o: %.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+# Defauilt Make
+all: directories $(CLIENT) $(SERVER)
 
+# Remake
+remake: cleaner all
+
+# Make the Directories
+directories:
+	@mkdir -p $(TARGETDIR)
+	@mkdir -p $(BUILDDIR)
+
+# Clean only Objecst
 clean:
-	@rm -vf ${CLIENT_OBJS}
-	@rm -vf ${SERVER_OBJS}
-	@rm -vf client_0
-	@rm -vf server
-	@rm -rf ${OBJDIR}
+	@$(RM) $(RMFLAGS) $(BUILDDIR)
 	@ipcrm -a
 	@echo "Removed object files and executables..."
 
-.PHONY: run clean
+# Full Clean, Objects and Binaries
+cleaner: clean
+	@$(RM) $(RMFLAGS) $(TARGETDIR)
+
+# Link
+$(CLIENT): $(OBJECTS) $(CLIENT_OBJS)
+	@echo "Making client executable: "$@
+	$(CC) -o $(TARGETDIR)/$(CLIENT) $^ $(LIB)
+
+$(SERVER): $(OBJECTS) $(SERVER_OBJS)
+	@echo "Making server executable: "$@
+	$(CC) -o $(TARGETDIR)/$(SERVER) $^ $(LIB)
+
+# Compile
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c $(CLIENT_DIR)/%.c $(SERVER_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+# Non-File Targets
+.PHONY: all remake clean cleaner
