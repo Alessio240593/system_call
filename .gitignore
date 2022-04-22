@@ -1,0 +1,6 @@
+**/*.o
+
+obj
+bin
+.idea
+CMakeLists.txt
