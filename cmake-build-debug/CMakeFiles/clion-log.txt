@@ -1,8 +1,0 @@
-/opt/clion-2021.3.4/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/opt/clion-2021.3.4/bin/ninja/linux/ninja -G Ninja /home/alessio/Scrivania/progetto/sistemi_operativi/system_call
-CMake Error: File /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Config.h.in does not exist.
-CMake Error at CMakeLists.txt:9 (configure_file):
-  configure_file Problem configuring file
-
-
--- Configuring incomplete, errors occurred!
-See also "/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug/CMakeFiles/CMakeOutput.log".
