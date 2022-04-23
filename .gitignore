@@ -1,7 +1,5 @@
 **/*.o
-
-obj
 bin
 .idea
-#**/CMakeLists.txt
-**/cmake-build-debug
+CMakeLists.txt
+cmake-build-debug
