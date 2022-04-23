@@ -11,7 +11,7 @@
 # =============================================================================
 
 # =============================================================================
-# Project: Clion
+# Project: system_call
 # Configurations: Debug
 # =============================================================================
 
@@ -39,13 +39,13 @@ include CMakeFiles/rules.ninja
 #############################################
 # Logical path to working directory; prefix for absolute paths.
 
-cmake_ninja_workdir = /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug/
+cmake_ninja_workdir = /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug/
 
 #############################################
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug && /opt/clion-2021.3.4/bin/cmake/linux/bin/cmake --regenerate-during-build -S/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion -B/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug
+  COMMAND = cd /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug && /opt/clion-2021.3.4/bin/cmake/linux/bin/cmake --regenerate-during-build -S/home/alessio/Scrivania/progetto/sistemi_operativi/system_call -B/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -59,16 +59,14 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 #############################################
 # Order-only phony target for server
 
-build cmake_object_order_depends_target_server: phony || CMakeFiles/server.dir
+build cmake_object_order_depends_target_server: phony || cmake_object_order_depends_target_clib cmake_object_order_depends_target_lib
 
-build CMakeFiles/server.dir/src/server/server.c.o: C_COMPILER__server_Debug /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/src/server/server.c || cmake_object_order_depends_target_server
-  DEP_FILE = CMakeFiles/server.dir/src/server/server.c.o.d
+build CMakeFiles/server.dir/src/server.c.o: C_COMPILER__server_Debug /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src/server.c || cmake_object_order_depends_target_server
+  DEP_FILE = CMakeFiles/server.dir/src/server.c.o.d
   FLAGS = -g -std=gnu11
-  INCLUDES = -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/src -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/inc
+  INCLUDES = -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/inc -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/bin
   OBJECT_DIR = CMakeFiles/server.dir
-  OBJECT_FILE_DIR = CMakeFiles/server.dir/src/server
-  TARGET_COMPILE_PDB = CMakeFiles/server.dir/
-  TARGET_PDB = ../bin/server.pdb
+  OBJECT_FILE_DIR = CMakeFiles/server.dir/src
 
 
 # =============================================================================
@@ -78,21 +76,21 @@ build CMakeFiles/server.dir/src/server/server.c.o: C_COMPILER__server_Debug /hom
 #############################################
 # Link the executable ../bin/server
 
-build ../bin/server: C_EXECUTABLE_LINKER__server_Debug CMakeFiles/server.dir/src/server/server.c.o
+build ../bin/server: C_EXECUTABLE_LINKER__server_Debug CMakeFiles/server.dir/src/server.c.o | inc/liblib.a src/libclib.a || inc/liblib.a src/libclib.a
   FLAGS = -g
+  LINK_LIBRARIES = inc/liblib.a  src/libclib.a
   OBJECT_DIR = CMakeFiles/server.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/server.dir/
   TARGET_FILE = ../bin/server
-  TARGET_PDB = ../bin/server.pdb
+  TARGET_PDB = server.dbg
 
 
 #############################################
 # Utility command for edit_cache
 
 build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug && /opt/clion-2021.3.4/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  COMMAND = cd /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug && /opt/clion-2021.3.4/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -105,25 +103,14 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 #############################################
 # Order-only phony target for client0
 
-build cmake_object_order_depends_target_client0: phony || CMakeFiles/client0.dir
+build cmake_object_order_depends_target_client0: phony || cmake_object_order_depends_target_clib cmake_object_order_depends_target_lib
 
-build CMakeFiles/client0.dir/src/client/client_0.c.o: C_COMPILER__client0_Debug /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/src/client/client_0.c || cmake_object_order_depends_target_client0
-  DEP_FILE = CMakeFiles/client0.dir/src/client/client_0.c.o.d
+build CMakeFiles/client0.dir/src/client_0.c.o: C_COMPILER__client0_Debug /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src/client_0.c || cmake_object_order_depends_target_client0
+  DEP_FILE = CMakeFiles/client0.dir/src/client_0.c.o.d
   FLAGS = -g -std=gnu11
-  INCLUDES = -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/src -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/inc
-  OBJECT_DIR = CMakeFiles/client0.dir
-  OBJECT_FILE_DIR = CMakeFiles/client0.dir/src/client
-  TARGET_COMPILE_PDB = CMakeFiles/client0.dir/
-  TARGET_PDB = ../bin/client0.pdb
-
-build CMakeFiles/client0.dir/src/defines.c.o: C_COMPILER__client0_Debug /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/src/defines.c || cmake_object_order_depends_target_client0
-  DEP_FILE = CMakeFiles/client0.dir/src/defines.c.o.d
-  FLAGS = -g -std=gnu11
-  INCLUDES = -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/src -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/inc
+  INCLUDES = -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/inc -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/bin
   OBJECT_DIR = CMakeFiles/client0.dir
   OBJECT_FILE_DIR = CMakeFiles/client0.dir/src
-  TARGET_COMPILE_PDB = CMakeFiles/client0.dir/
-  TARGET_PDB = ../bin/client0.pdb
 
 
 # =============================================================================
@@ -133,19 +120,168 @@ build CMakeFiles/client0.dir/src/defines.c.o: C_COMPILER__client0_Debug /home/al
 #############################################
 # Link the executable ../bin/client0
 
-build ../bin/client0: C_EXECUTABLE_LINKER__client0_Debug CMakeFiles/client0.dir/src/client/client_0.c.o CMakeFiles/client0.dir/src/defines.c.o
+build ../bin/client0: C_EXECUTABLE_LINKER__client0_Debug CMakeFiles/client0.dir/src/client_0.c.o | inc/liblib.a src/libclib.a || inc/liblib.a src/libclib.a
   FLAGS = -g
+  LINK_LIBRARIES = inc/liblib.a  src/libclib.a
   OBJECT_DIR = CMakeFiles/client0.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/client0.dir/
   TARGET_FILE = ../bin/client0
-  TARGET_PDB = ../bin/client0.pdb
+  TARGET_PDB = client0.dbg
+
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/CMakeLists.txt
+# =============================================================================
+
+
+#############################################
+# Utility command for edit_cache
+
+build inc/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug/inc && /opt/clion-2021.3.4/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  DESC = No interactive CMake dialog available...
+  restat = 1
+
+build inc/edit_cache: phony inc/CMakeFiles/edit_cache.util
+
+
+#############################################
+# Utility command for rebuild_cache
+
+build inc/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug/inc && /opt/clion-2021.3.4/bin/cmake/linux/bin/cmake --regenerate-during-build -S/home/alessio/Scrivania/progetto/sistemi_operativi/system_call -B/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+
+build inc/rebuild_cache: phony inc/CMakeFiles/rebuild_cache.util
+
+# =============================================================================
+# Object build statements for STATIC_LIBRARY target lib
+
+
+#############################################
+# Order-only phony target for lib
+
+build cmake_object_order_depends_target_lib: phony || inc/CMakeFiles/lib.dir
+
+
+# =============================================================================
+# Link build statements for STATIC_LIBRARY target lib
+
+
+#############################################
+# Link the static library inc/liblib.a
+
+build inc/liblib.a: C_STATIC_LIBRARY_LINKER__lib_Debug
+  LANGUAGE_COMPILE_FLAGS = -g
+  OBJECT_DIR = inc/CMakeFiles/lib.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = inc/liblib.a
+  TARGET_PDB = lib.a.dbg
+
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/CMakeLists.txt
+# =============================================================================
+
+
+#############################################
+# Utility command for rebuild_cache
+
+build src/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug/src && /opt/clion-2021.3.4/bin/cmake/linux/bin/cmake --regenerate-during-build -S/home/alessio/Scrivania/progetto/sistemi_operativi/system_call -B/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+
+build src/rebuild_cache: phony src/CMakeFiles/rebuild_cache.util
+
+
+#############################################
+# Utility command for edit_cache
+
+build src/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug/src && /opt/clion-2021.3.4/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  DESC = No interactive CMake dialog available...
+  restat = 1
+
+build src/edit_cache: phony src/CMakeFiles/edit_cache.util
+
+# =============================================================================
+# Object build statements for STATIC_LIBRARY target clib
+
+
+#############################################
+# Order-only phony target for clib
+
+build cmake_object_order_depends_target_clib: phony || src/CMakeFiles/clib.dir
+
+build src/CMakeFiles/clib.dir/defines.c.o: C_COMPILER__clib_Debug /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src/defines.c || cmake_object_order_depends_target_clib
+  DEP_FILE = src/CMakeFiles/clib.dir/defines.c.o.d
+  FLAGS = -g -std=gnu11
+  INCLUDES = -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/inc -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/bin
+  OBJECT_DIR = src/CMakeFiles/clib.dir
+  OBJECT_FILE_DIR = src/CMakeFiles/clib.dir
+
+build src/CMakeFiles/clib.dir/err_exit.c.o: C_COMPILER__clib_Debug /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src/err_exit.c || cmake_object_order_depends_target_clib
+  DEP_FILE = src/CMakeFiles/clib.dir/err_exit.c.o.d
+  FLAGS = -g -std=gnu11
+  INCLUDES = -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/inc -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/bin
+  OBJECT_DIR = src/CMakeFiles/clib.dir
+  OBJECT_FILE_DIR = src/CMakeFiles/clib.dir
+
+build src/CMakeFiles/clib.dir/fifo.c.o: C_COMPILER__clib_Debug /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src/fifo.c || cmake_object_order_depends_target_clib
+  DEP_FILE = src/CMakeFiles/clib.dir/fifo.c.o.d
+  FLAGS = -g -std=gnu11
+  INCLUDES = -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/inc -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/bin
+  OBJECT_DIR = src/CMakeFiles/clib.dir
+  OBJECT_FILE_DIR = src/CMakeFiles/clib.dir
+
+build src/CMakeFiles/clib.dir/semaphore.c.o: C_COMPILER__clib_Debug /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src/semaphore.c || cmake_object_order_depends_target_clib
+  DEP_FILE = src/CMakeFiles/clib.dir/semaphore.c.o.d
+  FLAGS = -g -std=gnu11
+  INCLUDES = -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/inc -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/bin
+  OBJECT_DIR = src/CMakeFiles/clib.dir
+  OBJECT_FILE_DIR = src/CMakeFiles/clib.dir
+
+build src/CMakeFiles/clib.dir/shared_memory.c.o: C_COMPILER__clib_Debug /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src/shared_memory.c || cmake_object_order_depends_target_clib
+  DEP_FILE = src/CMakeFiles/clib.dir/shared_memory.c.o.d
+  FLAGS = -g -std=gnu11
+  INCLUDES = -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/src -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/inc -I/home/alessio/Scrivania/progetto/sistemi_operativi/system_call/bin
+  OBJECT_DIR = src/CMakeFiles/clib.dir
+  OBJECT_FILE_DIR = src/CMakeFiles/clib.dir
+
+
+# =============================================================================
+# Link build statements for STATIC_LIBRARY target clib
+
+
+#############################################
+# Link the static library src/libclib.a
+
+build src/libclib.a: C_STATIC_LIBRARY_LINKER__clib_Debug src/CMakeFiles/clib.dir/defines.c.o src/CMakeFiles/clib.dir/err_exit.c.o src/CMakeFiles/clib.dir/fifo.c.o src/CMakeFiles/clib.dir/semaphore.c.o src/CMakeFiles/clib.dir/shared_memory.c.o
+  LANGUAGE_COMPILE_FLAGS = -g
+  OBJECT_DIR = src/CMakeFiles/clib.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = src/libclib.a
+  TARGET_PDB = clib.a.dbg
 
 # =============================================================================
 # Target aliases.
 
+build clib: phony src/libclib.a
+
 build client0: phony ../bin/client0
+
+build lib: phony inc/liblib.a
+
+build libclib.a: phony src/libclib.a
+
+build liblib.a: phony inc/liblib.a
 
 build server: phony ../bin/server
 
@@ -155,9 +291,23 @@ build server: phony ../bin/server
 # =============================================================================
 
 #############################################
-# Folder: /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/Clion/cmake-build-debug
+# Folder: /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug
 
-build all: phony ../bin/server ../bin/client0
+build all: phony ../bin/server ../bin/client0 inc/all src/all
+
+# =============================================================================
+
+#############################################
+# Folder: /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug/inc
+
+build inc/all: phony inc/liblib.a
+
+# =============================================================================
+
+#############################################
+# Folder: /home/alessio/Scrivania/progetto/sistemi_operativi/system_call/cmake-build-debug/src
+
+build src/all: phony src/libclib.a
 
 # =============================================================================
 # Built-in targets
@@ -166,14 +316,14 @@ build all: phony ../bin/server ../bin/client0
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja: RERUN_CMAKE | ../CMakeLists.txt /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCCompiler.cmake.in /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCCompilerABI.c /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCXXCompiler.cmake.in /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCXXCompilerABI.cpp /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCXXInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCommonLanguageInclude.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCompilerIdDetection.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCXXCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCompileFeatures.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCompilerABI.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCompilerId.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineSystem.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeFindBinUtils.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeGenericSystem.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeInitializeConfigs.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeLanguageInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeParseImplicitIncludeInfo.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeParseImplicitLinkInfo.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeParseLibraryArchitecture.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeSystem.cmake.in /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeSystemSpecificInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeSystemSpecificInitialize.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeTestCCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeTestCXXCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeTestCompilerCommon.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/ADSP-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/ARMCC-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/ARMClang-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/AppleClang-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Borland-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Bruce-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/CMakeCommonCompilerMacros.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Clang-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Clang-DetermineCompilerInternal.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Comeau-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Compaq-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Cray-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Embarcadero-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Fujitsu-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GHS-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-C.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-CXX.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-FindBinUtils.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/HP-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/HP-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/IAR-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/IBMCPP-C-DetermineVersionInternal.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Intel-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/MSVC-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/NVHPC-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/NVIDIA-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/PGI-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/PathScale-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/ROCMClang-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/SCO-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/SDCC-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/SunPro-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/TI-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/TinyCC-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/VisualAge-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Watcom-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/XL-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/XL-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/XLClang-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/zOS-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Internal/FeatureTesting.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-Determine-CXX.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU-C.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU-CXX.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.21.1/CMakeCCompiler.cmake CMakeFiles/3.21.1/CMakeCXXCompiler.cmake CMakeFiles/3.21.1/CMakeSystem.cmake
+build build.ninja: RERUN_CMAKE | ../CMakeLists.txt ../inc/CMakeLists.txt ../src/CMakeLists.txt /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCXXInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCommonLanguageInclude.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeGenericSystem.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeInitializeConfigs.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeLanguageInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeSystemSpecificInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeSystemSpecificInitialize.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/CMakeCommonCompilerMacros.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-C.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-CXX.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU-C.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU-CXX.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.21.1/CMakeCCompiler.cmake CMakeFiles/3.21.1/CMakeCXXCompiler.cmake CMakeFiles/3.21.1/CMakeSystem.cmake
   pool = console
 
 
 #############################################
 # A missing CMake input file is not an error.
 
-build ../CMakeLists.txt /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCCompiler.cmake.in /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCCompilerABI.c /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCXXCompiler.cmake.in /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCXXCompilerABI.cpp /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCXXInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCommonLanguageInclude.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCompilerIdDetection.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCXXCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCompileFeatures.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCompilerABI.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineCompilerId.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeDetermineSystem.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeFindBinUtils.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeGenericSystem.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeInitializeConfigs.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeLanguageInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeParseImplicitIncludeInfo.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeParseImplicitLinkInfo.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeParseLibraryArchitecture.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeSystem.cmake.in /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeSystemSpecificInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeSystemSpecificInitialize.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeTestCCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeTestCXXCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeTestCompilerCommon.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/ADSP-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/ARMCC-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/ARMClang-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/AppleClang-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Borland-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Bruce-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/CMakeCommonCompilerMacros.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Clang-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Clang-DetermineCompilerInternal.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Comeau-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Compaq-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Cray-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Embarcadero-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Fujitsu-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GHS-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-C.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-CXX.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-FindBinUtils.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/HP-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/HP-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/IAR-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/IBMCPP-C-DetermineVersionInternal.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Intel-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/MSVC-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/NVHPC-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/NVIDIA-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/PGI-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/PathScale-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/ROCMClang-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/SCO-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/SDCC-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/SunPro-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/TI-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/TinyCC-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/VisualAge-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/Watcom-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/XL-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/XL-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/XLClang-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/zOS-C-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Internal/FeatureTesting.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-Determine-CXX.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU-C.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU-CXX.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.21.1/CMakeCCompiler.cmake CMakeFiles/3.21.1/CMakeCXXCompiler.cmake CMakeFiles/3.21.1/CMakeSystem.cmake: phony
+build ../CMakeLists.txt ../inc/CMakeLists.txt ../src/CMakeLists.txt /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCXXInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeCommonLanguageInclude.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeGenericSystem.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeInitializeConfigs.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeLanguageInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeSystemSpecificInformation.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/CMakeSystemSpecificInitialize.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/CMakeCommonCompilerMacros.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-C.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU-CXX.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Compiler/GNU.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU-C.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU-CXX.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux-GNU.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/Linux.cmake /opt/clion-2021.3.4/bin/cmake/linux/share/cmake-3.21/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.21.1/CMakeCCompiler.cmake CMakeFiles/3.21.1/CMakeCXXCompiler.cmake CMakeFiles/3.21.1/CMakeSystem.cmake: phony
 
 
 #############################################

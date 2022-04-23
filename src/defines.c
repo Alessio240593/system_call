@@ -83,34 +83,6 @@ int count_char(int fd)
     return Br - 1;
 }
 
-void sigusr1_handler(int sig)
-{
-    exit(EXIT_SUCCESS % sig);
-}
-
-void client_sigint_handler(int sig)
-{
-    sigset_t mySet;
-
-    if ((sigfillset(&mySet)) == -1){
-        perror("sigfillset");
-        exit(EXIT_FAILURE);
-    }
-
-    if ((sigprocmask(SIG_SETMASK, &mySet, NULL)) == -1){
-        perror("sigprocmask");
-        exit(EXIT_FAILURE);
-    }
-
-   /* if ((chdir(argv[1])) == -1){
-        perror("chdir");
-        exit(EXIT_SUCCESS % sig);
-    }*/
-
-    printf("Ciao %s, ora inizio l’invio dei file contenuti in %s",
-           getenv("USER"), getenv("PWD"));
-}
-
 static int strCompare(const void *this, const void *other)
 {
     return strcmp(*(const char**)this, *(const char**)other);
