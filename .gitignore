@@ -1,5 +1,5 @@
 **/*.o
 bin
+build
 .idea
-CMakeLists.txt
 cmake-build-debug
