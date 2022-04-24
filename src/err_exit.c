@@ -1,5 +1,6 @@
-/// @file err_exit.c
-/// @brief Contiene l'implementazione della funzione di stampa degli errori.
+/** @file err_exit.c
+ *  @brief Contiene l'implementazione della funzione di stampa degli errori.
+ */
 
 #include "err_exit.h"
 
@@ -8,7 +9,8 @@
 #include <stdio.h>
 #include <errno.h>
 
-void errExit(const char *msg) {
+void errExit(const char *msg)
+{
     perror(msg);
     exit(EXIT_FAILURE);
 }

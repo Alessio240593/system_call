@@ -1,5 +1,6 @@
-/// @file sender_manager.c
-/// @brief Contiene l'implementazione del sender_manager.
+/** @file sender_manager.c
+ *  @brief Contiene l'implementazione del sender_manager.
+*/
 
 #include "err_exit.h"
 #include "defines.h"
@@ -7,6 +8,7 @@
 #include "semaphore.h"
 #include "fifo.h"
 
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
     return 0;
 }

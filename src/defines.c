@@ -11,14 +11,9 @@
 
 #include "defines.h"
 
-#define MAX_PATH  512
-#define MAX_FILE_SIZE 4096
-
-
-char **dirList;
-size_t listIndex = 0;
-size_t listSize = 1;
-
+extern char **dirList;
+extern size_t listIndex;
+extern size_t listSize;
 
 /**
  * Controlla se string2 inizia con gli stessi caratteri di string1
@@ -51,17 +46,17 @@ int check_string(const char* string1, char* string2)
 **/
 int check_size(const char *path)
 {
-    if(path == NULL){
+    if (path == NULL){
         return -1;
     }
 
     struct stat buffer;
 
-    if((stat(path, &buffer)) == -1){
+    if ((stat(path, &buffer)) == -1) {
         perror("stat");
         return -1;
     }
-    else if(!S_ISREG(buffer.st_mode)){
+    else if (!S_ISREG(buffer.st_mode)) {
         printf("File isn't regular file!\n");
         return -1;
     }
@@ -70,9 +65,9 @@ int check_size(const char *path)
     }
 }
 
-int count_char(int fd)
+ssize_t count_char(int fd)
 {
-    size_t Br;
+    ssize_t Br;
     char buffer[MAX_FILE_SIZE + 1];
 
     Br = read(fd, buffer, MAX_FILE_SIZE);
@@ -82,7 +77,7 @@ int count_char(int fd)
     return Br - 1;
 }
 
-static int strCompare(const void *this, const void *other)
+int strCompare(const void *this, const void *other)
 {
     return strcmp(*(const char**)this, *(const char**)other);
 }
@@ -101,8 +96,8 @@ void getDirList(const char *startPath)
     while ((de = readdir(dp)) != NULL)
     {
         if (strcmp(de->d_name, ".") != 0
-            && strcmp(de->d_name, "..") != 0
-            && de->d_type == DT_DIR)
+            && strcmp(de->d_name, "..") != 0)
+            //&& de->d_type == DT_DIR)
         {
 
             if (listIndex + 1 > listSize) {
@@ -135,7 +130,6 @@ void fixDirList(void)
     size_t t = 1;
     size_t k;
 
-
     qsort(dirList, listIndex, sizeof(const char *), strCompare);
 
     while (i < listIndex) {
@@ -158,4 +152,22 @@ void fixDirList(void)
     listIndex = t + 1;
 
     dirList = (char **) realloc(dirList, (listIndex) * sizeof(char *));
+}
+
+void dumpDirList(const char *filename)
+{
+    FILE *fp;
+    size_t i;
+
+    fp = fopen(filename, "w");
+    if (fp == NULL) {
+        fprintf(stderr, "Failed to open file %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    for (i = 0; i < listIndex; i++)
+        fprintf(fp, "%s\n", dirList[i]);
+
+
+    fclose(fp);
 }

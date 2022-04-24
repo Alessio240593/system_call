@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 project(system_call VERSION 1.0)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Ofast -Wall -pedantic")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wextra -Werror -Wpedantic")
 set(BIN "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN})
 #set(FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
