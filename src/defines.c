@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <signal.h>
 #include <dirent.h>
 #include <sys/stat.h>
 
@@ -73,8 +72,8 @@ int check_size(const char *path)
 
 int count_char(int fd)
 {
-    ssize_t Br;
-    char buffer[MAX_FILE_SIZE];
+    size_t Br;
+    char buffer[MAX_FILE_SIZE + 1];
 
     Br = read(fd, buffer, MAX_FILE_SIZE);
     // the fd is now reusable
