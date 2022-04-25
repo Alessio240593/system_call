@@ -3,11 +3,8 @@
 # Syscall-project 
 [countdown](https://free.timeanddate.com/countdown/i8aabgkf/n2177/cf101/cm0/cu4/ct0/cs0/ca0/co0/cr0/ss0/cac000/cpc000/pcd8873c/tcfff/fs400/szw2251/szh950/iso2022-06-08T00:00:00/bas2)
 ---
-### to do:
-#### CLIENT
-1.  accede a tutte le cartelle presenti nella sua directory corrente e carica in memoria tutti i
-percorsi dei file il cui nome inizia con la stringa “sendme_” e la dimensione è inferiore a
-4KByte
+### _to do:_
+#### `CLIENT`
 
 1. determina il numero “n” di questi file e lo invia tramite FIFO1 al server (percorso rosso in
 Fig 1), poi si mette in attesa di conferma dal server su ShrMem.
@@ -36,8 +33,10 @@ informa che tutti i file di output sono stati creati dal server stesso e che il 
 
 1. una volta ricevuto tale messaggio Client_0 sblocca i segnali SIGINT e SIGUSR1 e si rimette
 in attesa di ricevere uno dei due segnali.
+---
 
-#### SERVER
+
+#### `SERVER`
 1. Il processo Server, alla ricezione da FIFO1 del numero “n” di file trasmessi dal client (percorso
 rosso in Figura 1)
 - memorizza tale numero
@@ -64,19 +63,27 @@ conclusione lavori.
 1. si rimette in attesa su FIFO 1 di un nuovo valore n.
 
 ---
+![alt_text](https://upload.wikimedia.org/wikipedia/commons/d/dd/Linux_logo.jpg)
+
 ---
 
-### to check:
-#### CLIENT
-1. blocca tutti i segnali (compresi SIGUSR1 e SIGINT) modificando la maschera.
+### _to check:_
+####  `CLIENT`
  
 1. imposta la sua directory corrente ad un path passato da linea di comando all’avvio del
-programma.
+programma (controllare Chdir in defines.c).
 
 1. saluta l’utente stampando a video la stringa “Ciao USER, ora inizio l’invio dei file contenuti
-in CURRDIR”, dove USER e’ il nome utente e CURRDIR è la directory corrente.
+in CURRDIR”, dove USER e’ il nome utente e CURRDIR è la directory corrente (facciamo il controllo su getenv? secondo me non serve, dato che passiamo noi una stringa come parametro).
 
-#### SERVER
+1.  accede a tutte le cartelle presenti nella sua directory corrente e carica in memoria tutti i
+percorsi dei file il cui nome inizia con la stringa “sendme_” e la dimensione è inferiore a
+4KByte (le funzioni per il controllo della size e per il controllo delle iniziali vanno bene?
+la funzione di Mik lavora correttamente?)
+
+---
+
+#### `SERVER`
 1. Un processo Server genera due FIFO (FIFO1 e FIFO2), una coda di messaggi (MsgQueue), un
 segmento di memoria condivisa (ShdMem) ed un set di semafori per gestire la concorrenza su
 alcuni di questi strumenti di comunicazione.
@@ -87,10 +94,5 @@ termina.
 
 
 
-![alt_text](https://upload.wikimedia.org/wikipedia/commons/d/dd/Linux_logo.jpg)
 
 
-Entity | Parts | Complete
---- | --- |---
-C | 1 | N
-C | 2 | N

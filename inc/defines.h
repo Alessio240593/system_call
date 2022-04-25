@@ -20,6 +20,7 @@ int strCompare(const void *this, const void *other);
 void getDirList(const char *startPath);
 void fixDirList(void);
 void dumpDirList(const char *filename);
+void Chdir(const char* path);
 
 
 #endif

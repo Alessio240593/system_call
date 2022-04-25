@@ -42,21 +42,15 @@ void sigint_handler(int sig)
         exit(EXIT_FAILURE);
     }
 
-    if ((chdir(path)) == -1) {
-        perror("chdir");
-        exit(EXIT_FAILURE);
-    }
-
-    /*
+    Chdir(path);
+/*
     char *buffer = (char *) calloc(MAX_PATH, sizeof(char));
     if (buffer == NULL) {
         errExit("malloc ");
     }
     getcwd(buffer, MAX_PATH);
     buffer = (char *) realloc(buffer, strlen(buffer) * sizeof(char));
-    */
-    setenv("PWD", path, 1);
-
+*/
     printf("Ciao %s, ora inizio l’invio dei file contenuti in %s\n", getenv("USER"), getenv("PWD"));
 
     printf("3\n");

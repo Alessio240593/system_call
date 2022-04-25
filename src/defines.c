@@ -171,3 +171,21 @@ void dumpDirList(const char *filename)
 
     fclose(fp);
 }
+
+/**
+ * Cambia la working directory con <path>, aggiorna la variabile d'ambiente "PWD" con il nuovo valore
+ * Assume che <path> sia regolare.
+ * @param path - nuova working directory
+**/
+void Chdir(const char* path)
+{
+    if ((chdir(path)) == -1) {
+        perror("chdir");
+        exit(EXIT_FAILURE);
+    }
+
+    if ((setenv("PWD", path, 1)) == -1) {
+        perror("setenv");
+        exit(EXIT_FAILURE);
+    }
+}
