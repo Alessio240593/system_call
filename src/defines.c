@@ -159,7 +159,7 @@ void dumpDirList(const char *filename)
     FILE *fp;
     size_t i;
 
-    fp = fopen(filename, "w");
+    fp = fopen(filename, "w");// fopen?! is legal??
     if (fp == NULL) {
         fprintf(stderr, "Failed to open file %s\n", filename);
         exit(EXIT_FAILURE);
@@ -177,7 +177,7 @@ void dumpDirList(const char *filename)
  * Assume che <path> sia regolare.
  * @param path - nuova working directory
 **/
-void Chdir(const char* path)
+void Chdir(const char *path)
 {
     if ((chdir(path)) == -1) {
         perror("chdir");
