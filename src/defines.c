@@ -70,7 +70,7 @@ int check_size(const char *path)
  * @return Br - numero di caratteri del file
  * @return -1 - in caso di errore delle system call
 **/
-size_t count_char(int fd)
+ssize_t count_char(int fd)
 {
     ssize_t Br;
     char buffer[MAX_FILE_SIZE + 1];
@@ -164,12 +164,13 @@ void fixDirList(void)
     dirList = (char **) realloc(dirList, (listIndex) * sizeof(char *));
 }
 
+/// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
 void dumpDirList(const char *filename)
 {
     FILE *fp;
     size_t i;
 
-    fp = fopen(filename, "w");// fopen?! is legal??
+    fp = fopen(filename, "w");
     if (fp == NULL) {
         fprintf(stderr, "Failed to open file %s\n", filename);
         exit(EXIT_FAILURE);
@@ -187,15 +188,19 @@ void dumpDirList(const char *filename)
  * Assume che <path> sia regolare.
  * @param path - nuova working directory
 **/
-void Chdir(const char *path)
+int Chdir(const char *path)
 {
-    if ((chdir(path)) == -1) {
+    int ret = 0;
+
+    if ((chdir(path)) != 0) {
         perror("chdir");
-        exit(EXIT_FAILURE);
+        ret = 1;
     }
 
     if ((setenv("PWD", path, 1)) == -1) {
         perror("setenv");
-        exit(EXIT_FAILURE);
+        ret = -1;
     }
+
+    return ret;
 }
