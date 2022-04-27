@@ -23,18 +23,17 @@ extern size_t listSize;
  * @return 0 - se stroing2 non inizia con string1
  * @return -1 - in caso di stringhe non valide
 **/
-int check_string(const char* string1, char* string2)
+int check_string(const char *string1, char *string2)
 {
     if (string1 == NULL || string2 == NULL ||
-        strlen(string1) > strlen(string2))
-    {
+        strlen(string1) > strlen(string2)) {
         return -1;
     }
 
     size_t i;
     for (i = 0; string1[i] == string2[i]; i++);
-    return (i == strlen(string1)) ? 1 : 0;
 
+    return (i == strlen(string1)) ? 1 : 0;
 }
 
 /**
@@ -46,7 +45,7 @@ int check_string(const char* string1, char* string2)
 **/
 int check_size(const char *path)
 {
-    if (path == NULL){
+    if (path == NULL) {
         return -1;
     }
 
@@ -65,14 +64,25 @@ int check_size(const char *path)
     }
 }
 
-ssize_t count_char(int fd)
+/**
+ * Conta il numero di caratteri del file passato come parametro
+ * @param fd - file descriptor del file
+ * @return Br - numero di caratteri del file
+ * @return -1 - in caso di errore delle system call
+**/
+size_t count_char(int fd)
 {
     ssize_t Br;
     char buffer[MAX_FILE_SIZE + 1];
 
-    Br = read(fd, buffer, MAX_FILE_SIZE);
+    if((Br = read(fd, buffer, MAX_FILE_SIZE)) == -1){
+        return -1;
+    }
+
     // the fd is now reusable
-    lseek(fd, 0, SEEK_SET);
+    if(lseek(fd, 0, SEEK_SET) == -1){
+        return -1;
+    }
 
     return Br - 1;
 }
