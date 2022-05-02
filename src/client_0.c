@@ -53,29 +53,28 @@ void sigint_handler(int sig)
 */
     printf("Ciao %s, ora inizio l’invio dei file contenuti in %s\n", getenv("USER"), getenv("PWD"));
 
-    printf("3\n");
+    /* dirlist declaration and initialization */
+    dirlist_t *dir_list = (dirlist_t *) malloc(sizeof(dirlist_t));
+    MCHECK_V(dir_list);
 
-    listIndex = 0;
-    listSize = 1;
+    dir_list->index = 0;
+    dir_list->size  = 1;
+    dir_list->list = (char **) calloc(dir_list->size, sizeof(char *));
+    MCHECK_V(dir_list->list);
 
-    dirList = (char **) calloc(listSize, sizeof(char *));
+    init_dirlist(dir_list, path);
+    dump_dirlist(dir_list, "before.txt");
 
-    printf("2\n");
 
-    getDirList(path);
-    /// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
-    dumpDirList("before.txt");
+    fix_dirlist(dir_list);
+    dump_dirlist(dir_list, "after.txt");
 
-    printf("1\n");
+    for (size_t indx = 0; indx < dir_list->index; indx++) {
+        free(dir_list->list[indx]);
+    }
 
-    fixDirList();
-    /// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
-    dumpDirList("after.txt");
-
-    printf("GO!!!\n");
-
-    for (size_t indx = 0; indx < listIndex; indx++)
-        free(dirList[indx]);
+    //
+    free(dir_list);
 }
 
 int is_dir(const char *_path)

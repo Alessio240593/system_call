@@ -87,67 +87,82 @@ ssize_t count_char(int fd)
     return Br - 1;
 }
 
-int strCompare(const void *this, const void *other)
+int str_compare(const void *this, const void *other)
 {
     return strcmp(*(const char**)this, *(const char**)other);
 }
 
-void getDirList(const char *startPath)
-{
-    char newPath[MAX_PATH];
+int init_dirlist(dirlist_t *dirlist, const char *start_path) {
+    char new_path[MAX_PATH];
 
     struct dirent *de;
 
-    DIR *dp = opendir(startPath);
+    DIR *dp = opendir(start_path);
 
-    if (!dp)
-        return;
+    if (!dp) {
+        return 2;
+    }
 
-    while ((de = readdir(dp)) != NULL)
-    {
+    while ((de = readdir(dp)) != NULL) {
         if (strcmp(de->d_name, ".") != 0
             && strcmp(de->d_name, "..") != 0)
             //&& de->d_type == DT_DIR)
         {
-            //like java arraylist
-            if (listIndex + 1 > listSize) {
-                listSize *= 2;
-                dirList = (char **) realloc(dirList, listSize * sizeof(char *));
+            if (dirlist->index + 1 > dirlist->size) {
+                dirlist->size *= 2;
+                dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
+                MCHECK(dirlist->list);
             }
 
-            dirList[listIndex] = (char *) calloc(strlen(startPath) + 1, sizeof(char));
+            dirlist->list[dirlist->index] = (char *) calloc(strlen(start_path) + 1, sizeof(char));
+            MCHECK(dirlist->list[dirlist->index]);
 
-            strcpy(dirList[listIndex], startPath);
+            strcpy(dirlist->list[dirlist->index], start_path);
 
-            listIndex++;
+            dirlist->index++;
 
-            strcpy(newPath, startPath);
+            strcpy(new_path, start_path);
 
-            strcat(newPath, "/");
-            strcat(newPath, de->d_name);
+            strcat(new_path, "/");
+            strcat(new_path, de->d_name);
 
 
-            getDirList(newPath);
+            init_dirlist(dirlist, new_path);
         }
     }
 
     closedir(dp);
+
+    return 0;
 }
 
-void fixDirList(void)
+int fix_dirlist(dirlist_t *dirlist)
 {
     size_t i = 1;
     size_t t = 1;
     size_t k;
 
-    qsort(dirList, listIndex, sizeof(const char *), strCompare);
+    for (size_t i = 0; i < dirlist->index; i++) {
+        if (check_string(dirlist->list[i], "sendme_") != 1
+            && !check_size(dirlist->list[i])) {
 
-    while (i < listIndex) {
-        if (strcmp(dirList[i], dirList[t - 1]) != 0) {
-            free(dirList[t]);
-            dirList[t] = (char *) calloc(strlen(dirList[i]) + 1, sizeof(char));
+            free(dirlist->list[i]);
+        }
+    }
 
-            strcpy(dirList[t], dirList[i]);
+    qsort(dirlist->list, dirlist->index, sizeof(const char *), str_compare);
+
+    while (i < dirlist->index) {
+        if (strcmp(dirlist->list[i], dirlist->list[t - 1]) != 0) {
+            free(dirlist->list[t]);
+
+            /*
+            dirlist->list[t] = (char *) calloc(strlen(dirlist->list[i]) + 1, sizeof(char));
+            MCHECK(dirlist->list[t]);
+
+            strcpy(dirlist->list[t], dirlist->list[i]);
+            */
+            dirlist->list[t] = strdup(dirlist->list[i]);
 
             t++;
         }
@@ -156,16 +171,20 @@ void fixDirList(void)
     }
 
 
-    for (k = t + 1; k < listIndex; k++)
-        free(dirList[k]);
+    for (k = t + 1; k < dirlist->index; k++) {
+        free(dirlist->list[k]);
+    }
 
-    listIndex = t + 1;
+    dirlist->index = t + 1;
 
-    dirList = (char **) realloc(dirList, (listIndex) * sizeof(char *));
+    dirlist->list = (char **) realloc(dirlist->list, (dirlist->index) * sizeof(char *));
+    MCHECK(dirlist->list);
+
+    return 0;
 }
 
 /// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
-void dumpDirList(const char *filename)
+int dump_dirlist(dirlist_t *dirlist, const char *filename)
 {
     FILE *fp;
     size_t i;
@@ -176,12 +195,15 @@ void dumpDirList(const char *filename)
         exit(EXIT_FAILURE);
     }
 
-    for (i = 0; i < listIndex; i++)
-        fprintf(fp, "%s\n", dirList[i]);
-
+    for (i = 0; i < dirlist->index; i++) {
+        fprintf(fp, "%s\n", dirlist->list[i]);
+    }
 
     fclose(fp);
+
+    return 0;
 }
+
 
 /**
  * Cambia la working directory con <path>, aggiorna la variabile d'ambiente "PWD" con il nuovo valore
