@@ -11,20 +11,7 @@
 #include <errno.h>
 
 #include "defines.h"
-
-unsigned int mode =        0;
-#define SC_BY_NAME         1
-#define SC_BY_PERMISSIONS  2
-#define SC_BY_SIZE         3
-// if mode is SC_BY_NAME, then name2match is the file name we have to search for
-char *name2match = "sendme_";
-// if mode is SC_BY_SIZE, then size2match is the file size we have to search for
-off_t size2match = ;
-
-// the current seachPath. It is updated by search method to recursively
-// traverse the filesystem
-char seachPath[250];
-
+#include "err_exit.h"
 
 /**
  * Controlla se string2 inizia con gli stessi caratteri di string1
@@ -66,10 +53,6 @@ int check_size(const char *path)
         perror("stat");
         return -1;
     }
-    else if (!S_ISREG(buffer.st_mode)) {
-        printf("File isn't regular file!\n");
-        return -1;
-    }
     else {
         return buffer.st_size > MAX_FILE_SIZE;
     }
@@ -98,84 +81,6 @@ ssize_t count_char(int fd)
     return Br - 1;
 }
 
-size_t append2Path(char *directory) {
-    size_t lastPathEnd = strlen(seachPath);
-    // extends current seachPath: seachPath + / + directory
-    strcat(strcat(&seachPath[lastPathEnd], "/"), directory);
-    return lastPathEnd;
-}
-
-void search(void) {
-    // open the current seachPath (open directory searchPath)
-    DIR *dirp = opendir(seachPath);
-    if (dirp == NULL) return;
-    // readdir returns NULL when end-of-directory is reached.
-    // In oder to get when an error occurres, we set errno to zero, and the we
-    // call readdir. If readdir returns NULL, and errno is different from zero,
-    // an error must have occurred.
-    errno = 0;
-    // iter. until NULL is returned as a result
-    struct dirent *dentry;
-    // while (readdir(dirp))
-    while ((dentry = readdir(dirp)) != NULL) {
-        // Skip . and ..
-        if (strcmp(dentry->d_name, ".") == 0 ||
-            strcmp(dentry->d_name, "..") == 0)
-        {  continue;  }
-
-        // is the current dentry a regular file?
-        //printf("Si inzia a cercare:\n%d == %d ? %s\n", dentry->d_type, DT_REG, dentry->d_type == DT_REG ? "si" : "no");
-
-        if (dentry->d_type == DT_REG) {
-            // exetend current seachPath with the file name
-            size_t lastPath = append2Path(dentry->d_name);
-            // checking the properties of the file according to mode
-            /*
-            int match =
-              // if mode is equal to SC_BY_NAME, then we check the file name
-              (mode == SC_BY_NAME)? checkFileName(dentry->d_name, name2match)
-              // if mode is equal to SC_BY_PERMISSIONS, then we check the file permissions
-            : (mode == SC_BY_PERMISSIONS)? checkPermissions(seachPath, mode2match)
-              // if mode is equal to SC_BY_NAME, then we check the file size
-            : (mode == SC_BY_SIZE)? checkFileSize(seachPath, size2match) : 0;
-            */
-            //printf("dentry->d_name: %s\tname2match: %s\n", dentry->d_name, name2match);
-            //printf("seachPath: %s\tmode2match: %d\n", seachPath, mode2match);
-            //printf("seachPath: %s\tsize2match: %ld\n", seachPath, size2match);
-
-            int match;
-            if (mode == SC_BY_NAME)
-                match = checkFileName(dentry->d_name, name2match);
-            else if (mode == SC_BY_PERMISSIONS)
-                match = checkPermissions(seachPath, mode2match);
-            else
-                match = checkFileSize(seachPath, size2match);
-
-            // if match is 1, then a research...
-            if (match == 1)
-                printf("%s\n", seachPath);
-            // reset current seachPath
-            seachPath[lastPath] = '\0';
-            // is the current dentry a directory?
-        } else if (dentry->d_type == DT_DIR) {
-            // exetend current seachPath with the directory name
-            size_t lastPath = append2Path(dentry->d_name);
-            // call search method
-            search();
-            // reset current seachPath
-            seachPath[lastPath] = '\0';
-        }
-        errno = 0;
-    }
-
-    if (errno != 0)
-        errExit("readdir failed");
-
-    if (closedir(dirp) == -1)
-        errExit("closedir failed");
-}
-
-
 /**
  * Cambia la working directory con <path>, aggiorna la variabile d'ambiente "PWD" con il nuovo valore
  * Assume che <path> sia regolare.
@@ -196,4 +101,100 @@ int Chdir(const char *path)
     }
 
     return ret;
+}
+
+/**
+ * Controlla se <path> è una directory
+ * @param path - path da controllare
+ * @return 0 - in caso non sia una directory
+ * @return R \ {0} - se è una directory
+**/
+int is_dir(const char *path)
+{
+    struct stat tmp;
+
+    if ((stat(path, &tmp)) == -1) {
+        errExit("stat ");
+    }
+    return S_ISDIR(tmp.st_mode);
+}
+
+/**
+ * Ricerca ricorsivamente i file che iniziano con sendme_ e hanno # inferiore a 4K
+ * @param dirlist - struttura contenente i percorsi dei file
+ * @param start_path - percorso di partenza della ricerca
+ * @return 0 - in caso di successo
+ * @return 1 - in caso di errore di allocazione della memoria
+ * @return 2 - in caso la system call opendir fallisca
+**/
+int init_dirlist(dirlist_t *dirlist, const char *start_path) {
+    char new_path[MAX_PATH];
+    struct dirent *de;
+
+    DIR *dp = opendir(start_path);
+
+    if (!dp) {
+        fprintf(stderr, "opendir: unable to open directory %s\n", start_path);
+        return 2;
+    }
+
+    while ((de = readdir(dp)) != NULL) {
+        if (strcmp(de->d_name, ".") == 0
+            || strcmp(de->d_name, "..") == 0)
+        { continue; }
+
+        if (de->d_type == DT_DIR) {
+            strcpy(new_path, start_path);
+            strcat(new_path, "/");
+            strcat(new_path, de->d_name);
+            strcat(new_path, "\0");
+
+            init_dirlist(dirlist, new_path);
+        }
+        else if (de->d_type == DT_REG) {
+            if (check_string("sendme_", de->d_name) == 0) {
+                if (check_size(start_path) == 0) {
+                    if (dirlist->index + 1 > dirlist->size) {
+                        dirlist->size *= 2;
+                        dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
+                        MCHECK(dirlist->list);
+                    }
+
+                    size_t to_alloc =  strlen(start_path) + strlen(de->d_name) + 1 + 1 + 1;
+                    dirlist->list[dirlist->index] = (char *) calloc(to_alloc , sizeof(char));
+                    MCHECK(dirlist->list[dirlist->index]);
+
+                    snprintf(dirlist->list[dirlist->index], to_alloc, "%s/%s", start_path, de->d_name);
+
+                    dirlist->index++;
+                }
+            }
+        }
+    }
+
+    closedir(dp);
+
+    return 0;
+}
+
+
+/// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
+int dump_dirlist(dirlist_t *dirlist, const char *filename)
+{
+    FILE *fp;
+    size_t i;
+
+    fp = fopen(filename, "w");
+    if (fp == NULL) {
+        fprintf(stderr, "Failed to open file %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    for (i = 0; i < dirlist->index; i++) {
+        fprintf(fp, "%s\n", dirlist->list[i]);
+    }
+
+    fclose(fp);
+
+    return 0;
 }

@@ -34,7 +34,7 @@ int dump_dirlist(dirlist_t *dirlist, const char *filename);
 int main(void)
 {
     /* Start path */
-    char *path = "/tmp";
+    char *path = "/tmp/myDir";
 
     /* dirlist declaration and initialization */
     dirlist_t *dir_list = (dirlist_t *) malloc(sizeof(dirlist_t));
@@ -70,10 +70,6 @@ int check_size(const char *path)
 
     if ((stat(path, &buffer)) == -1) {
         perror("stat");
-        return -1;
-    }
-    else if (!S_ISREG(buffer.st_mode)) {
-        printf("File isn't regular file!\n");
         return -1;
     }
     else {
@@ -125,18 +121,28 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
             init_dirlist(dirlist, new_path);
         }
         else if (de->d_type == DT_REG) {
-            if (check_string(de->d_name, "sendme_") == 0) {
-                if (check_size(dirlist->list[dirlist->index]) == 0) {
+            if (check_string("sendme_", de->d_name) == 0) {
+                if (check_size(start_path) == 0) {
                     if (dirlist->index + 1 > dirlist->size) {
                         dirlist->size *= 2;
                         dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
                         MCHECK(dirlist->list);
                     }
 
-                    dirlist->list[dirlist->index] = (char *) calloc(strlen(start_path) + 1, sizeof(char));
+                    size_t ciao =  strlen(start_path) + strlen(de->d_name) + 1 + 1 + 1;
+                    dirlist->list[dirlist->index] = (char *) calloc(ciao , sizeof(char));
                     MCHECK(dirlist->list[dirlist->index]);
 
+                    snprintf(dirlist->list[dirlist->index], ciao, "%s/%s", start_path, de->d_name);
+
+                    /*
                     strcpy(dirlist->list[dirlist->index], start_path);
+                    strcat(dirlist->list[dirlist->index], "/");
+                    strcat(dirlist->list[dirlist->index], de->d_name);
+                    strcat(dirlist->list[dirlist->index], "\0");
+                     */
+
+                    printf("%s\t", dirlist->list[dirlist->index]);
                     dirlist->index++;
                 }
             }

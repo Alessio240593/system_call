@@ -15,18 +15,26 @@
 
 
 const char *path;
-const char *signame[]={"INVALID", "SIGHUP", "SIGINT", "SIGQUIT", "SIGILL", "SIGTRAP", "SIGABRT", "SIGBUS", "SIGFPE", "SIGKILL", "SIGUSR1", "SIGSEGV", "SIGUSR2", "SIGPIPE", "SIGALRM", "SIGTERM", "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP", "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG", "SIGXCPU", "SIGXFSZ", "SIGVTALRM", "SIGPROF", "SIGWINCH", "SIGPOLL", "SIGPWR", "SIGSYS", NULL};
+const char *signame[]={"INVALID", "SIGHUP", "SIGINT", "SIGQUIT",
+                       "SIGILL","SIGTRAP", "SIGABRT", "SIGBUS",
+                       "SIGFPE", "SIGKILL","SIGUSR1", "SIGSEGV",
+                       "SIGUSR2", "SIGPIPE", "SIGALRM","SIGTERM",
+                       "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP",
+                       "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG",
+                       "SIGXCPU","SIGXFSZ", "SIGVTALRM", "SIGPROF",
+                       "SIGWINCH", "SIGPOLL","SIGPWR", "SIGSYS", NULL};
 
-//merge with sigint_handler -> if (sig == SIG_USR1){printf("Received signal %s\n", signame[sig]);exit(EXIT_SUCCESS);}
 void sigusr1_handler(int sig)
 {
-    printf("Received signal %s\n", signame[sig]);
+    printf(" → Received signal %s\n", signame[sig]);
     exit(EXIT_SUCCESS);
 }
 
 void sigint_handler(int sig)
 {
     sigset_t mySet;
+
+    printf(" → Received signal %s\n", signame[sig]);
 
     if ((sigfillset(&mySet)) == -1) {
         perror("sigfillset");
@@ -40,14 +48,7 @@ void sigint_handler(int sig)
     }
 
     Chdir(path);
-/*
-    char *buffer = (char *) calloc(MAX_PATH, sizeof(char));
-    if (buffer == NULL) {
-        errExit("malloc ");
-    }
-    getcwd(buffer, MAX_PATH);
-    buffer = (char *) realloc(buffer, strlen(buffer) * sizeof(char));
-*/
+
     printf("Ciao %s, ora inizio l’invio dei file contenuti in %s\n", getenv("USER"), getenv("PWD"));
 
     /* dirlist declaration and initialization */
@@ -62,26 +63,11 @@ void sigint_handler(int sig)
     init_dirlist(dir_list, path);
     dump_dirlist(dir_list, "before.txt");
 
-
-    fix_dirlist(dir_list);
-    dump_dirlist(dir_list, "after.txt");
-
     for (size_t indx = 0; indx < dir_list->index; indx++) {
         free(dir_list->list[indx]);
     }
 
-    //
     free(dir_list);
-}
-
-int is_dir(const char *_path)
-{
-    struct stat tmp;
-
-    if ((stat(_path, &tmp)) == -1) {
-        errExit("stat ");
-    }
-    return S_ISDIR(tmp.st_mode);
 }
 
 int main(int argc, char * argv[])

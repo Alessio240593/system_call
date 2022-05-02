@@ -33,9 +33,7 @@ int is_dir(const char *_path);
 void sigusr1_handler(int sig);
 void sigint_handler(int sig);
 int Chdir(const char *path);
-int str_compare(const void *this, const void *other);
 int init_dirlist(dirlist_t *dirlist, const char *start_path);
-int  fix_dirlist(dirlist_t *dirlist);
 int dump_dirlist(dirlist_t *dirlist, const char *filename);
 
 

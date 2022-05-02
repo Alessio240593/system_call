@@ -70,16 +70,7 @@ conclusione lavori.
 ### _to check:_
 ####  `CLIENT`
  
-1. imposta la sua directory corrente ad un path passato da linea di comando all’avvio del
-programma (controllare Chdir in defines.c).
 
-1. saluta l’utente stampando a video la stringa “Ciao USER, ora inizio l’invio dei file contenuti
-in CURRDIR”, dove USER e’ il nome utente e CURRDIR è la directory corrente (facciamo il controllo su getenv? secondo me non serve, dato che passiamo noi una stringa come parametro).
-
-1.  accede a tutte le cartelle presenti nella sua directory corrente e carica in memoria tutti i
-percorsi dei file il cui nome inizia con la stringa “sendme_” e la dimensione è inferiore a
-4KByte (le funzioni per il controllo della size e per il controllo delle iniziali vanno bene?
-la funzione di Mik lavora correttamente?)
 
 ---
 
