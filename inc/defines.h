@@ -5,6 +5,8 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
+#include <stdlib.h>
+
 #define MAX_FILE_SIZE 4096
 #define MAX_PATH 4096
 
