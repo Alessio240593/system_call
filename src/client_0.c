@@ -63,11 +63,13 @@ void sigint_handler(int sig)
     printf("2\n");
 
     getDirList(path);
+    /// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
     dumpDirList("before.txt");
 
     printf("1\n");
 
     fixDirList();
+    /// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
     dumpDirList("after.txt");
 
     printf("GO!!!\n");
