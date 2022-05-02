@@ -1,0 +1,163 @@
+.TH "src/defines.c" 3 "Mon May 2 2022" "system_call" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/defines.c \- Contiene l'implementazione delle funzioni specifiche del progetto\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include <unistd\&.h>\fP
+.br
+\fC#include <dirent\&.h>\fP
+.br
+\fC#include <sys/stat\&.h>\fP
+.br
+\fC#include <errno\&.h>\fP
+.br
+\fC#include 'defines\&.h'\fP
+.br
+\fC#include 'err_exit\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBcheck_string\fP (const char *string1, char *string2)"
+.br
+.ti -1c
+.RI "int \fBcheck_size\fP (const char *path)"
+.br
+.ti -1c
+.RI "ssize_t \fBcount_char\fP (int fd)"
+.br
+.ti -1c
+.RI "int \fBChdir\fP (const char *path)"
+.br
+.ti -1c
+.RI "int \fBis_dir\fP (const char *path)"
+.br
+.ti -1c
+.RI "int \fBinit_dirlist\fP (dirlist_t *dirlist, const char *start_path)"
+.br
+.ti -1c
+.RI "int \fBdump_dirlist\fP (dirlist_t *dirlist, const char *filename)"
+.br
+.RI "FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE\&. "
+.in -1c
+.SH "Detailed Description"
+.PP 
+Contiene l'implementazione delle funzioni specifiche del progetto\&. 
+
+
+.SH "Function Documentation"
+.PP 
+.SS "int Chdir (const char * path)"
+Cambia la working directory con <path>, aggiorna la variabile d'ambiente 'PWD' con il nuovo valore Assume che <path> sia regolare\&. 
+.PP
+\fBParameters\fP
+.RS 4
+\fIpath\fP - nuova working directory 
+.RE
+.PP
+
+.SS "int check_size (const char * path)"
+Controlla se il file <path> è di dimensione <= a 4096 Byte 
+.PP
+\fBParameters\fP
+.RS 4
+\fIpath\fP - percorso dove si trova il file nel filesystem 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+1 - se #path è > 4096 Byte 
+.PP
+0 - se #path è <= 4096 Byte 
+.PP
+-1 - in caso di path non valido 
+.RE
+.PP
+
+.SS "int check_string (const char * string1, char * string2)"
+Controlla se string2 inizia con gli stessi caratteri di string1 
+.PP
+\fBParameters\fP
+.RS 4
+\fIstring1\fP - stringa per il controllo 
+.br
+\fIstring2\fP - stringa da controllare 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+1 - se stroing2 non inizia con string1 
+.PP
+0 - se string2 inizia con string1 
+.PP
+-1 - in caso di stringhe non valide 
+.RE
+.PP
+
+.SS "ssize_t count_char (int fd)"
+Conta il numero di caratteri del file passato come parametro 
+.PP
+\fBParameters\fP
+.RS 4
+\fIfd\fP - file descriptor del file 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+Br - numero di caratteri del file 
+.PP
+-1 - in caso di errore delle system call 
+.RE
+.PP
+
+.SS "int init_dirlist (dirlist_t * dirlist, const char * start_path)"
+Ricerca ricorsivamente i file che iniziano con sendme_ e hanno # inferiore a 4K 
+.PP
+\fBParameters\fP
+.RS 4
+\fIdirlist\fP - struttura contenente i percorsi dei file 
+.br
+\fIstart_path\fP - percorso di partenza della ricerca 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+0 - in caso di successo 
+.PP
+1 - in caso di errore di allocazione della memoria 
+.PP
+2 - in caso la system call opendir fallisca 
+.RE
+.PP
+
+.SS "int is_dir (const char * path)"
+Controlla se <path> è una directory 
+.PP
+\fBParameters\fP
+.RS 4
+\fIpath\fP - path da controllare 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+0 - in caso non sia una directory 
+.PP
+R \\ {0} - se è una directory 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for system_call from the source code\&.

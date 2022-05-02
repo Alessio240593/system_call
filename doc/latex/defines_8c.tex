@@ -1,0 +1,143 @@
+\hypertarget{defines_8c}{}\doxysection{src/defines.c File Reference}
+\label{defines_8c}\index{src/defines.c@{src/defines.c}}
+
+
+Contiene l\textquotesingle{}implementazione delle funzioni specifiche del progetto.  
+
+
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$dirent.\+h$>$}\newline
+{\ttfamily \#include $<$sys/stat.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}err\+\_\+exit.\+h\char`\"{}}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{defines_8c_a128bf6be6f32ae6a25c46fbbb0b4fbe6}{check\+\_\+string}} (const char $\ast$string1, char $\ast$string2)
+\item 
+int \mbox{\hyperlink{defines_8c_ac185ec6355c1ab30923a0ded3ea4ca10}{check\+\_\+size}} (const char $\ast$path)
+\item 
+ssize\+\_\+t \mbox{\hyperlink{defines_8c_ae61ad68133ed3dc7f545f0250d0c6ccd}{count\+\_\+char}} (int fd)
+\item 
+int \mbox{\hyperlink{defines_8c_a691822b4a1173cfe494687178f8d3b5e}{Chdir}} (const char $\ast$path)
+\item 
+int \mbox{\hyperlink{defines_8c_adb6068b88c7f3e37fc1ed2f07d5fb43a}{is\+\_\+dir}} (const char $\ast$path)
+\item 
+int \mbox{\hyperlink{defines_8c_a05da4303bf1f00615256daa2bc351155}{init\+\_\+dirlist}} (dirlist\+\_\+t $\ast$dirlist, const char $\ast$start\+\_\+path)
+\item 
+\mbox{\Hypertarget{defines_8c_a8d899c6635921d9a063c50ca04d4b90f}\label{defines_8c_a8d899c6635921d9a063c50ca04d4b90f}} 
+int {\bfseries dump\+\_\+dirlist} (dirlist\+\_\+t $\ast$dirlist, const char $\ast$filename)
+\begin{DoxyCompactList}\small\item\em FUNZIONE DI DEBUG =\texorpdfstring{$>$}{>} NON CI SARÀ SUL PROGETTO FINALE. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contiene l\textquotesingle{}implementazione delle funzioni specifiche del progetto. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{defines_8c_a691822b4a1173cfe494687178f8d3b5e}\label{defines_8c_a691822b4a1173cfe494687178f8d3b5e}} 
+\index{defines.c@{defines.c}!Chdir@{Chdir}}
+\index{Chdir@{Chdir}!defines.c@{defines.c}}
+\doxysubsubsection{\texorpdfstring{Chdir()}{Chdir()}}
+{\footnotesize\ttfamily int Chdir (\begin{DoxyParamCaption}\item[{const char $\ast$}]{path }\end{DoxyParamCaption})}
+
+Cambia la working directory con $<$path$>$, aggiorna la variabile d\textquotesingle{}ambiente \char`\"{}\+PWD\char`\"{} con il nuovo valore Assume che $<$path$>$ sia regolare. 
+\begin{DoxyParams}{Parameters}
+{\em path} & -\/ nuova working directory \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{defines_8c_ac185ec6355c1ab30923a0ded3ea4ca10}\label{defines_8c_ac185ec6355c1ab30923a0ded3ea4ca10}} 
+\index{defines.c@{defines.c}!check\_size@{check\_size}}
+\index{check\_size@{check\_size}!defines.c@{defines.c}}
+\doxysubsubsection{\texorpdfstring{check\_size()}{check\_size()}}
+{\footnotesize\ttfamily int check\+\_\+size (\begin{DoxyParamCaption}\item[{const char $\ast$}]{path }\end{DoxyParamCaption})}
+
+Controlla se il file $<$path$>$ è di dimensione \texorpdfstring{$<$}{<}= a 4096 Byte 
+\begin{DoxyParams}{Parameters}
+{\em path} & -\/ percorso dove si trova il file nel filesystem \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 -\/ se \#path è \texorpdfstring{$>$}{>} 4096 Byte 
+
+0 -\/ se \#path è \texorpdfstring{$<$}{<}= 4096 Byte 
+
+-\/1 -\/ in caso di path non valido 
+\end{DoxyReturn}
+\mbox{\Hypertarget{defines_8c_a128bf6be6f32ae6a25c46fbbb0b4fbe6}\label{defines_8c_a128bf6be6f32ae6a25c46fbbb0b4fbe6}} 
+\index{defines.c@{defines.c}!check\_string@{check\_string}}
+\index{check\_string@{check\_string}!defines.c@{defines.c}}
+\doxysubsubsection{\texorpdfstring{check\_string()}{check\_string()}}
+{\footnotesize\ttfamily int check\+\_\+string (\begin{DoxyParamCaption}\item[{const char $\ast$}]{string1,  }\item[{char $\ast$}]{string2 }\end{DoxyParamCaption})}
+
+Controlla se string2 inizia con gli stessi caratteri di string1 
+\begin{DoxyParams}{Parameters}
+{\em string1} & -\/ stringa per il controllo \\
+\hline
+{\em string2} & -\/ stringa da controllare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 -\/ se stroing2 non inizia con string1 
+
+0 -\/ se string2 inizia con string1 
+
+-\/1 -\/ in caso di stringhe non valide 
+\end{DoxyReturn}
+\mbox{\Hypertarget{defines_8c_ae61ad68133ed3dc7f545f0250d0c6ccd}\label{defines_8c_ae61ad68133ed3dc7f545f0250d0c6ccd}} 
+\index{defines.c@{defines.c}!count\_char@{count\_char}}
+\index{count\_char@{count\_char}!defines.c@{defines.c}}
+\doxysubsubsection{\texorpdfstring{count\_char()}{count\_char()}}
+{\footnotesize\ttfamily ssize\+\_\+t count\+\_\+char (\begin{DoxyParamCaption}\item[{int}]{fd }\end{DoxyParamCaption})}
+
+Conta il numero di caratteri del file passato come parametro 
+\begin{DoxyParams}{Parameters}
+{\em fd} & -\/ file descriptor del file \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Br -\/ numero di caratteri del file 
+
+-\/1 -\/ in caso di errore delle system call 
+\end{DoxyReturn}
+\mbox{\Hypertarget{defines_8c_a05da4303bf1f00615256daa2bc351155}\label{defines_8c_a05da4303bf1f00615256daa2bc351155}} 
+\index{defines.c@{defines.c}!init\_dirlist@{init\_dirlist}}
+\index{init\_dirlist@{init\_dirlist}!defines.c@{defines.c}}
+\doxysubsubsection{\texorpdfstring{init\_dirlist()}{init\_dirlist()}}
+{\footnotesize\ttfamily int init\+\_\+dirlist (\begin{DoxyParamCaption}\item[{dirlist\+\_\+t $\ast$}]{dirlist,  }\item[{const char $\ast$}]{start\+\_\+path }\end{DoxyParamCaption})}
+
+Ricerca ricorsivamente i file che iniziano con sendme\+\_\+ e hanno \# inferiore a 4K 
+\begin{DoxyParams}{Parameters}
+{\em dirlist} & -\/ struttura contenente i percorsi dei file \\
+\hline
+{\em start\+\_\+path} & -\/ percorso di partenza della ricerca \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 -\/ in caso di successo 
+
+1 -\/ in caso di errore di allocazione della memoria 
+
+2 -\/ in caso la system call opendir fallisca 
+\end{DoxyReturn}
+\mbox{\Hypertarget{defines_8c_adb6068b88c7f3e37fc1ed2f07d5fb43a}\label{defines_8c_adb6068b88c7f3e37fc1ed2f07d5fb43a}} 
+\index{defines.c@{defines.c}!is\_dir@{is\_dir}}
+\index{is\_dir@{is\_dir}!defines.c@{defines.c}}
+\doxysubsubsection{\texorpdfstring{is\_dir()}{is\_dir()}}
+{\footnotesize\ttfamily int is\+\_\+dir (\begin{DoxyParamCaption}\item[{const char $\ast$}]{path }\end{DoxyParamCaption})}
+
+Controlla se $<$path$>$ è una directory 
+\begin{DoxyParams}{Parameters}
+{\em path} & -\/ path da controllare \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 -\/ in caso non sia una directory 
+
+R \textbackslash{} \{0\} -\/ se è una directory 
+\end{DoxyReturn}
