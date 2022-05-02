@@ -117,7 +117,7 @@ int main(int argc, char * argv[])
 
     if ((sigdelset(&mySet, SIGINT)) == -1
         || (sigdelset(&mySet, SIGUSR1)) == -1) {
-        errExit("sigaddset");
+        errExit("sigdelset");
     }
 
     if ((sigprocmask(SIG_SETMASK, &mySet, NULL)) == -1) {

@@ -109,7 +109,7 @@ void getDirList(const char *startPath)
             && strcmp(de->d_name, "..") != 0)
             //&& de->d_type == DT_DIR)
         {
-
+            //like java arraylist
             if (listIndex + 1 > listSize) {
                 listSize *= 2;
                 dirList = (char **) realloc(dirList, listSize * sizeof(char *));
@@ -169,7 +169,7 @@ void dumpDirList(const char *filename)
     FILE *fp;
     size_t i;
 
-    fp = fopen(filename, "w");// fopen?! is legal??
+    fp = fopen(filename, "w");
     if (fp == NULL) {
         fprintf(stderr, "Failed to open file %s\n", filename);
         exit(EXIT_FAILURE);
