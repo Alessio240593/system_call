@@ -15,15 +15,15 @@
 
 
 const char *path;
-
+const char *signame[]={"INVALID", "SIGHUP", "SIGINT", "SIGQUIT", "SIGILL", "SIGTRAP", "SIGABRT", "SIGBUS", "SIGFPE", "SIGKILL", "SIGUSR1", "SIGSEGV", "SIGUSR2", "SIGPIPE", "SIGALRM", "SIGTERM", "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP", "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG", "SIGXCPU", "SIGXFSZ", "SIGVTALRM", "SIGPROF", "SIGWINCH", "SIGPOLL", "SIGPWR", "SIGSYS", NULL};
 char **dirList;
 size_t listIndex;
 size_t listSize;
 
-
+//merge with sigint_handler -> if (sig == SIG_USR1){printf("Received signal %s\n", signame[sig]);exit(EXIT_SUCCESS);}
 void sigusr1_handler(int sig)
 {
-    printf("Received signal %d\n", sig);
+    printf("Received signal %s\n", signame[sig]);
     exit(EXIT_SUCCESS);
 }
 
