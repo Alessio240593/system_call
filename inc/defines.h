@@ -9,6 +9,14 @@
 
 #define MAX_FILE_SIZE 4096
 #define MAX_PATH 4096
+#define MAX_LEN 512
+#define LEN_INT 11
+#define SHMSIZE 4096 * 100
+#define SHMSEM 0
+
+//fifos path
+#define FIFO1 "/tmp/fifo1"
+#define FIFO2 "fifo2"
 
 #define MCHECK(ptr)  if (ptr == NULL) { \
                         perror("malloc "); \
@@ -19,6 +27,25 @@
                         perror("malloc "); \
                         return;       \
                      }
+
+#define SYSCHECK(ret, type)  if (ret == -1) { \
+                                perror(type); \
+                                return 1;       \
+                            }
+
+#define SYSCHECK_V(ret, type)  if (ret == -1) { \
+                                perror(type); \
+                                return;       \
+                            }
+#define WCHECK(ret,dim)  if (ret != dim) { \
+                                perror("write"); \
+                                return 1;       \
+                            }
+
+#define WCHECK_V(ret,dim)  if (ret != dim) { \
+                                perror("write"); \
+                                return;       \
+                            }
 
 typedef struct __dirlist_t {
     char **list;

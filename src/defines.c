@@ -198,3 +198,29 @@ int dump_dirlist(dirlist_t *dirlist, const char *filename)
 
     return 0;
 }
+
+/*
+char* itoa(int num)
+{
+    int tmp = num;
+    size_t i = 0;
+    char *res = (char *) calloc(10, sizeof(char));
+    if (res == NULL)
+        errExit("malloc");
+
+    while (tmp > 0) {
+        res[i] = tmp % 10 + 48;
+        tmp /= 10;
+        i++;
+    }
+
+    char *result = (char *) calloc(strlen(res) +1, sizeof(char));
+    if (result == NULL)
+        errExit("malloc");
+
+    for (i = 0; i < strlen(res); i++) {
+        result[i] = res[strlen(res) - i - 1];
+    }
+    result[i] = '\0';
+}
+*/

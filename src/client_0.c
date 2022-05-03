@@ -8,11 +8,14 @@
 #include <signal.h>
 #include <unistd.h>
 #include <sys/stat.h>
-
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/ipc.h>
+#include "semaphore.h"
+#include "shared_memory.h"
 #include "defines.h"
 #include "err_exit.h"
-
-
 
 const char *path;
 const char *signame[]={"INVALID", "SIGHUP", "SIGINT", "SIGQUIT",
@@ -62,6 +65,35 @@ void sigint_handler(int sig)
 
     init_dirlist(dir_list, path);
     dump_dirlist(dir_list, "before.txt");
+
+
+    char buffer[LEN_INT];
+    snprintf(buffer, LEN_INT, "%zu", dir_list->size);
+
+    printf("ciao");
+    if (mkfifo(FIFO1, S_IRUSR | S_IWUSR) == -1)
+        errExit("mkfifo failed");
+    printf("Alessio");
+
+    int fd1 = open(FIFO1, O_WRONLY);
+    SYSCHECK_V(fd1, "open");
+
+    ssize_t bW = write(fd1, buffer, LEN_INT);
+    WCHECK_V(bW, LEN_INT);
+
+    key_t shmKey = ftok(FIFO1, 'a');
+    int shmid = alloc_shared_memory(shmKey,SHMSIZE);
+
+    char *shmem = (char *)get_shared_memory(shmid, 0);
+
+    key_t semKey = ftok(FIFO1, 'b');
+    int semid = alloc_semaphore(semKey, 1);
+    semOp(semid,0,-1);
+
+    printf("%s", shmem);
+
+
+    /* -------------------- */
 
     for (size_t indx = 0; indx < dir_list->index; indx++) {
         free(dir_list->list[indx]);
@@ -114,4 +146,6 @@ int main(int argc, char * argv[])
     }
 
     pause(); //wait for a signal
+
+
 }
