@@ -3,20 +3,18 @@
  *         specifiche per la gestione dei SEMAFORI.
  */
 
-#include "err_exit.h"
-#include "semaphore.h"
 #include <sys/sem.h>
 #include <sys/stat.h>
 
-void semOp (int semid, unsigned short sem_num, short sem_op)
-{
-    struct sembuf sop = {.sem_num = sem_num, . sem_op = sem_op, .sem_flg = 0};
+#include "err_exit.h"
+#include "semaphore.h"
 
-    if (semop(semid, &sop, 1) == -1)
-        errExit("semop failed");
-}
-
-
+/**
+ * Crea, se non esiste, un set di semafori
+ * @param semKey - chiave per creare il set di semafori
+ * @param num - numero di semafori da creare
+ * @return semid - id del set di semafori
+ */
 int alloc_semaphore(key_t semKey, int num)
 {
     // get, or create, a shared memory segment
@@ -26,6 +24,20 @@ int alloc_semaphore(key_t semKey, int num)
         errExit("semget failed");
 
     return semid;
+}
+
+/**
+ * Esegue un operazione sul set di semafori
+ * @param semid - id del set di semafori
+ * @param sem_num - numero del semaforo su cui eseguire l'operazione
+ * @param sem_op - tipo di operazione
+ */
+void semOp (int semid, unsigned short sem_num, short sem_op)
+{
+    struct sembuf sop = {.sem_num = sem_num, . sem_op = sem_op, .sem_flg = 0};
+
+    if (semop(semid, &sop, 1) == -1)
+        errExit("semop failed");
 }
 
 /*
@@ -40,6 +52,10 @@ void control_semaphore(int semid)
 }
 */
 
+/**
+ * Elimina il set di semafori
+ * @param semid - id del set di semafori
+ */
 void remove_semaphore(int semid)
 {
     if(semctl(semid, 0, IPC_RMID, 0) == -1)

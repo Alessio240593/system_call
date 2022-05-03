@@ -13,9 +13,8 @@
 #define LEN_INT 11
 #define SHMSIZE 4096 * 100
 #define SHMSEM 0
-
 //fifos path
-#define FIFO1 "/tmp/fifo1"
+#define FIFO1 "/tmp/myDir/fifo1"
 #define FIFO2 "fifo2"
 
 #define MCHECK(ptr)  if (ptr == NULL) { \
@@ -62,6 +61,5 @@ void sigint_handler(int sig);
 int Chdir(const char *path);
 int init_dirlist(dirlist_t *dirlist, const char *start_path);
 int dump_dirlist(dirlist_t *dirlist, const char *filename);
-
 
 #endif

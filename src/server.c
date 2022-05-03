@@ -2,25 +2,23 @@
  *  @brief Contiene l'implementazione del sender_manager.
 */
 
-#include <sys/stat.h>
-#include "err_exit.h"
-#include "defines.h"
-#include "shared_memory.h"
-#include "semaphore.h"
-#include "fifo.h"
 #include <fcntl.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
+
+#include "fifo.h"
+#include "semaphore.h"
+#include "shared_memory.h"
+#include "defines.h"
+#include "err_exit.h"
 
 int main(/*int argc, char* argv[]*/){
 
-    printf("hello");
-    if (mkfifo(FIFO1, S_IRUSR | S_IWUSR) == -1)
-        errExit("mkfifo failed");
-    printf("Mike");
+    make_fifo(FIFO1);
 
     int fd1 = open(FIFO1, O_RDONLY);
     SYSCHECK(fd1, "open");
@@ -46,7 +44,7 @@ int main(/*int argc, char* argv[]*/){
     key_t semKey = ftok(FIFO1, 'b');
     int semid = alloc_semaphore(semKey, 1);
     union semun arg;
-    arg.val = 0;
+    arg.val = SHMSEM;
     semctl(semid, 0, SETVAL, arg);
 
     semOp(semid,0,1);

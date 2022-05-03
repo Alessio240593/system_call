@@ -7,11 +7,12 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
-#include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <sys/ipc.h>
+#include <sys/stat.h>
+
+#include "fifo.h"
 #include "semaphore.h"
 #include "shared_memory.h"
 #include "defines.h"
@@ -70,10 +71,7 @@ void sigint_handler(int sig)
     char buffer[LEN_INT];
     snprintf(buffer, LEN_INT, "%zu", dir_list->size);
 
-    printf("ciao");
-    if (mkfifo(FIFO1, S_IRUSR | S_IWUSR) == -1)
-        errExit("mkfifo failed");
-    printf("Alessio");
+    make_fifo(FIFO1);
 
     int fd1 = open(FIFO1, O_WRONLY);
     SYSCHECK_V(fd1, "open");

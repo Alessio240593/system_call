@@ -2,6 +2,7 @@
  *  @brief Contiene l'implementazione delle funzioni
  *  specifiche del progetto.
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -176,7 +177,6 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
 
     return 0;
 }
-
 
 /// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
 int dump_dirlist(dirlist_t *dirlist, const char *filename)

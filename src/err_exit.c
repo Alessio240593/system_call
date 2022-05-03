@@ -9,6 +9,10 @@
 #include <stdio.h>
 #include <errno.h>
 
+/**
+ * Stampa il messaggio di errore <msg> e ritorna il codice d'errore EXIT_FAILURE
+ * @param msg - messaggio da stampare
+ */
 void errExit(const char *msg)
 {
     perror(msg);
