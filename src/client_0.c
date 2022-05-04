@@ -71,7 +71,11 @@ void sigint_handler(int sig)
     char buffer[LEN_INT];
     snprintf(buffer, LEN_INT, "%zu", dir_list->size);
 
+    /*
+    printf("Sto per creare la fifo\n");
     make_fifo(FIFO1);
+    printf("Ho creato la fifo\n");
+    */
 
     int fd1 = open(FIFO1, O_WRONLY);
     SYSCHECK_V(fd1, "open");

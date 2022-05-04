@@ -16,8 +16,9 @@
 #include "defines.h"
 #include "err_exit.h"
 
-int main(/*int argc, char* argv[]*/){
-
+int main(void)
+{
+    printf("int a fess e' sorreta\n");
     make_fifo(FIFO1);
 
     int fd1 = open(FIFO1, O_RDONLY);
