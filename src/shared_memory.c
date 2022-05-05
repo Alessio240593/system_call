@@ -27,12 +27,29 @@ int alloc_shared_memory(key_t shmKey, size_t size) {
 }
 
 /**
+* Sincronizza il chiamante sulla shared memory specificata da shmKey
+* @param shmKey - chiave della shared memory
+* @param size - dimensione zona di memoria(deve essere <= alla shared memory già esistente)
+* @return shmid - id del segmento di memoria
+*/
+int get_shared_memory(key_t shmKey, size_t size) {
+    // get a shared memory segment
+    int shmid;
+    shmid = shmget(shmKey, size, S_IRUSR | S_IWUSR) ;
+
+    if(shmid == -1)
+        errExit("shmgetg failed");
+
+    return shmid;
+}
+
+/**
  * Link della zona di memoria nello spazio di indirizzamento logico del processo
  * @param shmid - id del segmento di memoria
  * @param shmflg - flag per la system call
  * @return void * - puntatore alla zona di memoria condivisa
  */
-void *get_shared_memory(int shmid, int shmflg) {
+void *attach_shared_memory(int shmid, int shmflg) {
     // attach the shared memory
     int *ptr = shmat(shmid, NULL, shmflg);
 

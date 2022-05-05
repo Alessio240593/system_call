@@ -14,7 +14,6 @@ add_subdirectory(src)# add src subdir
 
 add_executable(client0 src/client_0.c)# create client0 exe
 add_executable(server src/server.c)# create server exe
-#add_executable(prova3 smanetto/prova3.c)
 
 #target_include_directories(lib PUBLIC inc)#compiler reference .h
 target_link_libraries(client0 PRIVATE lib)# link lib to client0 exe

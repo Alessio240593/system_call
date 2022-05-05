@@ -18,7 +18,6 @@
 
 int main(void)
 {
-    printf("int a fess e' sorreta\n");
     make_fifo(FIFO1);
 
     int fd1 = open(FIFO1, O_RDONLY);
@@ -32,10 +31,10 @@ int main(void)
 
     int n = atoi(buffer);
 
-    key_t shmKey = ftok(FIFO1, 'a');
-    int shmid = alloc_shared_memory(shmKey,SHMSIZE);
+    //key_t shmKey = ftok(FIFO1, 'a');
+    int shmid = alloc_shared_memory(100,SHMSIZE);
 
-    char *shmem = (char *)get_shared_memory(shmid, 0);
+    char *shmem = (char *)attach_shared_memory(shmid, 0);
 
     //costruzione messaggio da scrivere sulla shmemory
     snprintf(buffer, sizeof(buffer), "Ho ricevuto gli %d file", n);

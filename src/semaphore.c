@@ -40,6 +40,16 @@ void semOp (int semid, unsigned short sem_num, short sem_op)
         errExit("semop failed");
 }
 
+/**
+ * Elimina il set di semafori
+ * @param semid - id del set di semafori
+ */
+void remove_semaphore(int semid)
+{
+    if(semctl(semid, 0, IPC_RMID, 0) == -1)
+        errExit("semctl failed");
+}
+
 /*
 void control_semaphore(int semid)
 {
@@ -51,14 +61,4 @@ void control_semaphore(int semid)
 
 }
 */
-
-/**
- * Elimina il set di semafori
- * @param semid - id del set di semafori
- */
-void remove_semaphore(int semid)
-{
-    if(semctl(semid, 0, IPC_RMID, 0) == -1)
-        errExit("semctl failed");
-}
 

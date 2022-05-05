@@ -15,7 +15,8 @@ struct Request {
 };
 
 int alloc_shared_memory(key_t shmKey, size_t size);
-void *get_shared_memory(int shmid, int shmflg);
+int get_shared_memory(key_t shmKey, size_t size);
+void *attach_shared_memory(int shmid, int shmflg);
 void free_shared_memory(void *ptr_sh);
 void remove_shared_memory(int shmid);
 

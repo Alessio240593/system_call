@@ -83,10 +83,10 @@ void sigint_handler(int sig)
     ssize_t bW = write(fd1, buffer, LEN_INT);
     WCHECK_V(bW, LEN_INT);
 
-    key_t shmKey = ftok(FIFO1, 'a');
-    int shmid = alloc_shared_memory(shmKey,SHMSIZE);
+    //key_t shmKey = ftok(FIFO1, 'a');
+    int shmid = get_shared_memory(100, SHMSIZE);
 
-    char *shmem = (char *)get_shared_memory(shmid, 0);
+    char *shmem = (char *)attach_shared_memory(shmid, 0);
 
     key_t semKey = ftok(FIFO1, 'b');
     int semid = alloc_semaphore(semKey, 1);
