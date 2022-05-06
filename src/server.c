@@ -46,7 +46,7 @@ int main(void)
     int n = atoi(buffer);
 
     //costruzione messaggio da scrivere sulla shmem
-    snprintf(buffer, sizeof(buffer), "Ho ricevuto %d file", n);
+    snprintf(buffer, sizeof(buffer), "<Server>: Ho ricevuto %d file\n", n);
 
     //write data on shmem
     strcpy(shmem, buffer);

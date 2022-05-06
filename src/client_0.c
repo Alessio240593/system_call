@@ -74,7 +74,6 @@ void sigint_handler(int sig)
 
 
     char buffer[LEN_INT];
-    printf("%zu\n", dir_list->size);
 
     snprintf(buffer, LEN_INT, "%zu", dir_list->size);
 
