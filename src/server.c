@@ -18,36 +18,39 @@
 
 int main(void)
 {
-    make_fifo(FIFO1);
-
-    int fd1 = open(FIFO1, O_RDONLY);
-    SYSCHECK(fd1, "open");
-
     char buffer[MAX_LEN];
 
-    ssize_t bR = read(fd1, buffer, MAX_LEN);
-    SYSCHECK(bR, "read");
-    buffer[bR] = '\0';
-
-    int n = atoi(buffer);
-
-    //key_t shmKey = ftok(FIFO1, 'a');
-    int shmid = alloc_shared_memory(100,SHMSIZE);
-
+    //create shmem
+    int shmid = alloc_shared_memory(SHMKEY,SHMSIZE);
     char *shmem = (char *)attach_shared_memory(shmid, 0);
 
-    //costruzione messaggio da scrivere sulla shmemory
-    snprintf(buffer, sizeof(buffer), "Ho ricevuto gli %d file", n);
-
-    strcpy(shmem, buffer);
-
-    key_t semKey = ftok(FIFO1, 'b');
-    int semid = alloc_semaphore(semKey, 1);
+    //create and initialize semset
+    int semid = alloc_semaphore(SEMKEY, SEMNUM);
     union semun arg;
     arg.val = SHMSEM;
     semctl(semid, 0, SETVAL, arg);
 
+    //create fifo1
+    make_fifo(FIFO1);
+
+    //open fifo in read only mode
+    int fd1 = open(FIFO1, O_RDONLY);
+    SYSCHECK(fd1, "open");
+
+    //read data from fifo1
+    ssize_t bR = read(fd1, buffer, MAX_LEN);
+    SYSCHECK(bR, "read");
+    buffer[bR] = '\0';
+
+    //from string to int
+    int n = atoi(buffer);
+
+    //costruzione messaggio da scrivere sulla shmem
+    snprintf(buffer, sizeof(buffer), "Ho ricevuto %d file", n);
+
+    //write data on shmem
+    strcpy(shmem, buffer);
+
+    //wake up client
     semOp(semid,0,1);
-
-
 }

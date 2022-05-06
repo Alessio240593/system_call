@@ -36,21 +36,26 @@ void sigusr1_handler(int sig)
 
 void sigint_handler(int sig)
 {
+    //declare sigset
     sigset_t mySet;
 
+    //notify signal
     printf(" → Received signal %s\n", signame[sig]);
 
+    //fill sigset
     if ((sigfillset(&mySet)) == -1) {
         perror("sigfillset");
         exit(EXIT_FAILURE);
     }
 
+    //set signal mask
     if ((sigprocmask(SIG_SETMASK, &mySet, NULL)) == -1) {
         perror("sigprocmask");
         fprintf(stderr, "Received signal %d\n", sig);
         exit(EXIT_FAILURE);
     }
 
+    //change working directory
     Chdir(path);
 
     printf("Ciao %s, ora inizio l’invio dei file contenuti in %s\n", getenv("USER"), getenv("PWD"));
@@ -69,6 +74,8 @@ void sigint_handler(int sig)
 
 
     char buffer[LEN_INT];
+    printf("%zu\n", dir_list->size);
+
     snprintf(buffer, LEN_INT, "%zu", dir_list->size);
 
     /*
@@ -77,23 +84,26 @@ void sigint_handler(int sig)
     printf("Ho creato la fifo\n");
     */
 
+    //open fifo in write only mode
     int fd1 = open(FIFO1, O_WRONLY);
     SYSCHECK_V(fd1, "open");
 
+    //write on fifo
     ssize_t bW = write(fd1, buffer, LEN_INT);
     WCHECK_V(bW, LEN_INT);
 
-    //key_t shmKey = ftok(FIFO1, 'a');
-    int shmid = get_shared_memory(100, SHMSIZE);
-
+    //get server shmem
+    int shmid = get_shared_memory(SHMKEY, SHMSIZE);
     char *shmem = (char *)attach_shared_memory(shmid, 0);
 
-    key_t semKey = ftok(FIFO1, 'b');
-    int semid = alloc_semaphore(semKey, 1);
+    //get server semset
+    int semid = get_semaphore(SEMKEY, SEMNUM);
+
+    //waiting data
     semOp(semid,0,-1);
 
+    //print shmem data
     printf("%s", shmem);
-
 
     /* -------------------- */
 
@@ -106,6 +116,7 @@ void sigint_handler(int sig)
 
 int main(int argc, char * argv[])
 {
+    //check input
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <PATH>\n", argv[0]);
         exit(EXIT_FAILURE);
@@ -125,29 +136,33 @@ int main(int argc, char * argv[])
         exit(EXIT_FAILURE);
     }
 
+    //set path
     path = argv[1];
-
+    //create an empty sigset
     sigset_t mySet;
 
+    //fill sigset
     if ((sigfillset(&mySet)) == -1) {
         errExit("sigemptyset");
     }
 
+    //delete SIGINT and SIGUSR1 from the set
     if ((sigdelset(&mySet, SIGINT)) == -1
         || (sigdelset(&mySet, SIGUSR1)) == -1) {
         errExit("sigdelset");
     }
 
+    //set the mask
     if ((sigprocmask(SIG_SETMASK, &mySet, NULL)) == -1) {
         errExit("sigprocmask");
     }
 
+    //set the default handler
     if ((signal(SIGINT, sigint_handler)) == SIG_ERR
         || (signal(SIGUSR1, sigusr1_handler)) == SIG_ERR) {
         errExit("signal");
     }
 
-    pause(); //wait for a signal
-
-
+    //wait for a signal
+    pause();
 }

@@ -11,8 +11,7 @@
 #define MAX_PATH 4096
 #define MAX_LEN 512
 #define LEN_INT 11
-#define SHMSIZE 4096 * 100
-#define SHMSEM 0
+
 //fifos path
 #define FIFO1 "/tmp/myDir/fifo1"
 #define FIFO2 "fifo2"

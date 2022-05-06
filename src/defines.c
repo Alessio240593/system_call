@@ -155,6 +155,7 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
         else if (de->d_type == DT_REG) {
             if (check_string("sendme_", de->d_name) == 0) {
                 if (check_size(start_path) == 0) {
+
                     if (dirlist->index + 1 > dirlist->size) {
                         dirlist->size *= 2;
                         dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
@@ -173,8 +174,10 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
         }
     }
 
-    closedir(dp);
+    dirlist->size = dirlist->index;
+    dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
 
+    closedir(dp);
     return 0;
 }
 

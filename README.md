@@ -37,6 +37,13 @@ in attesa di ricevere uno dei due segnali.
 
 
 #### `SERVER`
+1. Un processo Server genera due FIFO (FIFO1 e FIFO2), una coda di messaggi (MsgQueue), un
+segmento di memoria condivisa (ShdMem) ed un set di semafori per gestire la concorrenza su
+alcuni di questi strumenti di comunicazione.
+
+1. Alla ricezione del comando SIGINT (Ctrl-C da terminale) il processo Server rimuove tutte le IPC e
+termina.
+
 1. Il processo Server, alla ricezione da FIFO1 del numero “n” di file trasmessi dal client (percorso
 rosso in Figura 1)
 - memorizza tale numero
@@ -75,12 +82,7 @@ conclusione lavori.
 ---
 
 #### `SERVER`
-1. Un processo Server genera due FIFO (FIFO1 e FIFO2), una coda di messaggi (MsgQueue), un
-segmento di memoria condivisa (ShdMem) ed un set di semafori per gestire la concorrenza su
-alcuni di questi strumenti di comunicazione.
 
-1. Alla ricezione del comando SIGINT (Ctrl-C da terminale) il processo Server rimuove tutte le IPC e
-termina.
 
 
 

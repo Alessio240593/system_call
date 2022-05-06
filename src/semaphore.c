@@ -27,6 +27,23 @@ int alloc_semaphore(key_t semKey, int num)
 }
 
 /**
+* Sincronizza il chiamante sul set di semafori specificato da semKey
+* @param semKey - chiave del set di semafori
+* @param num - numero di semafori del set su cui sincronizzarsi(deve corrispondere all'originale)
+* @return semid - id del set di semafori
+*/
+int get_semaphore(key_t semKey, int num) {
+
+    int semid;
+    semid = semget(semKey, num, S_IRUSR | S_IWUSR) ;
+
+    if(semid == -1)
+        errExit("semget failed");
+
+    return semid;
+}
+
+/**
  * Esegue un operazione sul set di semafori
  * @param semid - id del set di semafori
  * @param sem_num - numero del semaforo su cui eseguire l'operazione

@@ -3,11 +3,12 @@
  *         specifiche per la gestione della MEMORIA CONDIVISA.
 */
 
-#include "err_exit.h"
-#include "shared_memory.h"
 #include <sys/stat.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+
+#include "err_exit.h"
+#include "shared_memory.h"
 
 /**
  * Crea, se non esiste, un segmento di memoria condivisa
@@ -16,7 +17,7 @@
  * @return shmid - id del segmento di memoria
  */
 int alloc_shared_memory(key_t shmKey, size_t size) {
-    // get, or create, a shared memory segment
+    // create, a shared memory segment
     int shmid;
     shmid = shmget(shmKey, size, IPC_CREAT | S_IRUSR | S_IWUSR | IPC_EXCL) ;
 
