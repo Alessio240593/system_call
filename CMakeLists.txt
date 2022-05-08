@@ -12,7 +12,7 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)# set
 #include_directories(inc)#compiler reference
 add_subdirectory(src)# add src subdir
 
-add_executable(client0 src/client_0.c)# create client0 exe
+add_executable(client0 src/client_0.c inc/segnali.h)# create client0 exe
 add_executable(server src/server.c)# create server exe
 
 #target_include_directories(lib PUBLIC inc)#compiler reference .h

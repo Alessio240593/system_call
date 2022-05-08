@@ -51,6 +51,9 @@ typedef struct __dirlist_t {
     size_t size;
 } dirlist_t;
 
+//struttura per la gestione dei puntatori
+typedef void (*sighandler_t)(int);
+
 int check_string(const char *string1, char *string2);
 int check_size(const char *path);
 ssize_t count_char(int fd);

@@ -15,6 +15,7 @@
 #include "fifo.h"
 #include "semaphore.h"
 #include "shared_memory.h"
+#include "segnali.h"
 #include "defines.h"
 #include "err_exit.h"
 
