@@ -21,28 +21,32 @@ void sig_fillset(sigset_t mySet)
 /**
  * elimina dei segnali dal set passato come argomento
  * @param mySet - identificatore dell'insieme dei segnali
- * @param num - numero di segnali da rimuovere
- * @param ... - uno o più segnali da rimuovere
  */
+void sig_remove(sigset_t mySet)
+{
+    if((sigdelset(&mySet, SIGINT) == -1) ||
+      (sigdelset(&mySet,SIGUSR1) == -1)) {
+        errExit("sidelset failed");
+    }
+}
+
+/*
 void sig_remove(sigset_t mySet, int num, ...)
 {
     va_list valist;
     int i;
 
-    /* initialize valist for num number of arguments */
     va_start(valist, num);
 
-    /* access all the arguments assigned to valist */
     for (i = 0; i < num; i++) {
-        if((sigdelset(&mySet,va_arg(valist, int) == -1))) {
+        if((sigdelset(&mySet,va_arg(valist, int)) == -1)) {
             errExit("sidelset failed");
         }
     }
 
-    /* clean memory reserved for valist */
     va_end(valist);
 
-}
+}*/
 
 /**
  * aggiunge dei segnali al set passato come argomento

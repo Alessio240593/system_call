@@ -128,7 +128,7 @@ int main(int argc, char * argv[])
     sig_fillset(mySet);
 
     //delete SIGINT and SIGUSR1 from the set
-    sig_remove(mySet, 2, SIGINT, SIGUSR1);
+    sig_remove(mySet);
 
     sig_setmask(SIG_SETMASK, mySet);
 

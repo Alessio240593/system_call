@@ -12,7 +12,7 @@
 typedef void (*sighandler_t)(int);
 
 void sig_fillset(sigset_t mySet);
-void sig_remove(sigset_t mySet, int sig, ...);
+void sig_remove(sigset_t mySet);
 void sig_add(sigset_t mySet, int num, ...);
 void sig_setmask(int flag, sigset_t mySet);
 void sig_sethandler(int signum, sighandler_t handler);

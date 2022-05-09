@@ -19,7 +19,7 @@
 
 struct mymsg {
     long type;
-    char text[];
+    char text[TEXTSIZE];
 };
 
 int alloc_message_queue(key_t msqKey);
