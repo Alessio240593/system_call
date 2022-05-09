@@ -3,21 +3,17 @@
  *         specifiche per la gestione della MEMORIA CONDIVISA.
 */
 
-#include <sys/stat.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-
-#include "err_exit.h"
 #include "shared_memory.h"
+#include "err_exit.h"
 
 /**
  * Crea, se non esiste, un segmento di memoria condivisa
- * @param shmKey - chiave per creare a shared memory
+ * @param shmKey - chiave per creare la shared memory
  * @param size - dimensione zona di memoria
  * @return shmid - id del segmento di memoria
  */
-int alloc_shared_memory(key_t shmKey, size_t size) {
-    // create, a shared memory segment
+int alloc_shared_memory(key_t shmKey, size_t size)
+{
     int shmid;
     shmid = shmget(shmKey, size, IPC_CREAT | S_IRUSR | S_IWUSR | IPC_EXCL) ;
 
@@ -33,8 +29,8 @@ int alloc_shared_memory(key_t shmKey, size_t size) {
 * @param size - dimensione zona di memoria(deve essere <= alla shared memory già esistente)
 * @return shmid - id del segmento di memoria
 */
-int get_shared_memory(key_t shmKey, size_t size) {
-    // get a shared memory segment
+int get_shared_memory(key_t shmKey, size_t size)
+{
     int shmid;
     shmid = shmget(shmKey, size, S_IRUSR | S_IWUSR) ;
 
@@ -50,8 +46,8 @@ int get_shared_memory(key_t shmKey, size_t size) {
  * @param shmflg - flag per la system call
  * @return void * - puntatore alla zona di memoria condivisa
  */
-void *attach_shared_memory(int shmid, int shmflg) {
-    // attach the shared memory
+void *attach_shared_memory(int shmid, int shmflg)
+{
     int *ptr = shmat(shmid, NULL, shmflg);
 
     if(ptr == (void *)-1)
@@ -64,8 +60,8 @@ void *attach_shared_memory(int shmid, int shmflg) {
  * Unlink della zona di memoria nello spazio di indirizzamento logico del processo
  * @param ptr_sh - puntatore alla zona di memoria condivisa
  */
-void free_shared_memory(void *ptr_sh) {
-    // detach the shared memory segments
+void free_shared_memory(void *ptr_sh)
+{
     if(shmdt(ptr_sh) == -1)
         errExit("shmdt failed");
 }
@@ -75,9 +71,11 @@ void free_shared_memory(void *ptr_sh) {
  * la detach, allora l'area di memoria viene eliminata
  * @param semid - id alla zona di memoria condivisa
  */
-void remove_shared_memory(int shmid) {
-    // delete the shared memory segment
+void remove_shared_memory(int shmid)
+{
     if(shmctl(shmid, IPC_RMID, NULL) == -1)
         errExit("shmctl failed");
+    else
+        printf("Shared memory segment removed successfully\n");
 }
 

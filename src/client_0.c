@@ -2,18 +2,10 @@
  * @brief Contiene l'implementazione del client.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sys/ipc.h>
-#include <sys/stat.h>
-
 #include "fifo.h"
 #include "semaphore.h"
 #include "shared_memory.h"
+//#include "message_queue.h"
 #include "_signal.h"
 #include "defines.h"
 

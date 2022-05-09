@@ -6,7 +6,11 @@
 #ifndef SHARED_MEMORY_H
 #define SHARED_MEMORY_H
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 #define SHMSIZE 4096 * 100
 #define SHMSEM 0

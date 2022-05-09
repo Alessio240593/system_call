@@ -6,6 +6,9 @@
 #ifndef SEMAPHORE_H
 #define SEMAPHORE_H
 
+#include <stdio.h>
+#include <sys/sem.h>
+#include <sys/stat.h>
 #include <stdlib.h>
 #include <sys/sem.h>
 

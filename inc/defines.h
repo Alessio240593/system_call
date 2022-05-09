@@ -6,6 +6,13 @@
 #define DEFINES_H
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/ipc.h>
 
 #define MAX_FILE_SIZE 4096
 #define MAX_PATH 4096

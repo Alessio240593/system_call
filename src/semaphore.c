@@ -3,11 +3,8 @@
  *         specifiche per la gestione dei SEMAFORI.
  */
 
-#include <sys/sem.h>
-#include <sys/stat.h>
-
-#include "err_exit.h"
 #include "semaphore.h"
+#include "err_exit.h"
 
 /**
  * Crea, se non esiste, un set di semafori
@@ -32,8 +29,8 @@ int alloc_semaphore(key_t semKey, int num)
 * @param num - numero di semafori del set su cui sincronizzarsi(deve corrispondere all'originale)
 * @return semid - id del set di semafori
 */
-int get_semaphore(key_t semKey, int num) {
-
+int get_semaphore(key_t semKey, int num)
+{
     int semid;
     semid = semget(semKey, num, S_IRUSR | S_IWUSR) ;
 
@@ -65,6 +62,8 @@ void remove_semaphore(int semid)
 {
     if(semctl(semid, 0, IPC_RMID, 0) == -1)
         errExit("semctl failed");
+    else
+        printf("Semaphore set removed successfully\n");
 }
 
 /*

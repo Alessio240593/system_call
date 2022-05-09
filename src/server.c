@@ -2,19 +2,12 @@
  *  @brief Contiene l'implementazione del sender_manager.
 */
 
-#include <fcntl.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-
 #include "fifo.h"
+#include "_signal.h"
 #include "semaphore.h"
 #include "shared_memory.h"
 #include "defines.h"
-#include "err_exit.h"
+//#include "message_queue.h"
 
 int main(void)
 {
