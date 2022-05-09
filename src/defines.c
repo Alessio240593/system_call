@@ -70,16 +70,32 @@ ssize_t count_char(int fd)
     ssize_t Br;
     char buffer[MAX_FILE_SIZE + 1];
 
-    if((Br = read(fd, buffer, MAX_FILE_SIZE)) == -1){
-        return -1;
+    if ((Br = read(fd, buffer, MAX_FILE_SIZE)) == -1){
+        return -2;
     }
 
     // the fd is now reusable
-    if(lseek(fd, 0, SEEK_SET) == -1){
+    if (lseek(fd, 0, SEEK_SET) == -1){
         return -1;
     }
 
-    return Br - 1;
+    return Br;
+}
+
+/**
+ * Controlla se <path> è una directory
+ * @param path - path da controllare
+ * @return 0 - in caso non sia una directory
+ * @return R \ {0} - se è una directory
+**/
+int is_dir(const char *path)
+{
+    struct stat tmp;
+
+    if ((stat(path, &tmp)) == -1) {
+        errExit("stat ");
+    }
+    return S_ISDIR(tmp.st_mode);
 }
 
 /**
@@ -105,20 +121,39 @@ int Chdir(const char *path)
 }
 
 /**
- * Controlla se <path> è una directory
- * @param path - path da controllare
- * @return 0 - in caso non sia una directory
- * @return R \ {0} - se è una directory
-**/
-int is_dir(const char *path)
+ * Divide il file fd in PARTS parti
+ * @param parts - array di stringhe contenenti le PARTS parti finali
+ * @param fd - file descriptor del file da leggere
+ * @param tot_char - numero totale di caratteri del file fd
+ * @return 0 - in caso di successo
+ * @return R \ {0} - altrimenti
+ */
+int split_file(char** parts, int fd, size_t tot_char)
 {
-    struct stat tmp;
+    size_t chunk = tot_char / PARTS;
+    ssize_t Br;
 
-    if ((stat(path, &tmp)) == -1) {
-        errExit("stat ");
+    if (tot_char % PARTS != 0)
+        chunk++;
+
+    for (size_t i = 0; i < PARTS; i++) {
+        parts[i] = (char *) calloc(chunk, sizeof(char));
+        MCHECK(parts[i]);
+
+        if ((Br = read(fd, parts[i], chunk)) == -1) {
+            return -1;
+        }
+
+        parts[i][Br] = '\0';
     }
-    return S_ISDIR(tmp.st_mode);
+
+    // the fd is now reusable
+    lseek(fd, 0, SEEK_SET);
+
+    return 0;
 }
+
+
 
 /**
  * Ricerca ricorsivamente i file che iniziano con sendme_ e hanno # inferiore a 4K

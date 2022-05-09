@@ -5,9 +5,10 @@
 #include "fifo.h"
 #include "semaphore.h"
 #include "shared_memory.h"
-//#include "message_queue.h"
+#include "message_queue.h"
 #include "_signal.h"
 #include "defines.h"
+#include "err_exit.h"
 
 const char *path;
 const char *signame[]={"INVALID", "SIGHUP", "SIGINT", "SIGQUIT",
@@ -21,7 +22,7 @@ const char *signame[]={"INVALID", "SIGHUP", "SIGINT", "SIGQUIT",
 
 void sigusr1_handler(int sig)
 {
-    printf(" → Received signal %s\n", signame[sig]);
+    printf(" → <Client-0>: Received signal %s\n", signame[sig]);
     exit(EXIT_SUCCESS);
 }
 
@@ -29,9 +30,10 @@ void sigint_handler(int sig)
 {
     //declare sigset
     sigset_t mySet;
+    char buffer[LEN_INT];
 
     //notify signal
-    printf(" → Received signal %s\n", signame[sig]);
+    printf(" → <Client-0>: Received signal %s\n", signame[sig]);
 
     //fill sigset
     sig_fillset(mySet);
@@ -42,7 +44,7 @@ void sigint_handler(int sig)
     //change working directory
     Chdir(path);
 
-    printf("Ciao %s, ora inizio l’invio dei file contenuti in %s\n", getenv("USER"), getenv("PWD"));
+    printf("<Client-0>: Ciao %s, ora inizio l’invio dei file contenuti in %s\n", getenv("USER"), getenv("PWD"));
 
     /* dirlist declaration and initialization */
     dirlist_t *dir_list = (dirlist_t *) malloc(sizeof(dirlist_t));
@@ -54,18 +56,15 @@ void sigint_handler(int sig)
     MCHECK_V(dir_list->list);
 
     init_dirlist(dir_list, path);
+
+#ifndef DEBUG
     dump_dirlist(dir_list, "before.txt");
 
-
-    char buffer[LEN_INT];
+    printf("index (%zu) == size (%zu) ? %s\n", dir_list->index, dir_list->size,
+           dir_list->index == dir_list->size ? "sì" : "no");
+#endif
 
     snprintf(buffer, LEN_INT, "%zu", dir_list->size);
-
-    /*
-    printf("Sto per creare la fifo\n");
-    make_fifo(FIFO1);
-    printf("Ho creato la fifo\n");
-    */
 
     //open fifo in write only mode
     int fd1 = open(FIFO1, O_WRONLY);
@@ -79,6 +78,9 @@ void sigint_handler(int sig)
     int shmid = get_shared_memory(SHMKEY, SHMSIZE);
     char *shmem = (char *)attach_shared_memory(shmid, 0);
 
+    // get message queue
+    int msqid = get_message_queue(MSGKEY);
+
     //get server semset
     int semid = get_semaphore(SEMKEY, SEMNUM);
 
@@ -87,6 +89,65 @@ void sigint_handler(int sig)
 
     //print shmem data
     printf("%s", shmem);
+
+    // start creation
+    size_t i;
+    pid_t pid;
+    ssize_t tot_char;
+    int waiting;
+
+    char **parts = (char **) calloc(PARTS, sizeof(char *));
+    MCHECK_V(parts);
+
+    struct mymsg *msq_msg = (struct mymsg *) malloc(sizeof(struct mymsg));
+    MCHECK_V(msq_msg);
+
+
+    for (i = 0; i < dir_list->index; i++) {
+        pid = fork();
+
+        if (pid < 0) {
+            fprintf(stderr, "<Client-%zu> Not created", i);
+            errExit("fork failed: ");
+        }
+        else if (pid == 0) {
+            // i-th child
+            int fd = open(dir_list->list[i], O_RDONLY);
+            SYSCHECK_V(fd, "open");
+
+            tot_char = count_char(fd);
+            split_file(parts, fd, tot_char);
+
+            fill_msg(msq_msg, 0, parts[3]);
+
+            waiting = semctl(semid, 3, GETZCNT, 0);
+            if (waiting == -1) {
+                errExit("semctl failed: ");
+            }
+            else if (waiting == (int) (dir_list->index - 2)) {
+                // Figlio prediletto
+                semOp(semid, 3, -1);
+            }
+            else {
+                // Figli diseredati
+                semOp(semid, 3, 0);
+            }
+
+            // start sending messages
+
+            // chiude il file
+            close(fd);
+
+            // termina
+            printf("<Child-%zu>: Ho finito di inviare i file.\n", i);
+            exit(EXIT_SUCCESS);
+        }
+        else {
+            // parent does nothing
+        }
+    }
+
+
 
     /* -------------------- */
 

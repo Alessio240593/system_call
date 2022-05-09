@@ -18,7 +18,7 @@ int alloc_semaphore(key_t semKey, int num)
     int semid = semget(semKey, num, IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR) ;
 
     if(semid == -1)
-        errExit("semget failed");
+        errExit("semget failed: ");
 
     return semid;
 }
@@ -35,7 +35,7 @@ int get_semaphore(key_t semKey, int num)
     semid = semget(semKey, num, S_IRUSR | S_IWUSR) ;
 
     if(semid == -1)
-        errExit("semget failed");
+        errExit("semget failed: ");
 
     return semid;
 }
@@ -48,10 +48,10 @@ int get_semaphore(key_t semKey, int num)
  */
 void semOp (int semid, unsigned short sem_num, short sem_op)
 {
-    struct sembuf sop = {.sem_num = sem_num, . sem_op = sem_op, .sem_flg = 0};
+    struct sembuf sop = {.sem_num = sem_num, .sem_op = sem_op, .sem_flg = 0};
 
     if (semop(semid, &sop, 1) == -1)
-        errExit("semop failed");
+        errExit("semop failed: ");
 }
 
 /**
@@ -61,7 +61,7 @@ void semOp (int semid, unsigned short sem_num, short sem_op)
 void remove_semaphore(int semid)
 {
     if(semctl(semid, 0, IPC_RMID, 0) == -1)
-        errExit("semctl failed");
+        errExit("semctl failed: ");
     else
         printf("Semaphore set removed successfully\n");
 }
@@ -77,4 +77,3 @@ void control_semaphore(int semid)
 
 }
 */
-

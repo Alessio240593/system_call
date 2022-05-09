@@ -12,10 +12,11 @@
 #include <sys/msg.h>
 #include <string.h>
 
-#define TEXTSIZE 100
+#define TEXTSIZE 1024
 #define MSGSIZE (sizeof(struct mymsg) - sizeof(long))
 #define MSGSEM 1
-#define MSGKEY 100 //change value
+#define MSGKEY 104
+#define MAXMSQ 50
 
 struct mymsg {
     long type;

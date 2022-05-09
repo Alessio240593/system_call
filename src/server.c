@@ -7,26 +7,38 @@
 #include "semaphore.h"
 #include "shared_memory.h"
 #include "defines.h"
-//#include "message_queue.h"
+#include "message_queue.h"
 
 int main(void)
 {
     char buffer[MAX_LEN];
 
-    //create shmem
+    // create shmem
     int shmid = alloc_shared_memory(SHMKEY,SHMSIZE);
     char *shmem = (char *)attach_shared_memory(shmid, 0);
 
-    //create and initialize semset
+    // create and initialize semaphore set
     int semid = alloc_semaphore(SEMKEY, SEMNUM);
     union semun arg;
-    arg.val = SHMSEM;
-    semctl(semid, 0, SETVAL, arg);
+    arg.val = 0;
+    // set sem1 and sem2 at 0
+    semctl(semid, SHMSEM, SETVAL, arg);
+    semctl(semid, MSGSEM, SETVAL, arg);
+    // create semaphore of max messages in msg_queue
+    arg.val = 50;
+    semctl(semid, 2, SETVAL, arg);
+    // create semaphore to sync clients
+    arg.val = 1;
+    semctl(semid, 3, SETVAL, arg);
 
-    //create fifo1
+    // create message queue
+    //int msqid = alloc_message_queue(MSGKEY);
+
+    // create FIFOs
     make_fifo(FIFO1);
+    make_fifo(FIFO2);
 
-    //open fifo in read only mode
+    // open fifo1 in read only mode
     int fd1 = open(FIFO1, O_RDONLY);
     SYSCHECK(fd1, "open");
 
