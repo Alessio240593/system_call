@@ -26,10 +26,10 @@ int main(void)
     semctl(semid, MSGSEM, SETVAL, arg);
     // create semaphore of max messages in msg_queue
     arg.val = 50;
-    semctl(semid, 2, SETVAL, arg);
+    semctl(semid, COUNTSEM, SETVAL, arg);
     // create semaphore to sync clients
     arg.val = 1;
-    semctl(semid, 3, SETVAL, arg);
+    semctl(semid, CHILDSEM, SETVAL, arg);
 
     // create message queue
     //int msqid = alloc_message_queue(MSGKEY);
@@ -57,5 +57,5 @@ int main(void)
     strcpy(shmem, buffer);
 
     //wake up client
-    semOp(semid,0,1);
+    semOp(semid,0,SIGNAL);
 }

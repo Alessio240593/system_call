@@ -18,7 +18,7 @@ int alloc_message_queue(key_t msqKey)
     msqid = msgget(msqKey, IPC_CREAT | S_IRUSR | S_IWUSR | IPC_EXCL) ;
 
     if(msqid == -1)
-        errExit("msgget failed");
+        errExit("msgget failed: ");
 
     return msqid;
 }
@@ -35,7 +35,7 @@ int get_message_queue(key_t msqKey)
     msqid = msgget(msqKey, S_IRUSR | S_IWUSR) ;
 
     if(msqid == -1)
-        errExit("msgget failed");
+        errExit("msgget failed: ");
 
     return msqid;
 }
@@ -57,12 +57,11 @@ void fill_msg(struct mymsg *msg, long type, const char *text)
  * @param msqid - id della coda di messaggi
  * @param msg - messaggio da inviare
  * @param msgflg - flag
- * @return
  */
 void msg_send(int msqid, const void *msg, int msgflg)
 {
     if (msgsnd(msqid, msg, MSGSIZE, msgflg) == -1)
-        errExit("msgsnd failed");
+        errExit("msgsnd failed: ");
 }
 
 /**
@@ -77,7 +76,7 @@ void msg_send(int msqid, const void *msg, int msgflg)
 void msg_receive(int msqid, void *msg, long msgtype, int msgflg)
 {
     if (msgrcv(msqid, msg, MSGSIZE, msgtype , msgflg) == -1)
-        errExit("msgrcv failed");
+        errExit("msgrcv failed: ");
 }
 
 /**
@@ -87,7 +86,7 @@ void msg_receive(int msqid, void *msg, long msgtype, int msgflg)
 void remove_message_queue(int msqid)
 {
     if(msgctl(msqid, IPC_RMID, NULL) == -1)
-        errExit("msgctl failed");
+        errExit("msgctl failed: ");
     else
         printf("Message queue removed successfully\n");
 }

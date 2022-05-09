@@ -15,5 +15,5 @@
 void make_fifo(const char *path)
 {
     if (mkfifo(path, S_IRUSR | S_IWUSR) == -1)
-        errExit("mkfifo failed");
+        errExit("mkfifo failed: ");
 }

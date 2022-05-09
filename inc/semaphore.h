@@ -14,6 +14,15 @@
 
 #define SEMKEY 100 //change value
 #define SEMNUM 4
+
+#define WAIT -1
+#define SYNC 0
+#define SIGNAL 1
+
+#define SHMSEM 0
+#define MSGSEM 1
+#define COUNTSEM 2
+#define CHILDSEM 3
 // 1° semaforo => shared memory
 // 2° semaforo => message queue
 // 3° semaforo => max messages in msg_queue
@@ -31,7 +40,7 @@ union semun {
 void semOp (int semid, unsigned short sem_num, short sem_op);
 int alloc_semaphore(key_t semKey, int num);
 int get_semaphore(key_t semKey, int num);
-void control_semaphore(int semid);
+void control_semaphore(int semid, int semnum, int cmd, int flag);
 void remove_semaphore(int shmid);
 
 #endif

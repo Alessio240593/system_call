@@ -28,18 +28,36 @@ void sigusr1_handler(int sig)
 
 void sigint_handler(int sig)
 {
+    //notify signal
+    printf(" → <Client-0>: Received signal %s\n", signame[sig]);
+
     //declare sigset
     sigset_t mySet;
     char buffer[LEN_INT];
 
-    //notify signal
-    printf(" → <Client-0>: Received signal %s\n", signame[sig]);
+    //open fifo in write only mode
+    int fd1 = open(FIFO1, O_WRONLY);
+    SYSCHECK_V(fd1, "open");
+
+    //get server shmem
+    int shmid = get_shared_memory(SHMKEY, SHMSIZE);
+    char *shmem = (char *)attach_shared_memory(shmid, 0);
+
+    // get message queue
+    //int msqid = get_message_queue(MSGKEY);
+
+    //get server semset
+    int semid = get_semaphore(SEMKEY, SEMNUM);
 
     //fill sigset
-    sig_fillset(mySet);
+    sig_fillset(&mySet);
 
     //set signal mask
-    sig_setmask(SIG_SETMASK, mySet);
+    sig_setmask(SIG_SETMASK, &mySet);
+
+    for (int i = 0; i < 31; ++i) {
+        printf("Il segnale %s : %s\n",signame[i], sigismember(&mySet, i) ? "si" : "no");
+    }
 
     //change working directory
     Chdir(path);
@@ -60,32 +78,18 @@ void sigint_handler(int sig)
 #ifndef DEBUG
     dump_dirlist(dir_list, "before.txt");
 
-    printf("index (%zu) == size (%zu) ? %s\n", dir_list->index, dir_list->size,
-           dir_list->index == dir_list->size ? "sì" : "no");
+    /*printf("index (%zu) == size (%zu) ? %s\n", dir_list->index, dir_list->size,
+           dir_list->index == dir_list->size ? "sì" : "no");*/
 #endif
 
     snprintf(buffer, LEN_INT, "%zu", dir_list->size);
-
-    //open fifo in write only mode
-    int fd1 = open(FIFO1, O_WRONLY);
-    SYSCHECK_V(fd1, "open");
 
     //write on fifo
     ssize_t bW = write(fd1, buffer, LEN_INT);
     WCHECK_V(bW, LEN_INT);
 
-    //get server shmem
-    int shmid = get_shared_memory(SHMKEY, SHMSIZE);
-    char *shmem = (char *)attach_shared_memory(shmid, 0);
-
-    // get message queue
-    int msqid = get_message_queue(MSGKEY);
-
-    //get server semset
-    int semid = get_semaphore(SEMKEY, SEMNUM);
-
     //waiting data
-    semOp(semid,0,-1);
+    semOp(semid,0,WAIT);
 
     //print shmem data
     printf("%s", shmem);
@@ -101,7 +105,6 @@ void sigint_handler(int sig)
 
     struct mymsg *msq_msg = (struct mymsg *) malloc(sizeof(struct mymsg));
     MCHECK_V(msq_msg);
-
 
     for (i = 0; i < dir_list->index; i++) {
         pid = fork();
@@ -120,34 +123,32 @@ void sigint_handler(int sig)
 
             fill_msg(msq_msg, 0, parts[3]);
 
-            waiting = semctl(semid, 3, GETZCNT, 0);
+            waiting = semctl(semid, CHILDSEM, GETZCNT, 0);
             if (waiting == -1) {
                 errExit("semctl failed: ");
             }
             else if (waiting == (int) (dir_list->index - 2)) {
                 // Figlio prediletto
-                semOp(semid, 3, -1);
+                semOp(semid, CHILDSEM, WAIT);
             }
             else {
                 // Figli diseredati
-                semOp(semid, 3, 0);
+                semOp(semid, CHILDSEM, SYNC);
             }
 
             // start sending messages
-
+            //...
             // chiude il file
             close(fd);
 
             // termina
-            printf("<Child-%zu>: Ho finito di inviare i file.\n", i);
+            printf("<Client-%zu>: Ho finito di inviare il file %s.\n", i, dir_list->list[i]);
             exit(EXIT_SUCCESS);
         }
         else {
             // parent does nothing
         }
     }
-
-
 
     /* -------------------- */
 
@@ -186,12 +187,16 @@ int main(int argc, char * argv[])
     sigset_t mySet;
 
     //fill sigset
-    sig_fillset(mySet);
+    sig_fillset(&mySet);
 
     //delete SIGINT and SIGUSR1 from the set
-    sig_remove(mySet);
+    sig_remove(&mySet, 2, SIGINT, SIGUSR1);
 
-    sig_setmask(SIG_SETMASK, mySet);
+    sig_setmask(SIG_SETMASK, &mySet);
+
+    /*for (int i = 0; i < 31; ++i) {
+        printf("Il segnale %s : %s\n",signame[i], sigismember(&mySet, i) ? "si" : "no");
+    }*/
 
     sig_sethandler(SIGINT, sigint_handler);
     sig_sethandler(SIGUSR1, sigusr1_handler);

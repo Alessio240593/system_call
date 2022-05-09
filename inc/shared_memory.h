@@ -13,7 +13,6 @@
 #include <sys/shm.h>
 
 #define SHMSIZE 4096 * 100
-#define SHMSEM 0
 #define SHMKEY 100 //change value
 
 // the Request structure defines a request sent by a client

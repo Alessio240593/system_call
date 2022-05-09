@@ -18,7 +18,7 @@ int alloc_shared_memory(key_t shmKey, size_t size)
     shmid = shmget(shmKey, size, IPC_CREAT | S_IRUSR | S_IWUSR | IPC_EXCL) ;
 
     if(shmid == -1)
-        errExit("shmget failed");
+        errExit("shmget failed: ");
 
     return shmid;
 }
@@ -35,7 +35,7 @@ int get_shared_memory(key_t shmKey, size_t size)
     shmid = shmget(shmKey, size, S_IRUSR | S_IWUSR) ;
 
     if(shmid == -1)
-        errExit("shmgetg failed");
+        errExit("shmget failed: ");
 
     return shmid;
 }
@@ -51,7 +51,7 @@ void *attach_shared_memory(int shmid, int shmflg)
     int *ptr = shmat(shmid, NULL, shmflg);
 
     if(ptr == (void *)-1)
-        errExit("shmat failed");
+        errExit("shmat failed: ");
 
     return ptr;
 }
@@ -63,7 +63,7 @@ void *attach_shared_memory(int shmid, int shmflg)
 void free_shared_memory(void *ptr_sh)
 {
     if(shmdt(ptr_sh) == -1)
-        errExit("shmdt failed");
+        errExit("shmdt failed: ");
 }
 
 /**
@@ -74,7 +74,7 @@ void free_shared_memory(void *ptr_sh)
 void remove_shared_memory(int shmid)
 {
     if(shmctl(shmid, IPC_RMID, NULL) == -1)
-        errExit("shmctl failed");
+        errExit("shmctl failed: ");
     else
         printf("Shared memory segment removed successfully\n");
 }

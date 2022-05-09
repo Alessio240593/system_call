@@ -13,6 +13,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/ipc.h>
+#include <dirent.h>
+#include <errno.h>
 
 #define MAX_FILE_SIZE 4096
 #define MAX_PATH 4096

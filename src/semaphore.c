@@ -55,6 +55,19 @@ void semOp (int semid, unsigned short sem_num, short sem_op)
 }
 
 /**
+ * Esegue operazioni di controllo sul set di semafori
+ * @param semid - id del set di semafori
+ * @param semnum - numero del semaforo sul quale eseguire l'operazione
+ * @param cmd - operazione di controllo
+ */
+void control_semaphore(int semid, int semnum, int cmd, int flag)
+{
+    if((semctl(semid, semnum, cmd, flag) == -1)) {
+        errExit("semctl failed: ");
+    }
+}
+
+/**
  * Elimina il set di semafori
  * @param semid - id del set di semafori
  */
@@ -66,14 +79,3 @@ void remove_semaphore(int semid)
         printf("Semaphore set removed successfully\n");
 }
 
-/*
-void control_semaphore(int semid)
-{
-    // attach the shared memory
-    int *ptr = semctl(shmid, NULL, shmflg);
-
-    if(ptr == (void *)-1)
-        errExit("shmat failed");
-
-}
-*/

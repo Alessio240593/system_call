@@ -3,14 +3,6 @@
  *  specifiche del progetto.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <errno.h>
-
 #include "defines.h"
 #include "err_exit.h"
 
@@ -51,7 +43,7 @@ int check_size(const char *path)
     struct stat buffer;
 
     if ((stat(path, &buffer)) == -1) {
-        perror("stat");
+        perror("stat failed: ");
         return -1;
     }
     else {
@@ -93,7 +85,7 @@ int is_dir(const char *path)
     struct stat tmp;
 
     if ((stat(path, &tmp)) == -1) {
-        errExit("stat ");
+        errExit("stat failed: ");
     }
     return S_ISDIR(tmp.st_mode);
 }
@@ -108,12 +100,12 @@ int Chdir(const char *path)
     int ret = 0;
 
     if ((chdir(path)) != 0) {
-        perror("chdir");
+        perror("chdir failed: ");
         ret = 1;
     }
 
     if ((setenv("PWD", path, 1)) == -1) {
-        perror("setenv");
+        perror("setenv failed: ");
         ret = -1;
     }
 
@@ -152,8 +144,6 @@ int split_file(char** parts, int fd, size_t tot_char)
 
     return 0;
 }
-
-
 
 /**
  * Ricerca ricorsivamente i file che iniziano con sendme_ e hanno # inferiore a 4K
