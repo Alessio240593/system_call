@@ -3,12 +3,10 @@
  *         specifiche per la gestione dei SEGNALI.
  */
 
-#include <sys/signal.h>
-#include <sys/stat.h>
 #include <stdarg.h>
 
 #include "err_exit.h"
-#include "segnali.h"
+#include "_signal.h"
 
 /**
  * inizializza un insieme di segnali per contenerli tutti
@@ -34,7 +32,9 @@ void sig_remove(sigset_t mySet, int num, ...) {
 
     /* access all the arguments assigned to valist */
     for (i = 0; i < num; i++) {
-        sigdelset(&mySet,va_arg(valist, int));
+        if((sigdelset(&mySet,va_arg(valist, int) == -1))) {
+            errExit("sidelset failed");
+        }
     }
 
     /* clean memory reserved for valist */
@@ -42,6 +42,12 @@ void sig_remove(sigset_t mySet, int num, ...) {
 
 }
 
+/**
+ * aggiunge dei segnali al set passato come argomento
+ * @param mySet - identificatore dell'insieme dei segnali
+ * @param num - numero di segnali da rimuovere
+ * @param ... - uno o più segnali da rimuovere
+ */
 void sig_add(sigset_t mySet, int num, ...) {
     va_list valist;
     int i;
@@ -51,7 +57,9 @@ void sig_add(sigset_t mySet, int num, ...) {
 
     /* access all the arguments assigned to valist */
     for (i = 0; i < num; i++) {
-        sigaddset(&mySet,va_arg(valist, int));
+        if((sigaddset(&mySet,va_arg(valist, int) == -1))) {
+            errExit("siaddset failed");
+        }
     }
 
     /* clean memory reserved for valist */
@@ -60,19 +68,19 @@ void sig_add(sigset_t mySet, int num, ...) {
 }
 
 /**
- * imposta una maschera dei segnali per il processo corrente
+ * imposta <myset> come maschera dei segnali per il processo corrente
  * @param flag - determina il cambiamento che la funzione apporta alla maschera
  * @param mySet - identificatore dell'insieme dei segnali per il processo corrente
  * @param oldSet - se non è nulla punta a una struttura che conterrà la maschera del
  * processo precedente alla chiamata di questa funzione
  */
-void sig_setmask(int flag, sigset_t mySet, sigset_t oldSet) {
-    if ((sigprocmask(flag, &mySet, &oldSet)) == -1)
+void sig_setmask(int flag, sigset_t mySet) {
+    if ((sigprocmask(flag, &mySet, 0)) == -1)
         errExit("sigprocmask failed");
 }
 
 /**
- * imposta un nuovo handler per la ricezione di un determinato sengnale
+ * imposta <handler> come handler di default per la ricezione di un determinato sengnale
  * @param signum - identificatore del segnale che verrà gestito dall'handler
  * @param handler - handler che andrà a gestire il segnale inviato all pprocesso
  */

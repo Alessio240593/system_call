@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -15,9 +14,8 @@
 #include "fifo.h"
 #include "semaphore.h"
 #include "shared_memory.h"
-#include "segnali.h"
+#include "_signal.h"
 #include "defines.h"
-#include "err_exit.h"
 
 const char *path;
 const char *signame[]={"INVALID", "SIGHUP", "SIGINT", "SIGQUIT",
@@ -44,17 +42,10 @@ void sigint_handler(int sig)
     printf(" → Received signal %s\n", signame[sig]);
 
     //fill sigset
-    if ((sigfillset(&mySet)) == -1) {
-        perror("sigfillset");
-        exit(EXIT_FAILURE);
-    }
+    sig_fillset(mySet);
 
     //set signal mask
-    if ((sigprocmask(SIG_SETMASK, &mySet, NULL)) == -1) {
-        perror("sigprocmask");
-        fprintf(stderr, "Received signal %d\n", sig);
-        exit(EXIT_FAILURE);
-    }
+    sig_setmask(SIG_SETMASK, mySet);
 
     //change working directory
     Chdir(path);
@@ -142,26 +133,15 @@ int main(int argc, char * argv[])
     sigset_t mySet;
 
     //fill sigset
-    if ((sigfillset(&mySet)) == -1) {
-        errExit("sigemptyset");
-    }
+    sig_fillset(mySet);
 
     //delete SIGINT and SIGUSR1 from the set
-    if ((sigdelset(&mySet, SIGINT)) == -1
-        || (sigdelset(&mySet, SIGUSR1)) == -1) {
-        errExit("sigdelset");
-    }
+    sig_remove(mySet, 2, SIGINT, SIGUSR1);
 
-    //set the mask
-    if ((sigprocmask(SIG_SETMASK, &mySet, NULL)) == -1) {
-        errExit("sigprocmask");
-    }
+    sig_setmask(SIG_SETMASK, mySet);
 
-    //set the default handler
-    if ((signal(SIGINT, sigint_handler)) == SIG_ERR
-        || (signal(SIGUSR1, sigusr1_handler)) == SIG_ERR) {
-        errExit("signal");
-    }
+    sig_sethandler(SIGINT, sigint_handler);
+    sig_sethandler(SIGUSR1, sigusr1_handler);
 
     //wait for a signal
     pause();
