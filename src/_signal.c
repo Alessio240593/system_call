@@ -12,7 +12,8 @@
  * inizializza un insieme di segnali per contenerli tutti
  * @param mySet - identificatore dell'insieme dei segnali
  */
-void sig_fillset(sigset_t mySet) {
+void sig_fillset(sigset_t mySet)
+{
     if ((sigfillset(&mySet)) == -1)
         errExit("sigfillset failed");
 }
@@ -23,7 +24,8 @@ void sig_fillset(sigset_t mySet) {
  * @param num - numero di segnali da rimuovere
  * @param ... - uno o più segnali da rimuovere
  */
-void sig_remove(sigset_t mySet, int num, ...) {
+void sig_remove(sigset_t mySet, int num, ...)
+{
     va_list valist;
     int i;
 
@@ -48,7 +50,8 @@ void sig_remove(sigset_t mySet, int num, ...) {
  * @param num - numero di segnali da rimuovere
  * @param ... - uno o più segnali da rimuovere
  */
-void sig_add(sigset_t mySet, int num, ...) {
+void sig_add(sigset_t mySet, int num, ...)
+{
     va_list valist;
     int i;
 
@@ -74,7 +77,8 @@ void sig_add(sigset_t mySet, int num, ...) {
  * @param oldSet - se non è nulla punta a una struttura che conterrà la maschera del
  * processo precedente alla chiamata di questa funzione
  */
-void sig_setmask(int flag, sigset_t mySet) {
+void sig_setmask(int flag, sigset_t mySet)
+{
     if ((sigprocmask(flag, &mySet, 0)) == -1)
         errExit("sigprocmask failed");
 }
@@ -84,7 +88,8 @@ void sig_setmask(int flag, sigset_t mySet) {
  * @param signum - identificatore del segnale che verrà gestito dall'handler
  * @param handler - handler che andrà a gestire il segnale inviato all pprocesso
  */
-void sig_sethandler(int signum, sighandler_t handler) {
+void sig_sethandler(int signum, sighandler_t handler)
+{
     if ((signal(signum, handler)) == SIG_ERR)
         errExit("signal");
 }

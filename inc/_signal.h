@@ -6,7 +6,7 @@
 #ifndef SYSTEM_CALL__SIGNAL_H
 #define SYSTEM_CALL__SIGNAL_H
 
-#include <sys/signal.h>
+#include <signal.h>
 
 //struttura per la gestione dei puntatori
 typedef void (*sighandler_t)(int);

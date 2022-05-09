@@ -26,7 +26,7 @@ int alloc_message_queue(key_t msqKey);
 int get_message_queue(key_t msqKey);
 void fill_msg(struct mymsg *msg, long type, const char *text);
 void msg_send(int msqid, const void *msg, int msgflg);
-void msg_receive(int msqid, void *msg, long msgtype, int msgflg)
+void msg_receive(int msqid, void *msg, long msgtype, int msgflg);
 void remove_message_queue(int msqid);
 
 #endif //SYSTEM_CALL_MESSAGE_QUEUE_H
