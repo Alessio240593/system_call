@@ -14,7 +14,7 @@
 
 #define TEXTSIZE 1024
 #define MSGSIZE (sizeof(struct mymsg) - sizeof(long))
-#define MSGKEY 104
+#define KEYMSQ 104
 #define MAXMSG 50
 
 struct mymsg {

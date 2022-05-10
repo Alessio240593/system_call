@@ -12,17 +12,17 @@
 #include <stdlib.h>
 #include <sys/sem.h>
 
-#define SEMKEY 100 //change value
+#define KEYSEM 100 //change value
 #define SEMNUM 4
 
 #define WAIT -1
 #define SYNC 0
 #define SIGNAL 1
 
-#define SHMSEM 0
-#define MSGSEM 1
-#define COUNTSEM 2
-#define CHILDSEM 3
+#define SEMSHM 0
+#define SEMMSQ 1
+#define SEMCOUNT 2
+#define SEMCHILD 3
 // 1° semaforo => shared memory
 // 2° semaforo => message queue
 // 3° semaforo => max messages in msg_queue

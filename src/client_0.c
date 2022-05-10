@@ -40,14 +40,14 @@ void sigint_handler(int sig)
     SYSCHECK_V(fd1, "open");
 
     //get server shmem
-    int shmid = get_shared_memory(SHMKEY, SHMSIZE);
+    int shmid = get_shared_memory(KEYSHM, SHMSIZE);
     char *shmem = (char *)attach_shared_memory(shmid, 0);
 
     // get message queue
     //int msqid = get_message_queue(MSGKEY);
 
     //get server semset
-    int semid = get_semaphore(SEMKEY, SEMNUM);
+    int semid = get_semaphore(KEYSEM, SEMNUM);
 
     //fill sigset
     sig_fillset(&mySet);
@@ -123,17 +123,17 @@ void sigint_handler(int sig)
 
             fill_msg(msq_msg, 0, parts[3]);
 
-            waiting = semctl(semid, CHILDSEM, GETZCNT, 0);
+            waiting = semctl(semid, SEMCHILD, GETZCNT, 0);
             if (waiting == -1) {
                 errExit("semctl failed: ");
             }
             else if (waiting == (int) (dir_list->index - 2)) {
                 // Figlio prediletto
-                semOp(semid, CHILDSEM, WAIT);
+                semOp(semid, SEMCHILD, WAIT);
             }
             else {
                 // Figli diseredati
-                semOp(semid, CHILDSEM, SYNC);
+                semOp(semid, SEMCHILD, SYNC);
             }
 
             // start sending messages

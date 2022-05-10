@@ -14,22 +14,22 @@ int main(void)
     char buffer[MAX_LEN];
 
     // create shmem
-    int shmid = alloc_shared_memory(SHMKEY,SHMSIZE);
+    int shmid = alloc_shared_memory(KEYSHM,SHMSIZE);
     char *shmem = (char *)attach_shared_memory(shmid, 0);
 
     // create and initialize semaphore set
-    int semid = alloc_semaphore(SEMKEY, SEMNUM);
+    int semid = alloc_semaphore(KEYSEM, SEMNUM);
     union semun arg;
     arg.val = 0;
     // set sem1 and sem2 at 0
-    semctl(semid, SHMSEM, SETVAL, arg);
-    semctl(semid, MSGSEM, SETVAL, arg);
+    semctl(semid, SEMSHM, SETVAL, arg);
+    semctl(semid, SEMMSQ, SETVAL, arg);
     // create semaphore of max messages in msg_queue
     arg.val = 50;
-    semctl(semid, COUNTSEM, SETVAL, arg);
+    semctl(semid, SEMCOUNT, SETVAL, arg);
     // create semaphore to sync clients
     arg.val = 1;
-    semctl(semid, CHILDSEM, SETVAL, arg);
+    semctl(semid, SEMCHILD, SETVAL, arg);
 
     // create message queue
     //int msqid = alloc_message_queue(MSGKEY);
