@@ -1,8 +1,8 @@
 #!/bin/bash
 
 DIR="/tmp/myDir"
-FIFO1="/tmp/fifo1"
-FIFO2="/tmp/fifo2"
+FIFO1="/tmp/myDir/fifo1"
+FIFO2="/tmp/myDir/fifo2"
 
 if [[ ! -d $DIR ]];
 then

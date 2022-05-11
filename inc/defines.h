@@ -23,8 +23,8 @@
 #define PARTS 4
 
 // FIFOs path
-#define FIFO1 "/tmp/fifo1"
-#define FIFO2 "/tmp/fifo2"
+#define FIFO1 "/tmp/myDir/fifo1"
+#define FIFO2 "/tmp/myDir/fifo2"
 
 #define MCHECK(ptr)  if (ptr == NULL) { \
                         perror("malloc "); \

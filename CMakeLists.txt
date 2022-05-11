@@ -3,7 +3,7 @@ project(system_call VERSION 1.0)# set project name and version
 
 set(CMAKE_C_STANDARD 99)# set c standard
 #set(CMAKE_C_STANDARD_REQUIRED on)# c standard is require
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wextra -Werror -Wpedantic ")# set compilation flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wextra -Wpedantic ")# set compilation flags
 set(BIN "${CMAKE_CURRENT_SOURCE_DIR}/bin")# aliasing ./bin -> BIN
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN})# set output directory -> bin
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)# set building type
