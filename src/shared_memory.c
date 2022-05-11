@@ -76,6 +76,6 @@ void remove_shared_memory(int shmid)
     if(shmctl(shmid, IPC_RMID, NULL) == -1)
         errExit("shmctl failed: ");
     else
-        printf("Shared memory segment removed successfully\n");
+        printf("→ Shared memory segment removed successfully!\n");
 }
 

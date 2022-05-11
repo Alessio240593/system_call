@@ -88,5 +88,5 @@ void remove_message_queue(int msqid)
     if(msgctl(msqid, IPC_RMID, NULL) == -1)
         errExit("msgctl failed: ");
     else
-        printf("Message queue removed successfully\n");
+        printf("→ Message queue removed successfully!\n");
 }

@@ -3,8 +3,6 @@
  *         specifiche per la gestione dei SEGNALI.
  */
 
-#include <stdarg.h>
-
 #include "err_exit.h"
 #include "_signal.h"
 

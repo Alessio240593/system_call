@@ -76,6 +76,6 @@ void remove_semaphore(int semid)
     if(semctl(semid, 0, IPC_RMID, 0) == -1)
         errExit("semctl failed: ");
     else
-        printf("Semaphore set removed successfully\n");
+        printf("→ Semaphore set removed successfully!\n");
 }
 

@@ -20,21 +20,16 @@ char *shmem = NULL;
 
 void sigint_handler(int sig)
 {
-    int ret;
-    printf(" → <Server>: Received signal %s\n", signame[sig]);
+    printf("\n → <Server>: Received signal %s\n\n", signame[sig]);
 
     if(fd1 >= 0) {
-        ret = close(fd1);
-        SYSCHECK_V(ret, "close");
-        ret = unlink(FIFO1);
-        SYSCHECK_V(ret, "unlink");
+        close_fd(fd1);
+        remove_fifo(FIFO1);
     }
 
     if(fd2 >= 0) {
-        ret = close(fd2);
-        SYSCHECK_V(ret, "close");
-        ret = unlink(FIFO1);
-        SYSCHECK_V(ret, "unlink");
+        close_fd(fd2);
+        remove_fifo(FIFO2);
     }
 
 
@@ -80,7 +75,7 @@ int main(void)
 
     // create FIFOs
     make_fifo(FIFO1);
-    make_fifo(FIFO2);
+    //make_fifo(FIFO2);
 
     sig_sethandler(SIGINT, sigint_handler);
 
@@ -99,7 +94,7 @@ int main(void)
         int n = atoi(buffer);
 
         //costruzione messaggio da scrivere sulla shmem
-        snprintf(buffer, sizeof(buffer), "<Server>: Ho ricevuto %d file\n", n);
+        snprintf(buffer, sizeof(buffer), "·· <Server>: Ho ricevuto %d file\n\n", n);
 
         //write data on shmem
         strcpy(shmem, buffer);

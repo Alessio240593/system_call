@@ -4,11 +4,6 @@
 
 #include "err_exit.h"
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <errno.h>
-
 /**
  * Stampa il messaggio di errore <msg> e ritorna il codice d'errore EXIT_FAILURE
  * @param msg - messaggio da stampare

@@ -15,6 +15,7 @@
 #include <sys/ipc.h>
 #include <dirent.h>
 #include <errno.h>
+#include <sys/wait.h>
 
 #define MAX_FILE_SIZE 4096
 #define MAX_PATH 4096

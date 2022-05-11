@@ -10,22 +10,19 @@
 #include "defines.h"
 #include "err_exit.h"
 
-#include <sys/wait.h>
-
 extern const char *signame[];
-
 const char *path;
 
 void sigusr1_handler(int sig)
 {
-    printf(" → <Client-0>: Received signal %s\n", signame[sig]);
+    printf("\n\n → <Client-0>: Received signal %s\n", signame[sig]);
     exit(EXIT_SUCCESS);
 }
 
 void sigint_handler(int sig)
 {
     //notify signal
-    printf(" → <Client-0>: Received signal %s\n", signame[sig]);
+    printf("\n\n → <Client-0>: Received signal %s\n", signame[sig]);
 }
 
 int main(int argc, char * argv[])
@@ -73,7 +70,6 @@ int main(int argc, char * argv[])
     //wait for a signal
     pause();
 
-    //declare sigset
     char buffer[LEN_INT];
 
     //open fifo in write only mode
@@ -96,14 +92,14 @@ int main(int argc, char * argv[])
     //set signal mask
     sig_setmask(SIG_SETMASK, &mySet);
 
-    for (int i = 0; i < 31; ++i) {
+    /*for (int i = 0; i < 31; ++i) {
         printf("Il segnale %s : %s\n",signame[i], sigismember(&mySet, i) ? "si" : "no");
-    }
+    }*/
 
     //change working directory
     Chdir(path);
 
-    printf("<Client-0>: Ciao %s, ora inizio l’invio dei file contenuti in %s\n", getenv("USER"), getenv("PWD"));
+    printf("\n→ <Client-0>: Ciao %s, ora inizio l’invio dei file contenuti in %s\n\n", getenv("USER"), getenv("PWD"));
 
     /* dirlist declaration and initialization */
     dirlist_t *dir_list = (dirlist_t *) malloc(sizeof(dirlist_t));
@@ -183,11 +179,16 @@ int main(int argc, char * argv[])
             close(fd);
 
             // termina
-            printf("<Client-%zu>: Ho finito di inviare il file %s.\n", i+1, dir_list->list[i]);
+            printf("→ <Client-%zu>: Ho finito di inviare il file <%s>\n", i+1, dir_list->list[i]);
             exit(EXIT_SUCCESS);
         }
-    }
+        else{
+            //parent code here!
 
+        }
+    }
+    close_fd(fd1);
+    free_shared_memory(&shmem);
     while(wait(NULL) > 0);
 
     /* -------------------- */
