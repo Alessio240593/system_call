@@ -65,10 +65,12 @@ typedef struct __dirlist_t {
     size_t size;
 } dirlist_t;
 
+#define GET_MSG_SIZE(msg) sizeof(pid_t) + sizeof(size_t) + (strlen((msg).name) * sizeof(char)) + (strlen((msg).message) * sizeof(char))
+
 typedef struct __msg_t {
     pid_t pid;
     char *name;
-    size_t index;
+    //size_t index;
     char *message;
 } msg_t;
 

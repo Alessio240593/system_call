@@ -12,8 +12,8 @@
 #include <stdlib.h>
 #include <sys/sem.h>
 
-#define KEYSEMSYNC 100 //change value
-#define SEMNUMSYNC 4
+#define KEYSEM_SYNC 100 //change value
+#define SEMNUM_SYNC 4
 
 #define WAIT -1
 #define SYNC 0

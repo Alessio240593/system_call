@@ -17,11 +17,11 @@ int shmid = -1;
 int semid = -1;
 int fd2 = -1;
 int msqid = -1;
-char *shmem = NULL;
+msg_t *shmem = NULL;
 
 void sigint_handler(int sig)
 {
-    printf("\n → <Server>: Received signal %s\n\n", signame[sig]);
+    printf("\t→ <Server>: Received signal %s\n\n", signame[sig]);
 
     if(fd1 >= 0) {
         close_fd(fd1);
@@ -59,10 +59,10 @@ int main(void)
 
     // create shmem
     shmid = alloc_shared_memory(KEYSHM,SHMSIZE);
-    shmem = (char *)attach_shared_memory(shmid, 0);
+    shmem = (msg_t *)attach_shared_memory(shmid, 0);
 
     // create and initialize semaphore set
-    semid = alloc_semaphore(KEYSEM, SEMNUM);
+    semid = alloc_semaphore(KEYSEM_SYNC, SEMNUM_SYNC);
     union semun arg;
     arg.val = 0;
     // set sem1 and sem2 at 0
@@ -98,10 +98,11 @@ int main(void)
         int n = atoi(buffer);
 
         //costruzione messaggio da scrivere sulla shmem
-        snprintf(buffer, sizeof(buffer), "·· <Server>: Sono pronto per la ricezione di %d file\n\n", n);
+        snprintf(buffer, sizeof(buffer), "\t← <Server>: Sono pronto per la ricezione di %d file\n\n", n);
 
         //write data on shmem
-        strcpy(shmem, buffer);
+        //strcpy(shmem, buffer);
+        shmem->message = strdup(buffer);
 
         //wake up client
         semOp(semid,0,SIGNAL);

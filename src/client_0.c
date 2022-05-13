@@ -10,19 +10,20 @@
 #include "defines.h"
 #include "err_exit.h"
 
+
 extern const char *signame[];
 const char *path;
 
 void sigusr1_handler(int sig)
 {
-    printf("\n\n → <Client-0>: Received signal %s\n", signame[sig]);
+    printf("\t→ <Client-0>: Received signal %s\n", signame[sig]);
     exit(EXIT_SUCCESS);
 }
 
 void sigint_handler(int sig)
 {
     //notify signal
-    printf("\n\n → <Client-0>: Received signal %s\n", signame[sig]);
+    printf("\t→ <Client-0>: Received signal %s\n", signame[sig]);
 }
 
 int main(int argc, char * argv[])
@@ -74,8 +75,8 @@ int main(int argc, char * argv[])
 
     //open fifo in write only mode
     errno = 0;
-    int fd1 = open(FIFO1, O_WRONLY);
-    SYSCHECK(fd1, "open: ");
+    int fifo1_fd = open(FIFO1, O_WRONLY);
+    SYSCHECK(fifo1_fd, "open: ");
 
     //get server shmem
     int shmid = get_shared_memory(KEYSHM, SHMSIZE);
@@ -85,7 +86,7 @@ int main(int argc, char * argv[])
     //int msqid = get_message_queue(MSGKEY);
 
     //get server semset
-    int semidsync = get_semaphore(KEYSEMSYNC, SEMNUMSYNC);
+    int semid_sync = get_semaphore(KEYSEMSYNC, SEMNUMSYNC);
     //int semidmaxmsg = alloc_semaphore(KEYSEMMSG, SEMNUMMSG);
 
     //fill sigset
@@ -101,7 +102,7 @@ int main(int argc, char * argv[])
     //change working directory
     Chdir(path);
 
-    printf("\n→ <Client-0>: Ciao %s, ora inizio l’invio dei file contenuti in %s\n\n", getenv("USER"), getenv("PWD"));
+    printf("\t→ <Client-0>: Ciao %s, ora inizio l’invio dei file contenuti in %s\n\n", getenv("USER"), getenv("PWD"));
 
     /* dirlist declaration and initialization */
     dirlist_t *dir_list = (dirlist_t *) malloc(sizeof(dirlist_t));
@@ -124,20 +125,21 @@ int main(int argc, char * argv[])
     snprintf(buffer, LEN_INT, "%zu", dir_list->size);
 
     //write on fifo
-    ssize_t bW = write(fd1, buffer, LEN_INT);
+    ssize_t bW = write(fifo1_fd, buffer, LEN_INT);
     WCHECK(bW, LEN_INT);
 
     //waiting data
-    semOp(semidsync,0,WAIT);
+    semOp(semid_sync, 0, WAIT);
 
     //print shmem data
-    printf("%s", shmem);
+    printf("%s", shmem->message);
 
     // start creation
     size_t i;
     pid_t pid;
     ssize_t tot_char;
     int waiting;
+    size_t Br;
 
     char **parts = (char **) calloc(PARTS, sizeof(char *));
     MCHECK(parts);
@@ -145,10 +147,10 @@ int main(int argc, char * argv[])
     struct mymsg *msq_msg = (struct mymsg *) malloc(sizeof(struct mymsg));
     MCHECK(msq_msg);
 
-    char **memlocation = (char **) calloc(MAXMSG, sizeof(char *));
-    MCHECK(memlocation);
+    msg_t *shm_mem_locations = (msg_t *) calloc(MAXMSG, sizeof(msg_t));
+    MCHECK(shm_mem_locations);
 
-    pid_t processpid;
+    pid_t proc_pid;
 
     for (i = 0; i < dir_list->index; i++) {
         pid = fork();
@@ -159,41 +161,54 @@ int main(int argc, char * argv[])
         }
         else if (pid == 0) {
             // i-th child
-            int fd = open(dir_list->list[i], O_RDONLY);
-            SYSCHECK(fd, "open");
+            int sendme_fd = open(dir_list->list[i], O_RDONLY);
+            SYSCHECK(sendme_fd, "open");
 
-            tot_char = count_char(fd);
-            split_file(parts, fd, tot_char);
+            tot_char = count_char(sendme_fd);
+            split_file(parts, sendme_fd, tot_char);
 
             fill_msg(msq_msg, 0, parts[3]);
 
-            waiting = semctl(semidsync, SEMCHILD, GETZCNT, 0);
+            waiting = semctl(semid_sync, SEMCHILD, GETZCNT, 0);
             if (waiting == -1) {
                 errExit("semctl failed: ");
             }
             else if (waiting == (int) (dir_list->index - 1)) {
                 // Figlio prediletto forse è -1 perchè conta i file in attesa
-                semOp(semidsync, SEMCHILD, WAIT);
+                semOp(semid_sync, SEMCHILD, WAIT);
             }
             else {
                 // Figli diseredati
-                semOp(semidsync, SEMCHILD, SYNC);
+                semOp(semid_sync, SEMCHILD, SYNC);
             }
 
             // start sending messages
-            processpid = getpid();
-            msg_t messaggiofifo1 = {processpid, dir_list->list[i], 0, strdup(parts[0])};
-            msg_t messaggiofifo2 = {processpid, dir_list->list[i], 0, strdup(parts[1])};
-            //msg_t messaggiosmq = {processpid, dir_list->list[i], 0, strdup(parts[0])};
-            msg_t messaggioshm = {processpid, dir_list->list[i], 0, strdup(parts[3])};
+            proc_pid = getpid();
 
-            write(fd1, &messaggiofifo1, sizeof(pid_t) + sizeof(size_t) + (strlen(messaggiofifo1.name) + strlen(messaggiofifo1.message)) * sizeof(char));
+            // TODO
+            // polling del client tra le IPC:
+            // se ne trova una bloccata non si ferma ma prova le altre
+
+            msg_t fifo1_msg = {proc_pid, dir_list->list[i], strdup(parts[0])};
+            // TODO
+            // usare un semaforo per tenere traccia delle scritture sulla FIFO1
+            // WAIT
+            Br = write(fifo1_fd, &fifo1_msg, GET_MSG_SIZE(fifo1_msg));
+            WCHECK(Br, GET_MSG_SIZE(fifo1_msg));
+            printf("\t→ <Client-%zu>: Ho inviato il primo pezzo del file <%s> sulla FIFO1\n", i+1, dir_list->list[i]);
+
+            // TODO
+            // completare l'invio dei messaggi tramite le altre IPC
+            //msg_t fifo2_msg = {proc_pid, dir_list->list[i], strdup(parts[1])};
+            //msg_t msq_msg = {proc_pid, dir_list->list[i], strdup(parts[0])};
+            //msg_t shm_msg = {proc_pid, dir_list->list[i], strdup(parts[3])};
+
 
             // chiude il file
-            close(fd);
+            close(sendme_fd);
 
             // termina
-            printf("→ <Client-%zu>: Ho finito di inviare il file <%s>\n", i+1, dir_list->list[i]);
+            printf("\t→ <Client-%zu>: Ho finito di inviare il file <%s>\n", i+1, dir_list->list[i]);
             exit(EXIT_SUCCESS);
         }
         else{
@@ -201,7 +216,7 @@ int main(int argc, char * argv[])
             printf("Muovetevi evviva Gesù\n");
         }
     }
-    close_fd(fd1);
+    close_fd(fifo1_fd);
     //free_shared_memory(&shmem);
     while(wait(NULL) > 0);
 
