@@ -11,6 +11,7 @@
 
 extern const char *signame[];
 
+int fifo_flag = 0;
 int fd1 = -1;
 int shmid = -1;
 int semid = -1;
@@ -24,7 +25,11 @@ void sigint_handler(int sig)
 
     if(fd1 >= 0) {
         close_fd(fd1);
+    }
+
+    if(fifo_flag){
         remove_fifo(FIFO1);
+        fifo_flag = 0;
     }
 
     if(fd2 >= 0) {
@@ -76,6 +81,8 @@ int main(void)
     // create FIFOs
     make_fifo(FIFO1);
     //make_fifo(FIFO2);
+
+    fifo_flag = 1;
 
     sig_sethandler(SIGINT, sigint_handler);
 

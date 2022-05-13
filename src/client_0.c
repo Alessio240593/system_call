@@ -73,8 +73,9 @@ int main(int argc, char * argv[])
     char buffer[LEN_INT];
 
     //open fifo in write only mode
+    errno = 0;
     int fd1 = open(FIFO1, O_WRONLY);
-    SYSCHECK(fd1, "open");
+    SYSCHECK(fd1, "open: ");
 
     //get server shmem
     int shmid = get_shared_memory(KEYSHM, SHMSIZE);
@@ -188,7 +189,7 @@ int main(int argc, char * argv[])
         }
     }
     close_fd(fd1);
-    free_shared_memory(&shmem);
+    //free_shared_memory(&shmem);
     while(wait(NULL) > 0);
 
     /* -------------------- */

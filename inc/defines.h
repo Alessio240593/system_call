@@ -37,10 +37,13 @@
                         return;       \
                      }
 
-#define SYSCHECK(ret, type)  if (ret == -1) { \
-                                perror(type); \
-                                return 1;       \
-                            }
+#define SYSCHECK(ret, type)     if (ret == -1){  \
+                                    if(errno == EACCES)  \
+                                        printf("fifo not exist");  \
+                                    else         \
+                                        perror(type); \
+                                return 1;      \
+                                }
 
 #define SYSCHECK_V(ret, type)  if (ret == -1) { \
                                 perror(type); \

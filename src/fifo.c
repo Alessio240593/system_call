@@ -17,6 +17,23 @@ void make_fifo(const char *path)
 }
 
 /**
+ * Apre una fifo nella modalità passata da <mode>
+ * @param path - fifo path
+ * @param mode - modalità di apertura della fifo
+ * @return fd - file descriptor associato alla fifo
+ */
+int open_fifo(const char *path, int mode)
+{
+    errno = 0;
+    int fd = open(path, mode);
+
+    if(errno == EACCES)
+        errExit("fifo not exist");
+
+    return fd;
+}
+
+/**
  * Chiude il file descriptor associato alla fifo
  * @param fd - file descriptor associato alla fifo
  */
