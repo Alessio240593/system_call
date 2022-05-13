@@ -6,21 +6,7 @@
 ### _to do:_
 #### `CLIENT`
 
-1. determina il numero “n” di questi file e lo invia tramite FIFO1 al server (percorso rosso in
-Fig 1), poi si mette in attesa di conferma dal server su ShrMem.
-
-1. una volta ricevuta conferma dal server, per ciascun file con nome che inizia con la stringa
-“sendme_” genera un processo figlio Client_i (linee tratteggiate in Figura 1) il quale esegue
-le seguenti operazioni (Nota: l’elaborato dovrà funzionare con al più 100 file “sendme”,
-ciascuno con dimensione massima di 4KByte).
-◦ apre il file,
-◦ determina il numero di caratteri totali,
-◦ divide il file in quattro parti contenenti lo stesso numero di caratteri (se il numero di
-caratteri non e’ divisibile per 4, l’ultima parte conterrà un numero inferiore di caratteri),
 ◦ prepara i quattro messaggi per l’invio,
-◦ si blocca su un semaforo fino a quando tutti i client Client_1 - Client_N sono arrivati a
-questo punto dell’esecuzione. Hint: Usare semop() per attendere che il semaforo arrivi a
-zero,
 ◦ quando il semaforo consente al Client_i di proseguire esso invia il primo messaggio a
 FIFO1, il seconda a FIFO2, il terza a MsgQueue ed il quarto a ShdMem (frecce nere in
 Figura 1); all’interno dei messaggi, Client_i invia anche il proprio PID ed il nome del
@@ -37,17 +23,7 @@ in attesa di ricevere uno dei due segnali.
 
 
 #### `SERVER`
-1. Un processo Server genera due FIFO (FIFO1 e FIFO2), una coda di messaggi (MsgQueue), un
-segmento di memoria condivisa (ShdMem) ed un set di semafori per gestire la concorrenza su
-alcuni di questi strumenti di comunicazione.
 
-1. Alla ricezione del comando SIGINT (Ctrl-C da terminale) il processo Server rimuove tutte le IPC e
-termina.
-
-1. Il processo Server, alla ricezione da FIFO1 del numero “n” di file trasmessi dal client (percorso
-rosso in Figura 1)
-- memorizza tale numero
-- scrive un messaggio di conferma su ShdMem (percorso rosso in Figura 1)
 - si mette in ricezione ciclicamente su ciascuno dei quattro canali (frecce nere in Figura 1)
 
 1. Alla ricezione dei messaggi dai vari canali esegue le seguenti operazioni:

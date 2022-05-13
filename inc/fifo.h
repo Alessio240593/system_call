@@ -12,9 +12,10 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
-
 void make_fifo(const char *path);
 int open_fifo(const char *path, int mode);
+ssize_t write_fifo(int fd, void *buf, ssize_t size);
+ssize_t read_fifo(int fd, void *buf, ssize_t size);
 void close_fd(int fd);
 void remove_fifo(const char *path);
 #endif

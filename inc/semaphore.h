@@ -12,23 +12,23 @@
 #include <stdlib.h>
 #include <sys/sem.h>
 
+#define KEYSEM_MAXMSG B//change value
+#define SEMNUM_MAXMSG A
 #define KEYSEM_SYNC 100 //change value
 #define SEMNUM_SYNC 4
 
+//operazioni sui semafori
 #define WAIT -1
 #define SYNC 0
 #define SIGNAL 1
 
-#define SEMSHM 0
-#define SEMMSQ 1
-#define SEMCHILD 2
 // 1° semaforo => shared memory
 // 2° semaforo => message queue
 // 3° semaforo => max messages in msg_queue
 // 4° semaforo => sincronizzare i client
-
-#define KEYSEMMSG B//change value
-#define SEMNUMMSG A
+#define SEMSHM 0
+#define SEMMSQ 1
+#define SEMCHILD 2
 
 #define MAXMSG 50
 

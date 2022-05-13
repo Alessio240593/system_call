@@ -34,6 +34,42 @@ int open_fifo(const char *path, int mode)
 }
 
 /**
+ * Scrivi sulla fifo <size> byte
+ * @param fd - fifo file descriptor
+ * @param buf - buffer contenente i dati da scrivere
+ * @param size - byte totali da scrivere
+ * @return Br - numero di byte scritti
+ */
+ssize_t write_fifo(int fd, void *buf, ssize_t size)
+{
+    ssize_t Bw = write(fd, buf, size);
+
+    if (Bw != size) {
+        errExit("write failed: ");
+    }
+
+    return Bw;
+}
+
+/**
+ * Leggi dalla fifo <size> byte
+ * @param fd - fifo file descriptor
+ * @param buf - buffer che conterrà i dati letti dalla fifo
+ * @param size - byte totali da leggere
+ * @return Br - numero di byte letti
+ */
+ssize_t read_fifo(int fd, void *buf, ssize_t size)
+{
+    ssize_t Br = read(fd, buf, size);
+
+    if (Br == -1) {
+        errExit("write failed: ");
+    }
+
+    return Br;
+}
+
+/**
  * Chiude il file descriptor associato alla fifo
  * @param fd - file descriptor associato alla fifo
  */

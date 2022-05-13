@@ -86,7 +86,7 @@ int main(int argc, char * argv[])
     //int msqid = get_message_queue(MSGKEY);
 
     //get server semset
-    int semid_sync = get_semaphore(KEYSEMSYNC, SEMNUMSYNC);
+    int semid_sync = get_semaphore(KEYSEM_SYNC , SEMNUM_SYNC);
     //int semidmaxmsg = alloc_semaphore(KEYSEMMSG, SEMNUMMSG);
 
     //fill sigset
