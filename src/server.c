@@ -68,9 +68,6 @@ int main(void)
     // set sem1 and sem2 at 0
     semctl(semid, SEMSHM, SETVAL, arg);
     semctl(semid, SEMMSQ, SETVAL, arg);
-    // create semaphore of max messages in msg_queue
-    arg.val = 50;
-    semctl(semid, SEMCOUNT, SETVAL, arg);
     // create semaphore to sync clients
     arg.val = 1;
     semctl(semid, SEMCHILD, SETVAL, arg);
@@ -101,7 +98,7 @@ int main(void)
         int n = atoi(buffer);
 
         //costruzione messaggio da scrivere sulla shmem
-        snprintf(buffer, sizeof(buffer), "·· <Server>: Ho ricevuto %d file\n\n", n);
+        snprintf(buffer, sizeof(buffer), "·· <Server>: Sono pronto per la ricezione di %d file\n\n", n);
 
         //write data on shmem
         strcpy(shmem, buffer);

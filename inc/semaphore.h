@@ -12,8 +12,8 @@
 #include <stdlib.h>
 #include <sys/sem.h>
 
-#define KEYSEM 100 //change value
-#define SEMNUM 4
+#define KEYSEMSYNC 100 //change value
+#define SEMNUMSYNC 4
 
 #define WAIT -1
 #define SYNC 0
@@ -21,12 +21,16 @@
 
 #define SEMSHM 0
 #define SEMMSQ 1
-#define SEMCOUNT 2
-#define SEMCHILD 3
+#define SEMCHILD 2
 // 1° semaforo => shared memory
 // 2° semaforo => message queue
 // 3° semaforo => max messages in msg_queue
 // 4° semaforo => sincronizzare i client
+
+#define KEYSEMMSG B//change value
+#define SEMNUMMSG A
+
+#define MAXMSG 50
 
 /**
  * Struttura per lavorare con semctl

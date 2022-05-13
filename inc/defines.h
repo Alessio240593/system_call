@@ -65,6 +65,13 @@ typedef struct __dirlist_t {
     size_t size;
 } dirlist_t;
 
+typedef struct __msg_t {
+    pid_t pid;
+    char *name;
+    size_t index;
+    char *message;
+} msg_t;
+
 int check_string(const char *string1, char *string2);
 int check_size(const char *path);
 ssize_t count_char(int fd);

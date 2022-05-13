@@ -79,13 +79,14 @@ int main(int argc, char * argv[])
 
     //get server shmem
     int shmid = get_shared_memory(KEYSHM, SHMSIZE);
-    char *shmem = (char *)attach_shared_memory(shmid, 0);
+    msg_t *shmem = (msg_t *)attach_shared_memory(shmid, 0);
 
     // get message queue
     //int msqid = get_message_queue(MSGKEY);
 
     //get server semset
-    int semid = get_semaphore(KEYSEM, SEMNUM);
+    int semidsync = get_semaphore(KEYSEMSYNC, SEMNUMSYNC);
+    //int semidmaxmsg = alloc_semaphore(KEYSEMMSG, SEMNUMMSG);
 
     //fill sigset
     sig_fillset(&mySet);
@@ -127,7 +128,7 @@ int main(int argc, char * argv[])
     WCHECK(bW, LEN_INT);
 
     //waiting data
-    semOp(semid,0,WAIT);
+    semOp(semidsync,0,WAIT);
 
     //print shmem data
     printf("%s", shmem);
@@ -143,6 +144,11 @@ int main(int argc, char * argv[])
 
     struct mymsg *msq_msg = (struct mymsg *) malloc(sizeof(struct mymsg));
     MCHECK(msq_msg);
+
+    char **memlocation = (char **) calloc(MAXMSG, sizeof(char *));
+    MCHECK(memlocation);
+
+    pid_t processpid;
 
     for (i = 0; i < dir_list->index; i++) {
         pid = fork();
@@ -161,21 +167,28 @@ int main(int argc, char * argv[])
 
             fill_msg(msq_msg, 0, parts[3]);
 
-            waiting = semctl(semid, SEMCHILD, GETZCNT, 0);
+            waiting = semctl(semidsync, SEMCHILD, GETZCNT, 0);
             if (waiting == -1) {
                 errExit("semctl failed: ");
             }
             else if (waiting == (int) (dir_list->index - 1)) {
                 // Figlio prediletto forse è -1 perchè conta i file in attesa
-                semOp(semid, SEMCHILD, WAIT);
+                semOp(semidsync, SEMCHILD, WAIT);
             }
             else {
                 // Figli diseredati
-                semOp(semid, SEMCHILD, SYNC);
+                semOp(semidsync, SEMCHILD, SYNC);
             }
 
             // start sending messages
-            //...
+            processpid = getpid();
+            msg_t messaggiofifo1 = {processpid, dir_list->list[i], 0, strdup(parts[0])};
+            msg_t messaggiofifo2 = {processpid, dir_list->list[i], 0, strdup(parts[1])};
+            //msg_t messaggiosmq = {processpid, dir_list->list[i], 0, strdup(parts[0])};
+            msg_t messaggioshm = {processpid, dir_list->list[i], 0, strdup(parts[3])};
+
+            write(fd1, &messaggiofifo1, sizeof(pid_t) + sizeof(size_t) + (strlen(messaggiofifo1.name) + strlen(messaggiofifo1.message)) * sizeof(char));
+
             // chiude il file
             close(fd);
 
@@ -185,7 +198,7 @@ int main(int argc, char * argv[])
         }
         else{
             //parent code here!
-
+            printf("Muovetevi evviva Gesù\n");
         }
     }
     close_fd(fd1);
