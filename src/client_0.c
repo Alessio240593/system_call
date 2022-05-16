@@ -52,6 +52,7 @@ int main(int argc, char * argv[])
     path = argv[1];
     //create an empty sigset
     sigset_t mySet;
+    sigset_t oldSet;
 
     //fill sigset
     sig_fillset(&mySet);
@@ -59,7 +60,7 @@ int main(int argc, char * argv[])
     //delete SIGINT and SIGUSR1 from the set
     sig_remove(&mySet, 2, SIGINT, SIGUSR1);
 
-    sig_setmask(SIG_SETMASK, &mySet);
+    sig_setmask(SIG_SETMASK, &mySet, NULL);
 
     /*for (int i = 0; i < 31; ++i) {
         printf("Il segnale %s : %s\n",signame[i], sigismember(&mySet, i) ? "si" : "no");
@@ -98,7 +99,7 @@ int main(int argc, char * argv[])
     sig_fillset(&mySet);
 
     // set signal mask
-    sig_setmask(SIG_SETMASK, &mySet);
+    sig_setmask(SIG_SETMASK, &mySet, &oldSet);
 
     /*for (int i = 0; i < 31; ++i) {
         printf("Il segnale %s : %s\n",signame[i], sigismember(&mySet, i) ? "si" : "no");
@@ -107,7 +108,7 @@ int main(int argc, char * argv[])
     //change working directory
     Chdir(path);
 
-    printf("\t→ <Client-0>: Ciao %s, ora inizio l’invio dei file contenuti in %s\n\n", getenv("USER"), getenv("PWD"));
+    printf("→ <Client-0>: Ciao %s, ora inizio l’invio dei file contenuti in %s\n\n", getenv("USER"), getenv("PWD"));
 
     /* dirlist declaration and initialization */
     dirlist_t *dir_list = (dirlist_t *) malloc(sizeof(dirlist_t));
@@ -131,8 +132,9 @@ int main(int argc, char * argv[])
     snprintf(buffer, LEN_INT, "%zu", dir_list->size);
 
     // write on fifo
-    ssize_t bW = write(fifo1_fd, buffer, LEN_INT);
-    WCHECK(bW, LEN_INT);
+    //ssize_t bW = write(fifo1_fd, buffer, LEN_INT);
+    //WCHECK(bW, LEN_INT);
+    write_fifo(fifo1_fd, buffer, LEN_INT);
 
     // waiting data
     semOp(semid_sync, 0, WAIT);
@@ -147,7 +149,7 @@ int main(int argc, char * argv[])
     ssize_t tot_char;
     int waiting;
     size_t Br;
-
+    
     char **parts = (char **) calloc(PARTS, sizeof(char *));
     MCHECK(parts);
 
@@ -158,8 +160,8 @@ int main(int argc, char * argv[])
     MCHECK(shm_mem_locations);
 
     // open FIFO2 in write only mode
-    int fifo2_fd = open(FIFO2, O_WRONLY);
-    SYSCHECK(fifo2_fd, "open: ");
+    //int fifo2_fd = open(FIFO2, O_WRONLY);
+    //SYSCHECK(fifo2_fd, "open: ");
 
     for (i = 0; i < dir_list->index; i++) {
         pid = fork();
@@ -203,13 +205,13 @@ int main(int argc, char * argv[])
             WCHECK(Br, GET_MSG_SIZE(fifo1_msg));
             printf("\t→ <Client-%zu>: Ho inviato il primo pezzo del file <%s> sulla FIFO1\n", i+1, dir_list->list[i]);
 
-            msg_t fifo2_msg = {0, proc_pid, dir_list->list[i], strdup(parts[1])};
+          /*  msg_t fifo2_msg = {0, proc_pid, dir_list->list[i], strdup(parts[1])};
             // semaforo per tenere traccia delle scritture sulla FIFO2
             semOp(semid_counter, MAX_SEM_FIFO2, WAIT);
             Br = write(fifo2_fd, &fifo2_msg, GET_MSG_SIZE(fifo2_msg));
             WCHECK(Br, GET_MSG_SIZE(fifo2_msg));
             printf("\t→ <Client-%zu>: Ho inviato il secondo pezzo del file <%s> sulla FIFO2\n", i+1, dir_list->list[i]);
-
+*/
             msg_t msq_msg = {0, proc_pid, dir_list->list[i], strdup(parts[2])};
             // semaforo mutex
             semOp(semid_sync, SEMMSQ, WAIT);

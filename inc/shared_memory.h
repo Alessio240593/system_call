@@ -16,13 +16,16 @@
 
 
 #define SHMSIZE MAXMSG * sizeof(msg_t) //4096 * 100
-#define KEYSHM 100 //change value
+#define KEYSHM 100
 
+/*
 // the Request structure defines a request sent by a client
 struct Request {
     char pathname[250];
     key_t shmKey;
 };
+*/
+
 
 int alloc_shared_memory(key_t shmKey, size_t size);
 int get_shared_memory(key_t shmKey, size_t size);

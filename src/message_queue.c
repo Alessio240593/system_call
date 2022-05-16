@@ -41,18 +41,6 @@ int get_message_queue(key_t msqKey)
 }
 
 /**
- * Prepara il messaggio da inviare
- * @param msg - struttura che conterrà il messaggio
- * @param type - tipo di messaggio
- * @param text - testo del messaggio
- */
-void fill_msg(msg_t *msg, long type, const char *text)
-{
-    msg->type = type;
-    strncpy(msg->message, text, MSGSIZE);
-}
-
-/**
  * Invia msg alla coda di messaggi, con la flag IPC_NOWAIT questa syscall viene eseguita in modalità polling
  * @param msqid - id della coda di messaggi
  * @param msg - messaggio da inviare

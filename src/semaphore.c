@@ -60,13 +60,14 @@ void semOp (int semid, unsigned short sem_num, short sem_op)
  * @param semnum - numero del semaforo sul quale eseguire l'operazione
  * @param cmd - operazione di controllo
  */
+ /*
 void control_semaphore(int semid, int semnum, int cmd, int flag)
 {
     if((semctl(semid, semnum, cmd, flag) == -1)) {
         errExit("semctl failed: ");
     }
 }
-
+*/
 /**
  * Elimina il set di semafori
  * @param semid - id del set di semafori

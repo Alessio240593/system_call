@@ -90,8 +90,9 @@ int main(void)
         SYSCHECK(fd1, "open");
 
         //read data from fifo1
-        ssize_t bR = read(fd1, buffer, MAX_LEN);
-        SYSCHECK(bR, "read");
+        //ssize_t bR = read(fd1, buffer, MAX_LEN);
+        //SYSCHECK(bR, "read");
+        ssize_t bR = read_fifo(fd1, buffer, MAX_LEN);
         buffer[bR] = '\0';
 
         //from string to int

@@ -6,6 +6,15 @@
 #include "err_exit.h"
 #include "_signal.h"
 
+const char *signame[]={"INVALID", "SIGHUP", "SIGINT", "SIGQUIT",
+                       "SIGILL","SIGTRAP", "SIGABRT", "SIGBUS",
+                       "SIGFPE", "SIGKILL","SIGUSR1", "SIGSEGV",
+                       "SIGUSR2", "SIGPIPE", "SIGALRM","SIGTERM",
+                       "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP",
+                       "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG",
+                       "SIGXCPU","SIGXFSZ", "SIGVTALRM", "SIGPROF",
+                       "SIGWINCH", "SIGPOLL","SIGPWR", "SIGSYS", NULL};
+
 /**
  * inizializza un insieme di segnali per contenerli tutti
  * @param mySet - identificatore dell'insieme dei segnali
@@ -62,10 +71,11 @@ void sig_add(sigset_t *mySet, int num, ...)
  * @param flag - determina il cambiamento che la funzione apporta alla maschera
  * @param mySet - identificatore dell'insieme dei segnali per il processo corrente
  * processo precedente alla chiamata di questa funzione
+ * @param oldSet - se passato come parametro, conterrà la maschera precedente
  */
-void sig_setmask(int flag, sigset_t *mySet)
+void sig_setmask(int flag, sigset_t *mySet, sigset_t *oldSet)
 {
-    if ((sigprocmask(flag, mySet, 0)) == -1)
+    if ((sigprocmask(flag, mySet, oldSet)) == -1)
         errExit("sigprocmask failed: ");
 }
 

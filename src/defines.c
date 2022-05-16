@@ -6,15 +6,6 @@
 #include "defines.h"
 #include "err_exit.h"
 
-const char *signame[]={"INVALID", "SIGHUP", "SIGINT", "SIGQUIT",
-                       "SIGILL","SIGTRAP", "SIGABRT", "SIGBUS",
-                       "SIGFPE", "SIGKILL","SIGUSR1", "SIGSEGV",
-                       "SIGUSR2", "SIGPIPE", "SIGALRM","SIGTERM",
-                       "SIGSTKFLT", "SIGCHLD", "SIGCONT", "SIGSTOP",
-                       "SIGTSTP", "SIGTTIN", "SIGTTOU", "SIGURG",
-                       "SIGXCPU","SIGXFSZ", "SIGVTALRM", "SIGPROF",
-                       "SIGWINCH", "SIGPOLL","SIGPWR", "SIGSYS", NULL};
-
 /**
  * Controlla se string2 inizia con gli stessi caratteri di string1
  * @param string1 - stringa per il controllo

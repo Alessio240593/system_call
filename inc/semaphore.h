@@ -14,9 +14,11 @@
 
 #include "defines.h"
 
-
-#define KEYSEM_SYNC 100 //change value
+//chiave e numro di semafori pr sincronizzazione
+#define KEYSEM_SYNC 100
 #define SEMNUM_SYNC 3
+
+//chiave e numero di semafori per conteggio limite messaggi
 #define KEYSEM_COUNTER 101
 #define SEMNUM_COUNTER 4
 
@@ -53,7 +55,7 @@ union semun {
 void semOp (int semid, unsigned short sem_num, short sem_op);
 int alloc_semaphore(key_t semKey, int num);
 int get_semaphore(key_t semKey, int num);
-void control_semaphore(int semid, int semnum, int cmd, int flag);
+//void control_semaphore(int semid, int semnum, int cmd, int flag);
 void remove_semaphore(int shmid);
 
 #endif
