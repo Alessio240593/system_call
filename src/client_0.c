@@ -73,7 +73,7 @@ int main(int argc, char * argv[])
 
     char buffer[LEN_INT];
 
-    //open fifo in write only mode
+    //open FIFO1 in write only mode
     errno = 0;
     int fifo1_fd = open(FIFO1, O_WRONLY);
     SYSCHECK(fifo1_fd, "open: ");
@@ -83,16 +83,21 @@ int main(int argc, char * argv[])
     msg_t *shmem = (msg_t *)attach_shared_memory(shmid, 0);
 
     // get message queue
-    //int msqid = get_message_queue(MSGKEY);
+    int msqid = get_message_queue(KEYMSQ);
 
     //get server semset
     int semid_sync = get_semaphore(KEYSEM_SYNC , SEMNUM_SYNC);
-    //int semidmaxmsg = alloc_semaphore(KEYSEMMSG, SEMNUMMSG);
+    // Create a semaphore with 50 max messages
+    int semid_counter = alloc_semaphore(KEYSEM_COUNTER, SEMNUM_COUNTER);
+    unsigned short values[] = { MAXMSG, MAXMSG, MAXMSG, MAXMSG};
+    union semun arg;
+    arg.array = values;
+    semctl(semid_counter, 0, SETALL, arg);
 
-    //fill sigset
+    // fill sigset
     sig_fillset(&mySet);
 
-    //set signal mask
+    // set signal mask
     sig_setmask(SIG_SETMASK, &mySet);
 
     /*for (int i = 0; i < 31; ++i) {
@@ -118,25 +123,27 @@ int main(int argc, char * argv[])
 #ifndef DEBUG
     dump_dirlist(dir_list, "before.txt");
 
-    /*printf("index (%zu) == size (%zu) ? %s\n", dir_list->index, dir_list->size,
-           dir_list->index == dir_list->size ? "sì" : "no");*/
+    /* printf("index (%zu) == size (%zu) ? %s\n", dir_list->index, dir_list->size,
+           dir_list->index == dir_list->size ? "sì" : "no");
+    */
 #endif
 
     snprintf(buffer, LEN_INT, "%zu", dir_list->size);
 
-    //write on fifo
+    // write on fifo
     ssize_t bW = write(fifo1_fd, buffer, LEN_INT);
     WCHECK(bW, LEN_INT);
 
-    //waiting data
+    // waiting data
     semOp(semid_sync, 0, WAIT);
 
-    //print shmem data
+    // print shmem data
     printf("%s", shmem->message);
 
     // start creation
     size_t i;
     pid_t pid;
+    pid_t proc_pid;
     ssize_t tot_char;
     int waiting;
     size_t Br;
@@ -144,13 +151,15 @@ int main(int argc, char * argv[])
     char **parts = (char **) calloc(PARTS, sizeof(char *));
     MCHECK(parts);
 
-    struct mymsg *msq_msg = (struct mymsg *) malloc(sizeof(struct mymsg));
-    MCHECK(msq_msg);
+//    struct mymsg *msq_msg = (struct mymsg *) malloc(sizeof(struct mymsg));
+//    MCHECK(msq_msg);
 
     msg_t *shm_mem_locations = (msg_t *) calloc(MAXMSG, sizeof(msg_t));
     MCHECK(shm_mem_locations);
 
-    pid_t proc_pid;
+    // open FIFO2 in write only mode
+    int fifo2_fd = open(FIFO2, O_WRONLY);
+    SYSCHECK(fifo2_fd, "open: ");
 
     for (i = 0; i < dir_list->index; i++) {
         pid = fork();
@@ -166,8 +175,6 @@ int main(int argc, char * argv[])
 
             tot_char = count_char(sendme_fd);
             split_file(parts, sendme_fd, tot_char);
-
-            fill_msg(msq_msg, 0, parts[3]);
 
             waiting = semctl(semid_sync, SEMCHILD, GETZCNT, 0);
             if (waiting == -1) {
@@ -185,23 +192,42 @@ int main(int argc, char * argv[])
             // start sending messages
             proc_pid = getpid();
 
-            // TODO
+            // old-TODO
             // polling del client tra le IPC:
             // se ne trova una bloccata non si ferma ma prova le altre
 
-            msg_t fifo1_msg = {proc_pid, dir_list->list[i], strdup(parts[0])};
-            // TODO
-            // usare un semaforo per tenere traccia delle scritture sulla FIFO1
-            // WAIT
+            msg_t fifo1_msg = {0, proc_pid, dir_list->list[i], strdup(parts[0])};
+            // semaforo per tenere traccia delle scritture sulla FIFO1
+            semOp(semid_counter, MAX_SEM_FIFO1, WAIT);
             Br = write(fifo1_fd, &fifo1_msg, GET_MSG_SIZE(fifo1_msg));
             WCHECK(Br, GET_MSG_SIZE(fifo1_msg));
             printf("\t→ <Client-%zu>: Ho inviato il primo pezzo del file <%s> sulla FIFO1\n", i+1, dir_list->list[i]);
 
+            msg_t fifo2_msg = {0, proc_pid, dir_list->list[i], strdup(parts[1])};
+            // semaforo per tenere traccia delle scritture sulla FIFO2
+            semOp(semid_counter, MAX_SEM_FIFO2, WAIT);
+            Br = write(fifo2_fd, &fifo2_msg, GET_MSG_SIZE(fifo2_msg));
+            WCHECK(Br, GET_MSG_SIZE(fifo2_msg));
+            printf("\t→ <Client-%zu>: Ho inviato il secondo pezzo del file <%s> sulla FIFO2\n", i+1, dir_list->list[i]);
+
+            msg_t msq_msg = {0, proc_pid, dir_list->list[i], strdup(parts[2])};
+            // semaforo mutex
+            semOp(semid_sync, SEMMSQ, WAIT);
+            // semaforo per tenere traccia delle scritture sulla Message Queue
+            semOp(semid_counter, MAX_SEM_MSQ, WAIT);
+            msg_send(msqid, &msq_msg, 0);
+            printf("\t→ <Client-%zu>: Ho inviato il terzo pezzo del file <%s> sulla Message Queue\n", i+1, dir_list->list[i]);
+
+
+            msg_t shm_msg = {0, proc_pid, dir_list->list[i], strdup(parts[3])};
+            // semaforo mutex
+            semOp(semid_sync, SEMSHM, WAIT);
+            // semaforo per tenere traccia delle scritture sulla Shared Memory
+            semOp(semid_counter, MAX_SEM_SHM, WAIT);
             // TODO
-            // completare l'invio dei messaggi tramite le altre IPC
-            //msg_t fifo2_msg = {proc_pid, dir_list->list[i], strdup(parts[1])};
-            //msg_t msq_msg = {proc_pid, dir_list->list[i], strdup(parts[0])};
-            //msg_t shm_msg = {proc_pid, dir_list->list[i], strdup(parts[3])};
+            // completare l'invio dei messaggi
+            shmem_add(shmem, shm_msg);
+            printf("\t→ <Client-%zu>: Ho inviato il quarto pezzo del file <%s> sulla Shared Memory\n", i+1, dir_list->list[i]);
 
 
             // chiude il file

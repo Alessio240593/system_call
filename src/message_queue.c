@@ -46,10 +46,10 @@ int get_message_queue(key_t msqKey)
  * @param type - tipo di messaggio
  * @param text - testo del messaggio
  */
-void fill_msg(struct mymsg *msg, long type, const char *text)
+void fill_msg(msg_t *msg, long type, const char *text)
 {
     msg->type = type;
-    strncpy(msg->text, text, MSGSIZE);
+    strncpy(msg->message, text, MSGSIZE);
 }
 
 /**

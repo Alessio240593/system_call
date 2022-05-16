@@ -79,3 +79,18 @@ void remove_shared_memory(int shmid)
         printf("→ Shared memory segment removed successfully!\n");
 }
 
+int shmem_add(msg_t *dest, const msg_t src)
+{
+    size_t i;
+    int ret = 1;
+
+    for (i = 0; i < MAXMSG; i++) {
+        if ((dest + i) == NULL) {
+            memcpy((dest + i), &src, GET_MSG_SIZE(src));
+            ret = 0;
+            break;
+        }
+    }
+
+    return ret;
+}

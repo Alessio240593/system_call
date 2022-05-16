@@ -12,7 +12,10 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#define SHMSIZE 4096 * 100
+#include "defines.h"
+
+
+#define SHMSIZE MAXMSG * sizeof(msg_t) //4096 * 100
 #define KEYSHM 100 //change value
 
 // the Request structure defines a request sent by a client
@@ -26,5 +29,6 @@ int get_shared_memory(key_t shmKey, size_t size);
 void *attach_shared_memory(int shmid, int shmflg);
 void free_shared_memory(void *ptr_sh);
 void remove_shared_memory(int shmid);
+int shmem_add(msg_t *dest, const msg_t src);
 
 #endif

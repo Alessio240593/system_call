@@ -12,14 +12,13 @@
 #include <sys/msg.h>
 #include <string.h>
 
-#define TEXTSIZE 1024
+#include "defines.h"
+
+
+#define MSG_LEN 1024
 #define MSGSIZE (sizeof(struct mymsg) - sizeof(long))
 #define KEYMSQ 104
 
-struct mymsg {
-    long type;
-    char text[TEXTSIZE];
-};
 
 int alloc_message_queue(key_t msqKey);
 int get_message_queue(key_t msqKey);

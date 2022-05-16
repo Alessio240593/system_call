@@ -17,11 +17,13 @@
 #include <errno.h>
 #include <sys/wait.h>
 
+
 #define MAX_FILE_SIZE 4096
 #define MAX_PATH 4096
 #define MAX_LEN 512
 #define LEN_INT 11
 #define PARTS 4
+#define MAXMSG 50
 
 // FIFOs path
 #define FIFO1 "/tmp/myDir/fifo1"
@@ -65,14 +67,30 @@ typedef struct __dirlist_t {
     size_t size;
 } dirlist_t;
 
-#define GET_MSG_SIZE(msg) sizeof(pid_t) + sizeof(size_t) + (strlen((msg).name) * sizeof(char)) + (strlen((msg).message) * sizeof(char))
-
+// typedef struct mymsg msg_t;
+/*
 typedef struct __msg_t {
     pid_t pid;
     char *name;
-    //size_t index;
     char *message;
 } msg_t;
+*/
+
+typedef struct mymsg {
+    long type;
+
+    pid_t pid;
+    char *name;
+    //char message[MSG_LEN];
+    char *message;
+} msg_t;
+
+#define GET_MSG_SIZE(msg) (sizeof(long) + \
+                           sizeof(pid_t) + \
+                           sizeof(size_t) + \
+                           (strlen((msg).name) * sizeof(char)) + \
+                           (strlen((msg).message) * sizeof(char)))
+
 
 int check_string(const char *string1, char *string2);
 int check_size(const char *path);
