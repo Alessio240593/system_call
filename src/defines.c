@@ -124,19 +124,28 @@ int split_file(char** parts, int fd, size_t tot_char)
 {
     size_t chunk = tot_char / PARTS;
     ssize_t Br;
+    size_t resto = tot_char % PARTS;
 
-    if (tot_char % PARTS != 0)
+    if (resto != 0)
         chunk++;
 
     for (size_t i = 0; i < PARTS; i++) {
-        parts[i] = (char *) calloc(chunk, sizeof(char));
-        MCHECK(parts[i]);
+        if(resto > 0) {
+            parts[i] = (char *) calloc(chunk, sizeof(char));
+            MCHECK(parts[i]);
 
-        if ((Br = read(fd, parts[i], chunk)) == -1) {
-            return -1;
+            if ((Br = read(fd, parts[i], chunk)) == -1) {
+                return -1;
+            }
+
+            parts[i][Br] = '\0';
+            resto--;
         }
-
-        parts[i][Br] = '\0';
+        else if(resto == 0) {
+            chunk--;
+            //in modo tale che poi non venga più modificato il valore di chunk
+            resto = -1;
+        }
     }
 
     // the fd is now reusable
