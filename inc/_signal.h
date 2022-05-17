@@ -9,7 +9,6 @@
 #include <signal.h>
 #include <stdarg.h>
 
-//struttura per la gestione dei puntatori
 typedef void (*sighandler_t)(int);
 
 void sig_fillset(sigset_t *mySet);

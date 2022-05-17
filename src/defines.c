@@ -215,6 +215,34 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
     return 0;
 }
 
+/**
+ * Salva in <dest> alla posizione <pid, part> il messaggio <src>
+ * @param dest - matrice di destinazione
+ * @param src - messaggio da salvare nella matrice
+ * @param pid - numero del processo figlio 1-n(riga)
+ * @param part - parte del file 1-4(colonna)
+ */
+void fill_msg(msg_t **dest, msg_t *src, int pid, int part)
+{
+    dest[pid][part].message = strdup(src->message);
+    dest[pid][part].name = strdup(src->name);
+    dest[pid][part].type = src->type;
+    dest[pid][part].pid = src->pid;
+}
+
+/*
+char* parts_header(int part, const char *path, pid_t pid)
+{
+    const char *ipcs[] = {"FIFO1", "FIFO2", "MsgQueue", "ShdMem"};
+    char result[MAX_LEN];
+
+    snprintf(result, sizeof(result), "[Parte %d del file %s, spedita dal processo %ld tramite %s]",
+           part, path, pid, ipcs[part - 1]);
+
+    return result;
+}
+*/
+
 /// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
 int dump_dirlist(dirlist_t *dirlist, const char *filename)
 {

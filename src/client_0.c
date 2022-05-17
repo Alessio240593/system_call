@@ -216,7 +216,7 @@ int main(int argc, char * argv[])
             msg_send(msqid, &msq_msg, 0);
             semOp(semid_sync, SEMMSQ, SIGNAL);
             // fine sezione critica
-            printf("\t→ <Client-%zu>: Ho inviato il terzo pezzo del file <%s> sulla Message Queue\n", i+1, dir_list->list[i]);
+            printf("\t→ <Client-%zu>: Ho inviato il terzo pezzo del file <%s> su Message Queue\n", i+1, dir_list->list[i]);
 
 
             msg_t shm_msg = {0, i, proc_pid, dir_list->list[i], strdup(parts[3])};
@@ -230,7 +230,7 @@ int main(int argc, char * argv[])
             semOp(semid_sync, SEMSHM, SIGNAL);
             // fine sezione critica
 
-            printf("\t→ <Client-%zu>: Ho inviato il quarto pezzo del file <%s> sulla Shared Memory\n", i+1, dir_list->list[i]);
+            printf("\t→ <Client-%zu>: Ho inviato il quarto pezzo del file <%s> su Shared Memory\n", i+1, dir_list->list[i]);
 
             // chiude il file
             close(sendme_fd);
