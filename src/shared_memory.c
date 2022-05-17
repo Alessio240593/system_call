@@ -78,7 +78,8 @@ void remove_shared_memory(int shmid)
     else
         printf("→ Shared memory segment removed successfully!\n");
 }
-
+// TODO
+// unico vettore di msg_t o vettore di supporto?
 int shmem_add(msg_t *dest, const msg_t src)
 {
     size_t i;
@@ -93,4 +94,67 @@ int shmem_add(msg_t *dest, const msg_t src)
     }
 
     return ret;
+
+    /*void write(msg_t **set_msg, msg_t *msg){
+   for(int i = 0; i < 50; i++){
+    if(set_msg[i]->txt == NULL){
+      memcpy(set_msg[i], msg, sizeof(msg_t));
+      break;
+    }
+    else{
+      printf("\t→posizione %d occupata\n", (i + 1));
+    }
+  }
+  return;
+    }*/
 }
+
+/**
+ *  Controlla se ci sono messaggi <msg_t> nella shared memory
+ * @param shmem - segmento di memoria condivisa
+ * @return 0 - se non ci sono messaggi in memoria
+ * @return 1 - se c'è almeno un messaggio in memoria
+ */
+int there_is_message(msg_t **shmem)
+{
+    size_t i;
+
+    for (i = 0; i < MAXMSG; i++) {
+        if(shmem[i]->message != NULL){
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/**
+ * Controlla se la posizione <index> della shared memory è vuota
+ * @param shmem - segmento di memoria condivisa
+ * @param index - posizione del vettore di memoria condivisa da controllare
+ * @return 0 - se alla posizione index la shared memory non è vuota
+ * @return 1 - se alla posizione index la shared memory è vuota
+ */
+int is_empty(msg_t **shmem, int index)
+{
+    return shmem[index]->message == NULL;
+}
+
+// TODO
+//controllare se la riga relativa al processo i ha tutte 4 le parti
+/**
+ *
+ * @param shmem_array
+ * @param index
+ * @return
+ */
+ /*
+int prova(msg_t **shmem_array, int index)
+{
+    for (int i = 0; i < 4; ++i) {
+        if(shmem_array[index][i]->message == NULL) {
+            return 0;
+        }
+    }
+    return 1;
+}
+*/

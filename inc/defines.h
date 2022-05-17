@@ -16,10 +16,9 @@
 #include <dirent.h>
 #include <errno.h>
 #include <sys/wait.h>
-
+#include <linux/limits.h>
 
 #define MAX_FILE_SIZE 4096
-#define MAX_PATH 4096
 #define MAX_LEN 512
 #define LEN_INT 11
 #define PARTS 4
@@ -67,26 +66,19 @@ typedef struct __dirlist_t {
     size_t size;
 } dirlist_t;
 
-// typedef struct mymsg msg_t;
-/*
-typedef struct __msg_t {
-    pid_t pid;
-    char *name;
-    char *message;
-} msg_t;
-*/
 
 typedef struct mymsg {
     long type;
 
+    int client;
     pid_t pid;
     char *name;
-    //char message[MSG_LEN];
     char *message;
 } msg_t;
 
 #define GET_MSG_SIZE(msg) (sizeof(long) + \
-                           sizeof(pid_t) + \
+                           sizeof(int)   + \
+                           sizeof(pid_t) +\
                            sizeof(size_t) + \
                            (strlen((msg).name) * sizeof(char)) + \
                            (strlen((msg).message) * sizeof(char)))
@@ -100,7 +92,6 @@ void sigusr1_handler(int sig);
 void sigint_handler(int sig);
 int Chdir(const char *path);
 int split_file(char** parts, int fd, size_t tot_char);
-
 int init_dirlist(dirlist_t *dirlist, const char *start_path);
 int dump_dirlist(dirlist_t *dirlist, const char *filename);
 

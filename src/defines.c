@@ -124,13 +124,13 @@ int split_file(char** parts, int fd, size_t tot_char)
 {
     size_t chunk = tot_char / PARTS;
     ssize_t Br;
-    size_t resto = tot_char % PARTS;
+    size_t reminder = tot_char % PARTS;
 
-    if (resto != 0)
+    if (reminder != 0)
         chunk++;
 
     for (size_t i = 0; i < PARTS; i++) {
-        if(resto > 0) {
+        if(reminder > 0) {
             parts[i] = (char *) calloc(chunk, sizeof(char));
             MCHECK(parts[i]);
 
@@ -139,12 +139,12 @@ int split_file(char** parts, int fd, size_t tot_char)
             }
 
             parts[i][Br] = '\0';
-            resto--;
+            reminder--;
         }
-        else if(resto == 0) {
+        else if(reminder == 0) {
             chunk--;
             //in modo tale che poi non venga più modificato il valore di chunk
-            resto = -1;
+            reminder = -1;
         }
     }
 
@@ -163,7 +163,7 @@ int split_file(char** parts, int fd, size_t tot_char)
  * @return 2 - in caso la system call opendir fallisca
 **/
 int init_dirlist(dirlist_t *dirlist, const char *start_path) {
-    char new_path[MAX_PATH];
+    char new_path[PATH_MAX];
     struct dirent *de;
 
     DIR *dp = opendir(start_path);
@@ -235,29 +235,3 @@ int dump_dirlist(dirlist_t *dirlist, const char *filename)
 
     return 0;
 }
-
-/*
-char* itoa(int num)
-{
-    int tmp = num;
-    size_t i = 0;
-    char *res = (char *) calloc(10, sizeof(char));
-    if (res == NULL)
-        errExit("malloc");
-
-    while (tmp > 0) {
-        res[i] = tmp % 10 + 48;
-        tmp /= 10;
-        i++;
-    }
-
-    char *result = (char *) calloc(strlen(res) +1, sizeof(char));
-    if (result == NULL)
-        errExit("malloc");
-
-    for (i = 0; i < strlen(res); i++) {
-        result[i] = res[strlen(res) - i - 1];
-    }
-    result[i] = '\0';
-}
-*/

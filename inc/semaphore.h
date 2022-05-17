@@ -14,7 +14,7 @@
 
 #include "defines.h"
 
-//chiave e numro di semafori pr sincronizzazione
+//chiave e numero di semafori pr sincronizzazione
 #define KEYSEM_SYNC 100
 #define SEMNUM_SYNC 3
 
@@ -41,7 +41,7 @@
 #define MAX_SEM_FIFO1 0
 #define MAX_SEM_FIFO2 1
 #define MAX_SEM_MSQ   2
-#define MAX_SEM_SHM   3
+#define MAX_SEM_SHM   3 //potrebbe essere inutile
 
 /**
  * Struttura per lavorare con semctl
