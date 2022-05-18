@@ -117,6 +117,8 @@ int main(void)
 
         //write data on shmem
         //strcpy(shmem, buffer);
+        shmem[0] = (msg_t *) malloc(sizeof(msg_t));
+        //controllo malloc
         shmem[0]->message = strdup(buffer);
 
         //wake up client

@@ -80,7 +80,7 @@ void remove_shared_memory(int shmid)
 }
 // TODO
 // unico vettore di msg_t o vettore di supporto?
-int shmem_add(msg_t *dest, const msg_t src)
+int shmem_add(msg_t **dest, msg_t *src)
 {
     size_t i;
     int ret = 1;

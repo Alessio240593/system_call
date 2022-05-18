@@ -137,7 +137,7 @@ int main(int argc, char * argv[])
 
     // print shmem data
     printf("%s", shmem[0]->message);
-    shmem[0]->message = NULL;
+    free(shmem[0]);
 
     // start creation
     size_t i;
@@ -173,6 +173,7 @@ int main(int argc, char * argv[])
             SYSCHECK(sendme_fd, "open");
 
             tot_char = count_char(sendme_fd);
+            split_file(parts, sendme_fd, tot_char);
             split_file(parts, sendme_fd, tot_char);
 
             waiting = semctl(semid_sync, SEMCHILD, GETZCNT, 0);
@@ -227,6 +228,7 @@ int main(int argc, char * argv[])
             // inizio sezione critica
             semOp(semid_sync, SEMSHM, WAIT);
             // TODO completare la funzione
+            shmem[0] = &shm_msg;
             //shmem_add(shmem, shm_msg);
             semOp(semid_sync, SEMSHM, SIGNAL);
             // fine sezione critica

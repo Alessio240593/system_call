@@ -22,7 +22,7 @@ int get_shared_memory(key_t shmKey, size_t size);
 void *attach_shared_memory(int shmid, int shmflg);
 void free_shared_memory(void *ptr_sh);
 void remove_shared_memory(int shmid);
-int shmem_add(msg_t *dest, const msg_t src);
+int shmem_add(msg_t **dest, msg_t *src);
 int there_is_message(msg_t **shmem);
 int is_empty(msg_t **shmem, int index);
 
