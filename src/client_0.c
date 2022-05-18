@@ -137,6 +137,7 @@ int main(int argc, char * argv[])
 
     // print shmem data
     printf("%s", shmem[0]->message);
+    shmem[0]->message = NULL;
 
     // start creation
     size_t i;

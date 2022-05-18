@@ -29,16 +29,16 @@ void sigint_handler(int sig)
         close_fd(fd1);
     }
 
-    if(fifo_flag){
-        remove_fifo(FIFO1);
-        fifo_flag = 0;
-    }
-
     if(fd2 >= 0) {
         close_fd(fd2);
         remove_fifo(FIFO2);
     }
 
+    if(fifo_flag){
+        remove_fifo(FIFO1);
+        remove_fifo(FIFO2);
+        fifo_flag = 0;
+    }
 
     if(shmid >= 0 && shmem != NULL) {
         free_shared_memory(shmem);
@@ -170,6 +170,7 @@ int main(void)
             semOp(semid, SEMMSQ, WAIT);
             msg_receive(msqid, &tmp, 0, IPC_NOWAIT);
             semOp(semid_counter, MAX_SEM_MSQ, SIGNAL);
+            msg_map[tmp.client] = (msg_t *) calloc(PARTS, GET_MSG_SIZE(tmp));
             msg_map[tmp.client][2].message = strdup(tmp.message);
             msg_map[tmp.client][2].name = strdup(tmp.name);
             msg_map[tmp.client][2].type = tmp.type;
@@ -183,6 +184,7 @@ int main(void)
             semOp(semid, SEMSHM, WAIT);
             if(there_is_message(shmem)){
                 if(!is_empty(shmem, index))
+                    msg_map[current->client] = (msg_t *) calloc(PARTS, GET_MSG_SIZE(tmp));
                     msg_map[current->client][3].type = current->type;
                     msg_map[current->client][3].name = strdup(current->name);
                     msg_map[current->client][3].type = current->type;
