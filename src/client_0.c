@@ -164,7 +164,7 @@ int main(int argc, char * argv[])
         pid = fork();
 
         if (pid < 0) {
-            fprintf(stderr, "<Client-%zu> Not created", i);
+            fprintf(stderr, "\t→ <Client-%zu> Not created", i);
             errExit("fork failed: ");
         }
         else if (pid == 0) {
@@ -242,7 +242,7 @@ int main(int argc, char * argv[])
         }
         else{
             //parent code here!
-            printf("Muovetevi evviva Gesù\n");
+            printf("→ <Client-0>: Waiting...\n");
         }
     }
     close_fd(fifo1_fd);
