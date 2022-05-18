@@ -153,8 +153,8 @@ int main(int argc, char * argv[])
 //    struct mymsg *msq_msg = (struct mymsg *) malloc(sizeof(struct mymsg));
 //    MCHECK(msq_msg);
 
-    msg_t *shm_mem_locations = (msg_t *) calloc(MAXMSG, sizeof(msg_t));
-    MCHECK(shm_mem_locations);
+//    msg_t *shm_mem_locations = (msg_t *) calloc(MAXMSG, sizeof(msg_t));
+//    MCHECK(shm_mem_locations);
 
     // open FIFO2 in write only mode
     int fifo2_fd = open(FIFO2, O_WRONLY);
@@ -196,21 +196,21 @@ int main(int argc, char * argv[])
             // polling del client tra le IPC:
             // se ne trova una bloccata non si ferma ma prova le altre
 
-            msg_t fifo1_msg = {0, i,  proc_pid, dir_list->list[i], strdup(parts[0])};
+            msg_t fifo1_msg = {0, i,  proc_pid, strdup(dir_list->list[i]), strdup(parts[0])};
             // semaforo per tenere traccia delle scritture sulla FIFO1
             semOp(semid_counter, MAX_SEM_FIFO1, WAIT);
-            Br = write(fifo1_fd, &fifo1_msg, GET_MSG_SIZE(fifo1_msg));
-            WCHECK(Br, GET_MSG_SIZE(fifo1_msg));
+            Br = write(fifo1_fd, &fifo1_msg, GET_MSG_SIZE(&fifo1_msg));
+            WCHECK(Br, GET_MSG_SIZE(&fifo1_msg));
             printf("\t→ <Client-%zu>: Ho inviato il primo pezzo del file <%s> sulla FIFO1\n", i+1, dir_list->list[i]);
 
-            msg_t fifo2_msg = {0, i,proc_pid, dir_list->list[i], strdup(parts[1])};
+            msg_t fifo2_msg = {0, i,proc_pid, strdup(dir_list->list[i]), strdup(parts[1])};
             // semaforo per tenere traccia delle scritture sulla FIFO2
             semOp(semid_counter, MAX_SEM_FIFO2, WAIT);
-            Br = write(fifo2_fd, &fifo2_msg, GET_MSG_SIZE(fifo2_msg));
-            WCHECK(Br, GET_MSG_SIZE(fifo2_msg));
+            Br = write(fifo2_fd, &fifo2_msg, GET_MSG_SIZE(&fifo2_msg));
+            WCHECK(Br, GET_MSG_SIZE(&fifo2_msg));
             printf("\t→ <Client-%zu>: Ho inviato il secondo pezzo del file <%s> sulla FIFO2\n", i+1, dir_list->list[i]);
 
-            msg_t msq_msg = {0, i, proc_pid, dir_list->list[i], strdup(parts[2])};
+            msg_t msq_msg = {0, i, proc_pid, strdup(dir_list->list[i]), strdup(parts[2])};
             // semaforo per tenere traccia delle scritture sulla Message Queue
             semOp(semid_counter, MAX_SEM_MSQ, WAIT);
             // inizio sezione critica
@@ -221,15 +221,22 @@ int main(int argc, char * argv[])
             printf("\t→ <Client-%zu>: Ho inviato il terzo pezzo del file <%s> su Message Queue\n", i+1, dir_list->list[i]);
 
 
-            msg_t shm_msg = {0, i, proc_pid, dir_list->list[i], strdup(parts[3])};
+            msg_t *shm_msg = (msg_t *) malloc(sizeof(msg_t));
+            MCHECK(shm_msg);
+            shm_msg->type = 0;
+            shm_msg->client = i;
+            shm_msg->pid = proc_pid;
+            shm_msg->name = strdup(dir_list->list[i]);
+            shm_msg->message =  strdup(parts[3]);
             // semaforo per tenere traccia delle scritture sulla Shared Memory
-            // TODO
             semOp(semid_counter, MAX_SEM_SHM, WAIT);
             // inizio sezione critica
             semOp(semid_sync, SEMSHM, WAIT);
-            // TODO completare la funzione
-            shmem[0] = &shm_msg;
-            //shmem_add(shmem, shm_msg);
+
+            if (shmem_add(shmem, shm_msg) == 1) {
+                fprintf(stderr, "errore: Shared Memory piena -> Impossibile!!\n");
+            }
+
             semOp(semid_sync, SEMSHM, SIGNAL);
             // fine sezione critica
 
@@ -247,17 +254,22 @@ int main(int argc, char * argv[])
             printf("→ <Client-0>: Waiting...\n");
         }
     }
+
+    // Parent wait children
+    while(wait(NULL) > 0);
+    // Client-0 wait for server ack
+    semOp(semid_sync, SEMMSQ, WAIT);
+
+
+    // then close all the IPCs
     close_fd(fifo1_fd);
     close_fd(fifo2_fd);
-
-    //free_shared_memory(&shmem);
-    while(wait(NULL) > 0);
+    free_shared_memory(*shmem);
 
     /* -------------------- */
 
     for (size_t indx = 0; indx < dir_list->index; indx++) {
         free(dir_list->list[indx]);
     }
-
     free(dir_list);
 }

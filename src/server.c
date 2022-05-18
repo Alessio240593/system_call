@@ -60,7 +60,7 @@ void sigint_handler(int sig)
 
 int main(void)
 {
-    char buffer[MAX_LEN];
+    char string_buffer[MAX_LEN];
 
     // create shmem
     shmid = alloc_shared_memory(KEYSHM,SHMSIZE);
@@ -100,101 +100,115 @@ int main(void)
         SYSCHECK(fd1, "open");
 
         //read data from fifo1
-        //ssize_t bR = read(fd1, buffer, MAX_LEN);
+        //ssize_t bR = read(fd1, string_buffer, MAX_LEN);
         //SYSCHECK(bR, "read");
-        ssize_t bR = read_fifo(fd1, buffer, MAX_LEN);
-        buffer[bR] = '\0';
+        ssize_t bR = read_fifo(fd1, string_buffer, MAX_LEN);
+        string_buffer[bR] = '\0';
 
         //from string to int
-        int n = atoi(buffer);
+        size_t n = atoi(string_buffer);
 
-        msg_t **msg_map;
-
-        msg_map = (msg_t **) calloc(n, sizeof(msg_t *));
+        msg_t **msg_map = (msg_t **) calloc(n, sizeof(msg_t *));
+        for (size_t i = 0; i < n; i++) {
+            msg_map[i] = (msg_t *) calloc(PARTS, sizeof(msg_t));
+            MCHECK(msg_map[i]);
+        }
 
         //costruzione messaggio da scrivere sulla shmem
-        snprintf(buffer, sizeof(buffer), "\t← <Server>: Sono pronto per la ricezione di %d file\n\n", n);
+        snprintf(string_buffer, sizeof(string_buffer), "\t← <Server>: Sono pronto per la ricezione di %d file\n\n", n);
 
-        //write data on shmem
-        //strcpy(shmem, buffer);
+        // write data on shmem
         shmem[0] = (msg_t *) malloc(sizeof(msg_t));
-        //controllo malloc
-        shmem[0]->message = strdup(buffer);
+        // controllo malloc
+        shmem[0]->message = strdup(string_buffer);
 
         //wake up client
         semOp(semid,0,SIGNAL);
 
-        int index = 0;
-        msg_t tmp;
-        tmp.name = (char *) calloc(PATH_MAX,sizeof(char));
-        MCHECK(tmp.name);
-        tmp.message = (char *) calloc(PATH_MAX,sizeof(char));
-        MCHECK(tmp.message);
+        size_t index = 0;
+        msg_t msg_buffer;
+        msg_buffer.name = (char *) calloc(PATH_MAX, sizeof(char));
+        MCHECK(msg_buffer.name);
+        msg_buffer.message = (char *) calloc(PATH_MAX, sizeof(char));
+        MCHECK(msg_buffer.message);
 
-        while (1){
-            //polling fifo1
+        while (1) {
+            // FIFO1
             if (semctl(semid_counter, MAX_SEM_FIFO1, GETVAL, arg.val) == -1)
                 errExit("semctl GETVAL");
 
-            if(arg.val != 50){
-                read(fd1, &tmp, GET_MSG_SIZE(tmp));
-                msg_map[tmp.client] = (msg_t *) calloc(PARTS, GET_MSG_SIZE(tmp));
-                msg_map[tmp.client][0].message = strdup(tmp.message);
-                msg_map[tmp.client][0].name = strdup(tmp.name);
-                msg_map[tmp.client][0].type = tmp.type;
-                msg_map[tmp.client][0].pid = tmp.pid;
+            if (arg.val != 50){
+                read(fd1, &msg_buffer, GET_MSG_SIZE(&msg_buffer));
+                printf("→ <Server>: ricevuto parte %d del file: %s\n", 1, msg_buffer.name);
+
+                msg_map[msg_buffer.client][0].message = strdup(msg_buffer.message);
+                msg_map[msg_buffer.client][0].name = strdup(msg_buffer.name);
+                msg_map[msg_buffer.client][0].type = msg_buffer.type;
+                msg_map[msg_buffer.client][0].pid = msg_buffer.pid;
                 semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL);
-                printf("→ <Server>: ricevuto parte %d del file: %s\n", 1, tmp.name);
+                printf("→ <Server>: salvata parte %d del file: %s\n", 1, msg_map[index][0].name);
             }
             else {
                 //nothing to read -> trunc file
             }
 
-            //polling fifo2
+
+            // FIFO2
             if (semctl(semid_counter, MAX_SEM_FIFO2, GETVAL, arg.val) == -1)
                 errExit("semctl GETVAL");
 
             if(arg.val != 50){
-                read(fd2, &tmp, GET_MSG_SIZE(tmp));
-                msg_map[tmp.client] = (msg_t *) calloc(PARTS, GET_MSG_SIZE(tmp));
-                msg_map[tmp.client][1].message = strdup(tmp.message);
-                msg_map[tmp.client][1].name = strdup(tmp.name);
-                msg_map[tmp.client][1].type = tmp.type;
-                msg_map[tmp.client][1].pid = tmp.pid;
+                read(fd2, &msg_buffer, GET_MSG_SIZE(&msg_buffer));
+                printf("→ <Server>: ricevuto parte %d del file: %s\n", 2, msg_buffer.name);
+
+                msg_map[msg_buffer.client] = (msg_t *) calloc(PARTS, GET_MSG_SIZE(&msg_buffer));
+                msg_map[msg_buffer.client][1].message = strdup(msg_buffer.message);
+                msg_map[msg_buffer.client][1].name = strdup(msg_buffer.name);
+                msg_map[msg_buffer.client][1].type = msg_buffer.type;
+                msg_map[msg_buffer.client][1].pid = msg_buffer.pid;
                 semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL);
-                printf("→ <Server>: ricevuto parte %d del file: %s\n", 2, tmp.name);
+                printf("→ <Server>: salvata parte %d del file: %s\n", 2, msg_map[index][1].name);
             }
             else {
                 //nothing to read -> trunc file
             }
 
-            //polling msq
+
+            // MESSAGE QUEUE
             semOp(semid, SEMMSQ, WAIT);
-            msg_receive(msqid, &tmp, 0, IPC_NOWAIT);
+            msg_receive(msqid, &msg_buffer, 0, IPC_NOWAIT);
             semOp(semid_counter, MAX_SEM_MSQ, SIGNAL);
-            msg_map[tmp.client] = (msg_t *) calloc(PARTS, GET_MSG_SIZE(tmp));
-            msg_map[tmp.client][2].message = strdup(tmp.message);
-            msg_map[tmp.client][2].name = strdup(tmp.name);
-            msg_map[tmp.client][2].type = tmp.type;
-            msg_map[tmp.client][2].pid = tmp.pid;
+            printf("→ <Server>: ricevuto parte %d del file: %s\n", 3, msg_buffer.name);
+
+            msg_map[msg_buffer.client] = (msg_t *) calloc(PARTS, GET_MSG_SIZE(&msg_buffer));
+            msg_map[msg_buffer.client][2].message = strdup(msg_buffer.message);
+            msg_map[msg_buffer.client][2].name = strdup(msg_buffer.name);
+            msg_map[msg_buffer.client][2].type = msg_buffer.type;
+            msg_map[msg_buffer.client][2].pid = msg_buffer.pid;
             semOp(semid, SEMMSQ, SIGNAL);
-            printf("→ <Server>: ricevuto parte %d del file: %s\n", 3, tmp.name);
+            printf("→ <Server>: salvata parte %d del file: %s\n", 3, msg_map[index][2].name);
 
-            //polling shmem
-            msg_t *current = shmem[index];
 
-            semOp(semid, SEMSHM, WAIT);
-            if(there_is_message(shmem)){
-                if(!is_empty(shmem, index))
-                    msg_map[current->client] = (msg_t *) calloc(PARTS, GET_MSG_SIZE(tmp));
-                    msg_map[current->client][3].type = current->type;
-                    msg_map[current->client][3].name = strdup(current->name);
-                    msg_map[current->client][3].type = current->type;
-                    msg_map[current->client][3].pid = current->pid;
-                    semOp(semid_counter, MAX_SEM_SHM, SIGNAL);
-                printf("→ <Server>: ricevuto parte %d del file: %s\n", 4, current->name);
+            // SHARED MEMORY
+             semOp(semid, SEMSHM, WAIT);
+
+            size_t l = 0;
+            while (shmem[index] == NULL && l < n) {
+                index = (index + 1) % n;
+                l++;
             }
-            semOp(semid, SEMMSQ, SIGNAL);
+            if (l != n) {
+                // leggi
+                msg_map[shmem[index]->client][3] = *shmem[index];
+                // elimina
+                shmem[index] = NULL;
+                semOp(semid_counter, MAX_SEM_SHM, SIGNAL);
+                // salva l'indice
+
+                // notifica la lettura
+
+            }
+            printf("→ <Server>: ricevuto e salvato parte %d del file: %s\n", 4, msg_map[index][3].name);
         }
 
         //controllare qui le righe(processi) che hanno tutte e quattro le parti

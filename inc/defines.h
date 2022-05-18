@@ -61,16 +61,16 @@
                             }
 
 typedef struct __dirlist_t {
-    char **list;
     size_t index;
     size_t size;
+    char **list;
 } dirlist_t;
 
 
 typedef struct mymsg {
     long type;
 
-    int client;
+    size_t client;
     pid_t pid;
     char *name;
     char *message;
@@ -80,8 +80,8 @@ typedef struct mymsg {
                            sizeof(int)   + \
                            sizeof(pid_t) +\
                            sizeof(size_t) + \
-                           (strlen((msg).name) * sizeof(char)) + \
-                           (strlen((msg).message) * sizeof(char)))
+                           (strlen((msg)->name) * sizeof(char)) + \
+                           (strlen((msg)->message) * sizeof(char)))
 
 
 int check_string(const char *string1, char *string2);
