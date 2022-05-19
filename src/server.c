@@ -31,7 +31,6 @@ void sigint_handler(int sig)
 
     if(fd2 >= 0) {
         close_fd(fd2);
-        remove_fifo(FIFO2);
     }
 
     if(fifo_flag){
@@ -76,7 +75,7 @@ int main(void)
     //create synch server
     semid = alloc_semaphore(KEYSEM_SYNC, SEMNUM_SYNC);
     arg.val = 1;
-    // set sem1 and sem2 at 1
+    // set sem1 and sem2 at 1 (si potrebbe fare una SETALL)
     semctl(semid, SEMSHM, SETVAL, arg);
     semctl(semid, SEMMSQ, SETVAL, arg);
     // create semaphore to sync clients
@@ -88,17 +87,17 @@ int main(void)
     // create FIFOs
     make_fifo(FIFO1);
     make_fifo(FIFO2);
-
+    //fifo create flag (used to check if fifo exists)
     fifo_flag = 1;
 
     sig_sethandler(SIGINT, sigint_handler);
 
-    // open fifo1 in read only mode
-    while (1) {
 
+    while (1) {
+        // open fifo1 in read only mode
         fd1 = open(FIFO1, O_RDONLY);
         SYSCHECK(fd1, "open");
-
+        // TODO open fifo 2?
         //read data from fifo1
         //ssize_t bR = read(fd1, string_buffer, MAX_LEN);
         //SYSCHECK(bR, "read");
@@ -120,7 +119,9 @@ int main(void)
         // write data on shmem
         shmem[0] = (msg_t *) malloc(sizeof(msg_t));
         // controllo malloc
+        MCHECK(shmem[0]);
         shmem[0]->message = strdup(string_buffer);
+        //free shmem[0] ??
 
         //wake up client
         semOp(semid,0,SIGNAL);
@@ -190,9 +191,10 @@ int main(void)
 
 
             // SHARED MEMORY
-             semOp(semid, SEMSHM, WAIT);
+            semOp(semid, SEMSHM, WAIT);
 
             size_t l = 0;
+
             while (shmem[index] == NULL && l < n) {
                 index = (index + 1) % n;
                 l++;

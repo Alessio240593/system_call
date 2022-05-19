@@ -192,10 +192,6 @@ int main(int argc, char * argv[])
             // start sending messages
             proc_pid = getpid();
 
-            // old-TODO
-            // polling del client tra le IPC:
-            // se ne trova una bloccata non si ferma ma prova le altre
-
             msg_t fifo1_msg = {0, i,  proc_pid, strdup(dir_list->list[i]), strdup(parts[0])};
             // semaforo per tenere traccia delle scritture sulla FIFO1
             semOp(semid_counter, MAX_SEM_FIFO1, WAIT);
@@ -251,15 +247,19 @@ int main(int argc, char * argv[])
         }
         else{
             //parent code here!
-            printf("→ <Client-0>: Waiting...\n");
+            printf("→ <Client-0>: Waiting all child...\n");
         }
     }
 
     // Parent wait children
     while(wait(NULL) > 0);
+    /* why not?!
+    while(wait(NULL) > 0){
+        printf("→ <Client-0>: Waiting children...\n");
+    }*/
     // Client-0 wait for server ack
     semOp(semid_sync, SEMMSQ, WAIT);
-
+    msg_receive()
 
     // then close all the IPCs
     close_fd(fifo1_fd);
