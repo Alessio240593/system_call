@@ -25,40 +25,18 @@
 #define MAXMSG 50
 
 // FIFOs path
-#define FIFO1 "/tmp/myDir/fifo1"
-#define FIFO2 "/tmp/myDir/fifo2"
+#define FIFO1 "/home/alessio/myDir/fifo1"
+#define FIFO2 "/home/alessio/myDir/fifo2"
 
 #define MCHECK(ptr)  if (ptr == NULL) { \
                         perror("malloc "); \
                         return 1;       \
                      }
-
-#define MCHECK_V(ptr)  if (ptr == NULL) { \
-                        perror("malloc "); \
-                        return;       \
-                     }
-
+// TODO da controllare
 #define SYSCHECK(ret, type)     if (ret == -1){  \
-                                    if(errno == EACCES)  \
-                                        printf("fifo not exist");  \
-                                    else         \
-                                        perror(type); \
+                                    perror(type); \
                                 return 1;      \
                                 }
-
-#define SYSCHECK_V(ret, type)  if (ret == -1) { \
-                                perror(type); \
-                                return;       \
-                            }
-#define WCHECK(ret,dim)  if (ret != dim) { \
-                                perror("write"); \
-                                return 1;       \
-                            }
-
-#define WCHECK_V(ret,dim)  if (ret != dim) { \
-                                perror("write"); \
-                                return;       \
-                            }
 
 typedef struct __dirlist_t {
     size_t index;
@@ -72,17 +50,9 @@ typedef struct mymsg {
 
     size_t client;
     pid_t pid;
-    char *name;
-    char *message;
+    char name[PATH_MAX];
+    char message[MAX_LEN];
 } msg_t;
-
-#define GET_MSG_SIZE(msg) (sizeof(long) + \
-                           sizeof(int)   + \
-                           sizeof(pid_t) +\
-                           sizeof(size_t) + \
-                           (strlen((msg)->name) * sizeof(char)) + \
-                           (strlen((msg)->message) * sizeof(char)))
-
 
 int check_string(const char *string1, char *string2);
 int check_size(const char *path);

@@ -46,28 +46,13 @@ int get_semaphore(key_t semKey, int num)
  * @param sem_num - numero del semaforo su cui eseguire l'operazione
  * @param sem_op - tipo di operazione
  */
-void semOp (int semid, unsigned short sem_num, short sem_op)
+void semOp (int semid, unsigned short sem_num, short sem_op, int flag)
 {
-    struct sembuf sop = {.sem_num = sem_num, .sem_op = sem_op, .sem_flg = 0};
+    struct sembuf sop = {.sem_num = sem_num, .sem_op = sem_op, .sem_flg = flag};
 
     if (semop(semid, &sop, 1) == -1)
         errExit("semop failed: ");
 }
-
-/**
- * Esegue operazioni di controllo sul set di semafori
- * @param semid - id del set di semafori
- * @param semnum - numero del semaforo sul quale eseguire l'operazione
- * @param cmd - operazione di controllo
- */
- /*
-void control_semaphore(int semid, int semnum, int cmd, int flag)
-{
-    if((semctl(semid, semnum, cmd, flag) == -1)) {
-        errExit("semctl failed: ");
-    }
-}
-*/
 
 /**
  * Elimina il set di semafori

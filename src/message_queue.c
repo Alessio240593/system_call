@@ -46,7 +46,7 @@ int get_message_queue(key_t msqKey)
  * @param msg - messaggio da inviare
  * @param msgflg - flag
  */
-void msg_send(int msqid, const void *msg, int msgflg)
+void msg_send(int msqid, void *msg, int msgflg)
 {
     if (msgsnd(msqid, msg, MSGSIZE, msgflg) == -1)
         errExit("msgsnd failed: ");
@@ -63,8 +63,15 @@ void msg_send(int msqid, const void *msg, int msgflg)
  */
 void msg_receive(int msqid, void *msg, long msgtype, int msgflg)
 {
+    errno = 0;
+
     if (msgrcv(msqid, msg, MSGSIZE, msgtype , msgflg) == -1)
         errExit("msgrcv failed: ");
+
+    if (errno == ENOMSG) {
+        printf("No message in the queue\n");
+    }
+
 }
 
 /**

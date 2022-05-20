@@ -222,13 +222,16 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
  * @param pid - numero del processo figlio 1-n(riga)
  * @param part - parte del file 1-4(colonna)
  */
+ /*
 void fill_msg(msg_t **dest, msg_t *src, int pid, int part)
 {
-    dest[pid][part].message = strdup(src->message);
-    dest[pid][part].name = strdup(src->name);
+   // dest[pid][part].message = strdup(src->message);
+    //dest[pid][part].name = strdup(src->name);
     dest[pid][part].type = src->type;
     dest[pid][part].pid = src->pid;
 }
+*/
+
 
 /*
 char* parts_header(int part, const char *path, pid_t pid)

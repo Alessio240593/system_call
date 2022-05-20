@@ -15,15 +15,15 @@
 #include "defines.h"
 
 #define SHMSIZE MAXMSG * sizeof(msg_t) //controllare sizeof
+#define SUPPORTO_SIZE MAXMSG * sizeof(int)
 #define KEYSHM 100
+#define KEY_SUPPORT 101
+
 
 int alloc_shared_memory(key_t shmKey, size_t size);
 int get_shared_memory(key_t shmKey, size_t size);
 void *attach_shared_memory(int shmid, int shmflg);
 void free_shared_memory(void *ptr_sh);
 void remove_shared_memory(int shmid);
-int shmem_add(msg_t **dest, msg_t *src);
-int there_is_message(msg_t **shmem);
-int is_empty(msg_t **shmem, size_t index);
 
 #endif

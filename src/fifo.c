@@ -13,7 +13,7 @@
  */
 void make_fifo(const char *path)
 {
-    if (mkfifo(path, S_IRUSR | S_IWUSR) == -1)
+    if (mkfifo(path,  S_IWRITE | S_IREAD) == -1)
         errExit("mkfifo failed: ");
 }
 
@@ -25,11 +25,11 @@ void make_fifo(const char *path)
  */
 int open_fifo(const char *path, int mode)
 {
-    errno = 0;
     int fd = open(path, mode);
 
-    if(errno == EACCES)
-        errExit("fifo not exist");
+    if(fd == -1){
+        errExit("open failed: ");
+    }
 
     return fd;
 }
@@ -83,12 +83,13 @@ void close_fd(int fd)
 /**
  * Rimuove la fifo <path>
  * @param path - path della fifo
+ * @param num - numero della fifo (utilizzato per la stampa)
  */
-void remove_fifo(const char *path)
+void remove_fifo(const char *path, int num)
 {
     if(unlink(path) == -1)
         errExit("unlink failed: ");
 
-    printf("→ Fifo removed successfully!\n");
+    printf("→ Fifo%d removed successfully!\n", num);
 
 }
