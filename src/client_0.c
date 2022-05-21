@@ -131,7 +131,7 @@ int main(int argc, char * argv[])
     write_fifo(fifo1_fd, buffer, LEN_INT);
 
     // waiting data
-    semOp(semid_sync, SEMSHM, WAIT, 0);
+    semOp(semid_sync, SYNC_SHM, WAIT, 0);
 
     // print shmem data
     printf("%s", shmem->message);
@@ -189,7 +189,7 @@ int main(int argc, char * argv[])
             strcpy(fifo1_msg.message, parts[0]);
 
             // semaforo per tenere traccia delle scritture sulla FIFO1
-            semOp(semid_counter, MAX_SEM_FIFO1, WAIT, 0);
+            //semOp(semid_counter, MAX_SEM_FIFO1, WAIT, 0); // TODO bloccano tutto
 
             write_fifo(fifo1_fd, &fifo1_msg, sizeof(fifo1_msg));
 
@@ -206,7 +206,7 @@ int main(int argc, char * argv[])
             strcpy(fifo2_msg.message, parts[1]);
 
             // semaforo per tenere traccia delle scritture sulla FIFO2
-            semOp(semid_counter, MAX_SEM_FIFO2, WAIT, 0);
+            //semOp(semid_counter, MAX_SEM_FIFO2, WAIT, 0); // TODO bloccano tutto
 
             write_fifo(fifo2_fd, &fifo2_msg, sizeof (fifo2_msg));
 
@@ -218,7 +218,7 @@ int main(int argc, char * argv[])
             msq_msg .client = i;
             msq_msg .pid = proc_pid;
             strcpy(fifo1_msg.name, (dir_list->list[i]));
-            strcpy(msq_msg .message, parts[2]);
+            strcpy(msq_msg.message, parts[2]);
 
             // semaforo per tenere traccia delle scritture sulla Message Queue
             semOp(semid_counter, MAX_SEM_MSQ, WAIT, 0);
@@ -226,8 +226,7 @@ int main(int argc, char * argv[])
             // inizio sezione critica
             semOp(semid_sync, SEMMSQ, WAIT, 0);
 
-            // TODO controllare la send, sembra non funzioni
-            //msg_send(msqid, &msq_msg, 0);
+            msgsnd(msqid, &msq_msg, MSGSIZE, 0);
 
             semOp(semid_sync, SEMMSQ, SIGNAL, 0);
 
@@ -239,27 +238,32 @@ int main(int argc, char * argv[])
             MCHECK(shm_msg);
 
             // semaforo per tenere traccia delle scritture sulla Shared Memory
-            semOp(semid_counter, MAX_SEM_SHM, WAIT, 0);
+            //semOp(semid_counter, MAX_SEM_SHM, WAIT, 0); // TODO secondo me non serve se abbiamo supporto
 
             // inizio sezione critica
             semOp(semid_sync, SEMSHM, WAIT, 0);
 
             size_t index = 0;
 
-            while (supporto[index] == 1 && index < MAXMSG){
+            while (index < MAXMSG && supporto[index] == 1){
                 index++;
             }
 
-            //marco la zona di memoria come piena
-            supporto[index] = 1;
+            if(index != MAXMSG){
+                //marco la zona di memoria come piena
+                supporto[index] = 1;
 
-            //scrivo sula shared memory
-            shmem[index].type = 0;
-            shmem[index].client = i;
-            shmem[index].pid = proc_pid;
-            strcpy(shmem[index].name, (dir_list->list[i]));
-            strcpy(shmem[index].message, parts[3]);
+                //scrivo sula shared memory
+                shmem[index].type = 0;
+                shmem[index].client = i;
+                shmem[index].pid = proc_pid;
+                strcpy(shmem[index].name, (dir_list->list[i]));
 
+                if(parts[3] != NULL)
+                    strcpy(shmem[index].message, parts[3]);
+                else
+                    printf("parts[3] è NULL\n");
+            }
 
             semOp(semid_sync, SEMSHM, SIGNAL, 0);
 

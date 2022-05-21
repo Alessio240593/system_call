@@ -55,16 +55,22 @@ ssize_t write_fifo(int fd, void *buf, ssize_t size)
 /**
  * Leggi dalla fifo <size> byte
  * @param fd - fifo file descriptor
+ * @param num - number of the fifo
  * @param buf - buffer che conterrà i dati letti dalla fifo
  * @param size - byte totali da leggere
  * @return Br - numero di byte letti
  */
-ssize_t read_fifo(int fd, void *buf, ssize_t size)
+ssize_t read_fifo(int fd, int num, void *buf, ssize_t size)
 {
+    errno = 0;
     ssize_t Br = read(fd, buf, size);
 
     if (Br == -1) {
         errExit("write failed: ");
+    }
+
+    if (errno == EAGAIN) {
+        printf("fifo%d vuota!\n", num);
     }
 
     return Br;

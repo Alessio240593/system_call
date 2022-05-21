@@ -95,12 +95,13 @@ int main(void)
 
     //set sem0 at 0 (semaforo per la sincronizzazione, poi diventerà un mutex)
     arg.val = 0;
-    semctl(semid, SEMSHM, SETVAL, arg);
+    semctl(semid, SYNC_SHM, SETVAL, arg);
 
     // set sem1 and sem2 at 1 (mutex)
     arg.val = 1;
     semctl(semid, SEMMSQ, SETVAL, arg);
     semctl(semid, SEMCHILD, SETVAL, arg);
+    semctl(semid, SEMSHM, SETVAL, arg);
 
     // create message queue
     msqid = alloc_message_queue(KEYMSQ);
@@ -120,8 +121,12 @@ int main(void)
         // open fifo2 in read only mode
         fd2 = open_fifo(FIFO2, O_RDONLY);
 
-        ssize_t bR = read_fifo(fd1, string_buffer, MAX_LEN);
+        ssize_t bR = read_fifo(fd1, 1, string_buffer, MAX_LEN);
         string_buffer[bR] = '\0';
+
+        //make reading on fifo non block
+        //fcntl(fd1, F_SETFL, O_NONBLOCK);
+        //fcntl(fd2, F_SETFL, O_NONBLOCK);
 
         //from string to int
         size_t n = atoi(string_buffer);
@@ -142,26 +147,24 @@ int main(void)
         strcpy(shmem->message, string_buffer);
 
         //wake up client
-        semOp(semid,SEMSHM,SIGNAL, 0);
-        //increase sem for mutex
-        semOp(semid,SEMSHM,SIGNAL, 0);
+        semOp(semid,SYNC_SHM,SIGNAL, 0);
 
         int val = 0;
-        size_t index = 0;
         msg_t msg_buffer;
 
         while (1) {
             // ------------------------FIFO1-------------------------------------------
-            read_fifo(fd1, &msg_buffer, sizeof(msg_buffer));
+            // TODO problema sulle fifo
+            read_fifo(fd1, 1, &msg_buffer, sizeof(msg_buffer));
+            //semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL, 0); // TODO bloccano tutto
             //salvo il messaggio
             strcpy(msg_map[msg_buffer.client][0].message , msg_buffer.message);
             strcpy(msg_map[msg_buffer.client][0].name , msg_buffer.name);
             msg_map[msg_buffer.client][0].type = msg_buffer.type;
             msg_map[msg_buffer.client][0].pid = msg_buffer.pid;
             //sblocco una posizione per la scrittura
-            semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL, 0);
 
-            printf("→ <Server>: salvata parte %d del file: %s\n", 1, msg_map[index][0].name);
+            printf("→ <Server>: salvata parte %d del file: %s\n", 1, msg_map[msg_buffer.client][0].name);
 
             if ((val = semctl(semid_counter, MAX_SEM_FIFO1, GETVAL, 0)) == -1)
                 errExit("semctl GETVAL");
@@ -171,17 +174,18 @@ int main(void)
 
 
             //--------------------------FIFO2-------------------------------------------
-            read_fifo(fd2, &msg_buffer, sizeof(msg_buffer));
-
+            // TODO problema sulle fifo
+            read_fifo(fd2, 2, &msg_buffer, sizeof(msg_buffer));
+            //semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL, 0); // TODO bloccano tutto
             //salvo il messaggio
             strcpy(msg_map[msg_buffer.client][1].message , msg_buffer.message);
             strcpy(msg_map[msg_buffer.client][1].name , msg_buffer.name);
             msg_map[msg_buffer.client][1].type = msg_buffer.type;
             msg_map[msg_buffer.client][1].pid = msg_buffer.pid;
             //sblocco una posizione per la scrittura
-            semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL, 0);
 
-            printf("→ <Server>: salvata parte %d del file: %s\n", 2, msg_map[index][1].name);
+
+            printf("→ <Server>: salvata parte %d del file: %s\n", 2, msg_map[msg_buffer.client][1].name);
 
             if ((val = semctl(semid_counter, MAX_SEM_FIFO2, GETVAL, 0)) == -1)
                 errExit("semctl GETVAL");
@@ -191,9 +195,8 @@ int main(void)
 
             //--------------------------MESSAGE QUEUE----------------------------------------------
             //prova a prendere il mutex
-            semOp(semid, SEMMSQ, WAIT, 0); //serve IPC_NOWAIT
+            semOp(semid, SEMMSQ, WAIT, 0);
 
-            //msg_receive(msqid, &msg_buffer, 0, IPC_NOWAIT);
             errno = 0;
 
             // TODO controllare che msgrcv funzioni
@@ -214,7 +217,7 @@ int main(void)
             msg_map[msg_buffer.client][2].type = msg_buffer.type;
             msg_map[msg_buffer.client][2].pid = msg_buffer.pid;
 
-            printf("→ <Server>: salvata parte %d del file: %s\n", 3, msg_map[index][2].name);
+            printf("→ <Server>: salvata parte %d del file: %s\n", 3, msg_map[msg_buffer.client][2].name);
 
 
             //---------------------------SHARED MEMORY-----------------------------------------
@@ -222,26 +225,29 @@ int main(void)
             // TODO si blocca qui
             semOp(semid, SEMSHM, WAIT, 0); //serve IPCNOWAIT
             size_t l = 0;
-
+            size_t index = 0;
             //controlla se esiste una locazione libera
-            while (supporto[index] == 0 && l < MAXMSG) {
-                index = (index + 1) % MAXMSG;
-                l++;
+            while (index < MAXMSG && supporto[index] == 0) {
+                //index = (index + 1) % MAXMSG;
+                //l++;
+                index++;
             }
 
-            if (l != MAXMSG) {
+            if (index != MAXMSG) {
                 // salvo il messaggio
                 msg_map[shmem[index].client][3].client = shmem[index].client;
                 msg_map[shmem[index].client][3].pid = shmem[index].pid;
                 msg_map[shmem[index].client][3].type = shmem[index].type;
-                strcpy(msg_map[msg_buffer.client][3].name , msg_buffer.name);
+                strcpy(msg_map[shmem[index].client][3].name , shmem[index].name);
                 strcpy(msg_map[shmem[index].client][3].name, shmem[index].message);
 
                 // svuota il messaggio
                 supporto[index] = 0;
-
-                semOp(semid_counter, MAX_SEM_SHM, SIGNAL, 0);
             }
+
+            //semOp(semid_counter, MAX_SEM_SHM, SIGNAL, 0); // TODO secondo me non serve se abbiamo supporto
+            semOp(semid, SEMSHM, SIGNAL, 0);
+
             printf("→ <Server>: ricevuto e salvato parte %d del file: %s\n", 4, msg_map[shmem[index].client][3].name);
         }
 

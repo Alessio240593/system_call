@@ -16,7 +16,7 @@
 
 //chiave e numero di semafori pr sincronizzazione
 #define KEYSEM_SYNC 100
-#define SEMNUM_SYNC 3
+#define SEMNUM_SYNC 4
 
 //chiave e numero di semafori per conteggio limite messaggi
 #define KEYSEM_COUNTER 101
@@ -30,9 +30,11 @@
 // 1° semaforo => mutex shared memory
 // 2° semaforo => mutex message queue
 // 3° semaforo => sincronizzare i client
+// 4° semaforo => sincronizzare la lettura e scrittura shm
 #define SEMSHM   0
 #define SEMMSQ   1
 #define SEMCHILD 2
+#define SYNC_SHM 3
 
 // 1° semaforo => max messages in FIFO1
 // 2° semaforo => max messages in FIFO2
