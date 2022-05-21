@@ -65,5 +65,6 @@ int split_file(char** parts, int fd, size_t tot_char);
 int init_dirlist(dirlist_t *dirlist, const char *start_path);
 void fill_msg(msg_t **dest, msg_t *src, int pid, int part);
 int dump_dirlist(dirlist_t *dirlist, const char *filename);
+int finish(msg_t **msg_map, size_t rows);
 
 #endif

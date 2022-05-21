@@ -20,7 +20,7 @@
 
 //chiave e numero di semafori per conteggio limite messaggi
 #define KEYSEM_COUNTER 101
-#define SEMNUM_COUNTER 4
+#define SEMNUM_COUNTER 6
 
 //operazioni sui semafori
 #define WAIT -1
@@ -35,6 +35,8 @@
 #define SEMMSQ   1
 #define SEMCHILD 2
 #define SYNC_SHM 3
+#define SYNC_FIFO1 4
+#define SYNC_FIFO2 5
 
 // 1° semaforo => max messages in FIFO1
 // 2° semaforo => max messages in FIFO2

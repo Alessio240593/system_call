@@ -182,7 +182,7 @@ int main(int argc, char * argv[])
             //-----------------------FIFO1-----------------------------
             //preparo il messaggio da mandare su fifo1
             msg_t fifo1_msg;
-            fifo1_msg.type = 0;
+            fifo1_msg.type = 1;
             fifo1_msg.client = i;
             fifo1_msg.pid = proc_pid;
             strcpy(fifo1_msg.name, (dir_list->list[i]));
@@ -190,7 +190,7 @@ int main(int argc, char * argv[])
 
             // semaforo per tenere traccia delle scritture sulla FIFO1
             //semOp(semid_counter, MAX_SEM_FIFO1, WAIT, 0); // TODO bloccano tutto
-
+            printf("sono bloccato in scrittura su fifo1!\n");
             write_fifo(fifo1_fd, &fifo1_msg, sizeof(fifo1_msg));
 
             printf("\t→ <Client-%zu>: Ho inviato il primo pezzo del file <%s> sulla FIFO1\n", i+1, dir_list->list[i]);
@@ -199,34 +199,39 @@ int main(int argc, char * argv[])
             //-----------------------FIFO2-----------------------------
             // preparo il messaggio da mandare su fifo2
             msg_t fifo2_msg;
-            fifo2_msg.type = 0;
+            fifo2_msg.type = 1;
             fifo2_msg.client = i;
             fifo2_msg.pid = proc_pid;
-            strcpy(fifo1_msg.name, (dir_list->list[i]));
+            strcpy(fifo2_msg.name, (dir_list->list[i]));
             strcpy(fifo2_msg.message, parts[1]);
 
             // semaforo per tenere traccia delle scritture sulla FIFO2
             //semOp(semid_counter, MAX_SEM_FIFO2, WAIT, 0); // TODO bloccano tutto
-
+            printf("sono bloccato in scrittura su fifo2!\n");
             write_fifo(fifo2_fd, &fifo2_msg, sizeof (fifo2_msg));
 
             printf("\t→ <Client-%zu>: Ho inviato il secondo pezzo del file <%s> sulla FIFO2\n", i+1, dir_list->list[i]);
 
             //-----------------------MESSAGE QUEUE-----------------------------
             msg_t msq_msg ;
-            msq_msg .type = 0;
+            msq_msg .type = 1;
             msq_msg .client = i;
             msq_msg .pid = proc_pid;
-            strcpy(fifo1_msg.name, (dir_list->list[i]));
+            strcpy(msq_msg.name, (dir_list->list[i]));
             strcpy(msq_msg.message, parts[2]);
 
             // semaforo per tenere traccia delle scritture sulla Message Queue
             semOp(semid_counter, MAX_SEM_MSQ, WAIT, 0);
 
             // inizio sezione critica
+            printf("sto per prendere il mutex msq!\n");
             semOp(semid_sync, SEMMSQ, WAIT, 0);
+            errno = 0;
+            int res = msgsnd(msqid, &msq_msg, MSGSIZE, 0);
 
-            msgsnd(msqid, &msq_msg, MSGSIZE, 0);
+            if(res == -1 /*&& errno == EINVAL*/){
+                perror("msgsnd failed: ");
+            }
 
             semOp(semid_sync, SEMMSQ, SIGNAL, 0);
 
@@ -241,6 +246,7 @@ int main(int argc, char * argv[])
             //semOp(semid_counter, MAX_SEM_SHM, WAIT, 0); // TODO secondo me non serve se abbiamo supporto
 
             // inizio sezione critica
+            printf("sto per prendere il mutex shmem!\n");
             semOp(semid_sync, SEMSHM, WAIT, 0);
 
             size_t index = 0;
@@ -254,7 +260,7 @@ int main(int argc, char * argv[])
                 supporto[index] = 1;
 
                 //scrivo sula shared memory
-                shmem[index].type = 0;
+                shmem[index].type = 1;
                 shmem[index].client = i;
                 shmem[index].pid = proc_pid;
                 strcpy(shmem[index].name, (dir_list->list[i]));
@@ -264,6 +270,9 @@ int main(int argc, char * argv[])
                 else
                     printf("parts[3] è NULL\n");
             }
+
+            // sblocca server per la lettura
+            //semOp(semid_sync, SYNC_SHM, SIGNAL, 0);
 
             semOp(semid_sync, SEMSHM, SIGNAL, 0);
 
@@ -288,8 +297,15 @@ int main(int argc, char * argv[])
     while(wait(NULL) > 0);
 
     // Client-0 wait for server ack
-    //semOp(semid_sync, SEMMSQ, WAIT);
-    //msg_receive()
+    msg_t res;
+
+    semOp(semid_sync, SEMMSQ, WAIT, 0);
+
+    msgrcv(msqid, &res, 0, MSGSIZE, 0);
+
+    semOp(semid_sync, SEMMSQ, SIGNAL, 0);
+
+    printf("%s", res.message);
 
     //then close all the IPCs
     close_fd(fifo1_fd);
@@ -303,4 +319,9 @@ int main(int argc, char * argv[])
         free(dir_list->list[indx]);
     }
     free(dir_list);
+
+    // set old mask
+    sig_setmask(SIG_SETMASK, &oldSet, NULL);
+    // wait for a signal
+    pause();
 }

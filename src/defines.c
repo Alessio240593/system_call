@@ -246,6 +246,25 @@ char* parts_header(int part, const char *path, pid_t pid)
 }
 */
 
+/**
+ * Verifica se il server ha memorizato tutte le parti <PARTS> di n client
+ * @param msg_map - matrice contenente le varie parti del file
+ * @param rows - numero di client
+ * @return 0 - se il server ha salvato tutte le parti dei vari file
+ * @return 1 - se il server non ha salvato tutte le parti dei vari file
+ */
+int finish(msg_t **msg_map, size_t rows)
+{
+    for (size_t i = 0; i < rows; ++i) {
+        for (size_t j = 0; j < PARTS; ++j) {
+            if(msg_map[i][j].type != 1){
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 /// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
 int dump_dirlist(dirlist_t *dirlist, const char *filename)
 {
