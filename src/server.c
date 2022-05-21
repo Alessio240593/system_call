@@ -69,9 +69,11 @@ int main(void)
     char string_buffer[MAX_LEN];
 
     // create shmem
+    printf("→ <Server>: Waiting shared memory allocation...\n");
     shmid = alloc_shared_memory(KEYSHM,SHMSIZE);
     shmem = (msg_t *)attach_shared_memory(shmid, 0);
 
+    printf("→ <Server>: Waiting support shared memory allocation...\n");
     //array di supporto shmem
     supporto_id = alloc_shared_memory(KEY_SUPPORT, SUPPORTO_SIZE);
     supporto = (int *) attach_shared_memory(supporto_id, 0);
@@ -80,7 +82,7 @@ int main(void)
     for (size_t i = 0; i < MAXMSG; i++){
         supporto[i] = 0;
     }
-
+    printf("→ <Server>: Waiting semaphore counter set allocation...\n");
     // Create a semaphore with 50 max messages
     semid_counter = alloc_semaphore(KEYSEM_COUNTER, SEMNUM_COUNTER);
 
@@ -90,6 +92,7 @@ int main(void)
     arg.array = values;
     semctl(semid_counter, 0, SETALL, arg);
 
+    printf("→ <Server>: Waiting semaphore synchronization set allocation...\n");
     //create synch server
     semid = alloc_semaphore(KEYSEM_SYNC, SEMNUM_SYNC);
 
@@ -105,12 +108,15 @@ int main(void)
     semctl(semid, SEMCHILD, SETVAL, arg);
     semctl(semid, SEMSHM, SETVAL, arg);
 
+    printf("→ <Server>: Waiting message queue allocation...\n");
     // create message queue
     msqid = alloc_message_queue(KEYMSQ);
 
+    printf("→ <Server>: Waiting fifo1 allocation...\n");
     // create FIFOs
-    make_fifo(FIFO1);
-    make_fifo(FIFO2);
+    make_fifo(FIFO1, 1);
+    printf("→ <Server>: Waiting fifo2 allocation...\n");
+    make_fifo(FIFO2, 2);
     //fifo create flag (used to check if fifo exists)
     fifo_flag = 1;
 

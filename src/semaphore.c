@@ -20,6 +20,8 @@ int alloc_semaphore(key_t semKey, int num)
     if(semid == -1)
         errExit("semget failed: ");
 
+    printf("→ <Server>: Semaphore set n°%d create successfully!\n", semKey);
+
     return semid;
 }
 
@@ -36,6 +38,8 @@ int get_semaphore(key_t semKey, int num)
 
     if(semid == -1)
         errExit("semget failed: ");
+
+    printf("→ <Client>: Semaphore set n°%d synchronization successfully!\n", semKey);
 
     return semid;
 }

@@ -11,10 +11,12 @@
  * Crea, se non esiste, una fifo
  * @param path - destinazione della fifo
  */
-void make_fifo(const char *path)
+void make_fifo(const char *path, int num)
 {
     if (mkfifo(path,  S_IWRITE | S_IREAD) == -1)
         errExit("mkfifo failed: ");
+
+    printf("→ <Server>: fifo%d create successfully!\n", num);
 }
 
 /**
