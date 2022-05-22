@@ -25,9 +25,9 @@ void make_fifo(const char *path, int num)
  * @param mode - modalità di apertura della fifo
  * @return fd - file descriptor associato alla fifo
  */
-int open_fifo(const char *path, int mode)
+int open_fifo(const char *path, int mode, int block)
 {
-    int fd = open(path, mode);
+    int fd = open(path, mode, block);
 
     if(fd == -1){
         errExit("open failed: ");
@@ -67,12 +67,11 @@ ssize_t read_fifo(int fd, int num, void *buf, ssize_t size)
     errno = 0;
     ssize_t Br = read(fd, buf, size);
 
-    if (Br == -1) {
-        errExit("write failed: ");
+    if (Br == -1 && errno == EAGAIN) {
+        printf("→ <Server>: fifo%d vuota!\n", num);
     }
-
-    if (errno == EAGAIN) {
-        printf("fifo%d vuota!\n", num);
+    else if(Br == -1) {
+        errExit("read failed: ");
     }
 
     return Br;

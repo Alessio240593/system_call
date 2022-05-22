@@ -68,12 +68,12 @@ int main(int argc, char * argv[])
     sig_sethandler(SIGUSR1, sigusr1_handler);
 
     //wait for a signal
-    pause();
+    //pause();
 
     char buffer[LEN_INT];
 
     //open FIFO1 in write only mode
-    int fifo1_fd = open_fifo(FIFO1, O_WRONLY);
+    int fifo1_fd = open_fifo(FIFO1, O_WRONLY, 0);
     SYSCHECK(fifo1_fd, "open: ");
 
     //get server shmem
@@ -132,7 +132,7 @@ int main(int argc, char * argv[])
     snprintf(buffer, LEN_INT, "%zu", dir_list->size);
 
     // open FIFO2 in write only mode
-    int fifo2_fd = open_fifo(FIFO2, O_WRONLY);
+    int fifo2_fd = open_fifo(FIFO2, O_WRONLY, 0);
     SYSCHECK(fifo2_fd, "open: ");
 
     // write on fifo
@@ -176,11 +176,11 @@ int main(int argc, char * argv[])
             }
             else if (waiting == (int) (dir_list->index - 1)) {
                 // Figlio prediletto forse è -1 perchè conta i file in attesa
-                semOp(semid_sync, SEMCHILD, WAIT, 0);
+                //semOp(semid_sync, SEMCHILD, WAIT, 0);
             }
             else {
                 // Figli diseredati
-                semOp(semid_sync, SEMCHILD, SYNC, 0);
+                //semOp(semid_sync, SEMCHILD, SYNC, 0);
             }
 
             // start sending messages
@@ -232,16 +232,17 @@ int main(int argc, char * argv[])
             semOp(semid_counter, MAX_SEM_MSQ, WAIT, 0);
 
             // inizio sezione critica
-            printf("sto per prendere il mutex msq!\n");
+            printf("Sto per prendere il mutex msq!\n");
             semOp(semid_sync, SEMMSQ, WAIT, 0);
             errno = 0;
             int res = msgsnd(msqid, &msq_msg, MSGSIZE, 0);
 
-            if(res == -1 /*&& errno == EINVAL*/){
-                perror("msgsnd failed: ");
+            if(res == -1 /*&& errno == EINVAL*/) {
+               perror("msgsnd failed: ");
             }
 
             semOp(semid_sync, SEMMSQ, SIGNAL, 0);
+            printf("Sono uscito dal mutex di msq!\n");
 
             printf("\t→ <Client-%zu>: Ho inviato il terzo pezzo del file <%s> su Message Queue\n", i+1, dir_list->list[i]);
 
@@ -253,38 +254,40 @@ int main(int argc, char * argv[])
             // semaforo per tenere traccia delle scritture sulla Shared Memory
             //semOp(semid_counter, MAX_SEM_SHM, WAIT, 0); // TODO secondo me non serve se abbiamo supporto
 
-            // inizio sezione critica
-            printf("sto per prendere il mutex shmem!\n");
-            semOp(semid_sync, SEMSHM, WAIT, 0);
-
             size_t index = 0;
 
             while (index < MAXMSG && supporto[index] == 1){
                 index++;
             }
-
-            if(index != MAXMSG){
-                //marco la zona di memoria come piena
-                supporto[index] = 1;
-
-                //scrivo sula shared memory
-                shmem[index].type = 1;
-                shmem[index].client = i;
-                shmem[index].pid = proc_pid;
-                strcpy(shmem[index].name, (dir_list->list[i]));
-
-                if(parts[3] != NULL)
-                    strcpy(shmem[index].message, parts[3]);
-                else
-                    printf("parts[3] è NULL\n");
+            // se non c'è spazio il client i aspetta
+            if(index == MAXMSG){
+                semOp(semid_sync, SYNC_SHM, WAIT, 0);
             }
+            // inizio sezione critica
+            printf("sto per prendere il mutex shmem!\n");
+            semOp(semid_sync, SEMSHM, WAIT, 0);
+
+            //marco la zona di memoria come piena
+            supporto[index] = 1;
+
+            //scrivo sula shared memory
+            shmem[index].type = 1;
+            shmem[index].client = i;
+            shmem[index].pid = proc_pid;
+            strcpy(shmem[index].name, (dir_list->list[i]));
+
+            if(parts[3] != NULL)
+                strcpy(shmem[index].message, parts[3]);
+            else
+                printf("parts[3] è NULL\n");
+
+            printf("\t→ <Client-%zu>: Ho inviato il quarto pezzo del file <%s> su Shared Memory\n", i+1, dir_list->list[i]);
+
+            semOp(semid_sync, SEMSHM, SIGNAL, 0);
+            printf("Ho liberato il mutex shmem!\n");
 
             // sblocca server per la lettura
             //semOp(semid_sync, SYNC_SHM, SIGNAL, 0);
-
-            semOp(semid_sync, SEMSHM, SIGNAL, 0);
-
-            printf("\t→ <Client-%zu>: Ho inviato il quarto pezzo del file <%s> su Shared Memory\n", i+1, dir_list->list[i]);
 
             // chiude il file
             close(sendme_fd);
@@ -303,10 +306,9 @@ int main(int argc, char * argv[])
 
     // Parent wait children
     while(wait(NULL) > 0);
-
     // Client-0 wait for server ack
     msg_t res;
-
+    printf("<Client-0>: waiting for server ack...");
     semOp(semid_sync, SEMMSQ, WAIT, 0);
 
     msgrcv(msqid, &res, 0, MSGSIZE, 0);
