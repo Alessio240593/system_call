@@ -238,8 +238,7 @@ int main(void)
 
             int res = semop(semid, &sop, 1);
 
-            if(res == -1 && errno == EAGAIN)
-            {
+            if(res == -1 && errno == EAGAIN) {
                 printf("→ <Server>: Message queue occupata!\n");
             }
             else if(res == -1){
@@ -247,9 +246,9 @@ int main(void)
             } else{
                 errno = 0;
                 // TODO controllare if(res == -1 && errno == ENOMSG) poi else if (res == -1)- error
-                msgrcv(msqid, &msg_buffer, MSGSIZE , 0, IPC_NOWAIT);
+                int res = msgrcv(msqid, &msg_buffer, MSGSIZE , 0, IPC_NOWAIT);
 
-                if(errno == ENOMSG) {
+                if(res == -1 && errno == ENOMSG) {
                     printf("→ <Server>: Non ci sono messaggi nella message queue\n");
                 }else {
                     //salvo il messaggio
@@ -308,6 +307,9 @@ int main(void)
                     semOp(semid, SEMSHM, SIGNAL, 0);
                     printf("Ho liberato il mutex shmem!\n");
                 }
+            }
+            else {
+                printf("→ <Server>: Shared memory vuota\n");
             }
             if(semctl(semid, SYNC_SHM, GETZCNT, 0) > 0)
                 semOp(semid, SYNC_SHM, SIGNAL, 0); // ne libera solo 1?

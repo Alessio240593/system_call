@@ -221,6 +221,7 @@ int main(int argc, char * argv[])
             printf("\t→ <Client-%zu>: Ho inviato il secondo pezzo del file <%s> sulla FIFO2\n", i+1, dir_list->list[i]);
 
             //-----------------------MESSAGE QUEUE-----------------------------
+            // TODO problemi nella msqueue
             msg_t msq_msg ;
             msq_msg .type = 1;
             msq_msg .client = i;
@@ -308,7 +309,7 @@ int main(int argc, char * argv[])
     while(wait(NULL) > 0);
     // Client-0 wait for server ack
     msg_t res;
-    printf("<Client-0>: waiting for server ack...");
+    printf("<Client-0>: waiting for server ack...\n");
     semOp(semid_sync, SEMMSQ, WAIT, 0);
 
     msgrcv(msqid, &res, 0, MSGSIZE, 0);
