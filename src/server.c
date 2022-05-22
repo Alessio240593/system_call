@@ -214,7 +214,7 @@ int main(void)
 
             if(errno == ENOMSG)
             {
-                printf("→ <Server>: Non ci sono messaggi sulla message queue\n");
+                printf("→ <Server>: Non ci sono messaggi nella message queue\n");
             }else{
                 //salvo il messaggio
                 strcpy(msg_map[msg_buffer.client][2].message , msg_buffer.message);

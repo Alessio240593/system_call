@@ -77,25 +77,25 @@ int main(int argc, char * argv[])
     SYSCHECK(fifo1_fd, "open: ");
 
     //get server shmem
-    printf("→ <Client>: Waiting shared memory...\n");
+    printf("→ <Client>: Waiting shared memory synchronization...\n");
     int shmid = get_shared_memory(KEYSHM, SHMSIZE);
     msg_t *shmem = (msg_t *)attach_shared_memory(shmid, 0);
 
     //get supporto
-    printf("→ <Client>: Waiting support shared memory...\n");
+    printf("→ <Client>: Waiting support shared memory synchronization...\n");
     int support_id = get_shared_memory(KEY_SUPPORT, SUPPORTO_SIZE);
     int *supporto = (int *)attach_shared_memory(support_id, 0);
 
     // get message queue
-    printf("→ <Client>: Waiting message queue...\n");
+    printf("→ <Client>: Waiting message queue synchronization...\n");
     int msqid = get_message_queue(KEYMSQ);
 
     //get server semset
-    printf("→ <Client>: Waiting semaphore synchronization set...\n");
+    printf("→ <Client>: Waiting semaphore set synchronization...\n");
     int semid_sync = get_semaphore(KEYSEM_SYNC , SEMNUM_SYNC);
 
     //get sem count
-    printf("→ <Client>: Waiting semaphore counter set...\n");
+    printf("→ <Client>: Waiting semaphore counter set synchronization...\n");
     int semid_counter = get_semaphore(KEYSEM_COUNTER, SEMNUM_COUNTER);
 
     // fill sigset
@@ -329,6 +329,7 @@ int main(int argc, char * argv[])
     free(dir_list);
 
     // set old mask
+    printf("→ <Client>: Setting new mask UNBLOCK<SIGINT, SIGUSR1>...\n");
     sig_setmask(SIG_SETMASK, &oldSet, NULL);
     // wait for a signal
     pause();
