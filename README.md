@@ -26,10 +26,6 @@ in attesa di ricevere uno dei due segnali.
 
 - si mette in ricezione ciclicamente su ciascuno dei quattro canali (frecce nere in Figura 1)
 
-1. Alla ricezione dei messaggi dai vari canali esegue le seguenti operazioni:
- memorizza il PID del processo mittente, il nome del file con percorso completo ed il pezzo
-di file trasmesso.
-
 1. una volta ricevute tutte e quattro le parti di un file le riunisce nell’ordine corretto e le salva
 in un file di testo in cui ognuna delle quattro parti e’ separata dalla successiva da una riga
 bianca (carattere newline) ed ha l’intestazione “[Parte j, del file NOMEFILE, spedita dal
