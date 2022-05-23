@@ -46,11 +46,11 @@ int open_fifo(const char *path, int mode, int block)
 ssize_t write_fifo(int fd, void *buf, ssize_t size)
 {
     ssize_t Bw = write(fd, buf, size);
-
+/*
     if (Bw != size) {
         errExit("write failed: ");
     }
-
+*/
     return Bw;
 }
 

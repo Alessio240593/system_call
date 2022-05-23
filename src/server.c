@@ -139,10 +139,6 @@ int main(void)
 
         fd1 = open(FIFO_1, O_RDONLY | O_NONBLOCK);
 
-        //make reading on fifo non block
-        //fcntl(fd1, F_SETFL, O_NONBLOCK);
-        //fcntl(fd2, F_SETFL, O_NONBLOCK);
-
         //from string to int
         size_t n = atoi(string_buffer);
 
@@ -177,6 +173,7 @@ int main(void)
 
             errno = 0;
             Br = read(fd1, &msg_buffer, sizeof(msg_buffer));
+
             printf("→ <Server>: Sono uscito dalla FIFO_1!\n");
 
             if (Br == -1 && errno == EAGAIN) {
@@ -195,11 +192,10 @@ int main(void)
 
                 printf("→ <Server>: salvata parte %d del file: %s\n",
                        FIFO1, msg_map[msg_buffer.client][FIFO1].name);
-
-
+                semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL, 0); // TODO bloccano tutto
             }
 
-            semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL, 0); // TODO bloccano tutto
+
 
             if ((val = semctl(semid_counter, MAX_SEM_FIFO1, GETVAL, 0)) == -1)
                 errExit("semctl GETVAL");
@@ -215,6 +211,7 @@ int main(void)
 
             errno = 0;
             Br = read(fd2, &msg_buffer, sizeof(msg_buffer));
+
             printf("→ <Server>: Sono uscito dalla fifo2!\n");
             if (Br == -1 && errno == EAGAIN) {
                 printf("→ <Server>: fifo2 vuota!\n");
@@ -223,7 +220,6 @@ int main(void)
                 errExit("read failed: ");
             }
             else {
-
                 // salvo il messaggio
                 strcpy(msg_map[msg_buffer.client][FIFO2].message , msg_buffer.message);
                 strcpy(msg_map[msg_buffer.client][FIFO2].name , msg_buffer.name);
@@ -233,11 +229,10 @@ int main(void)
 
                 printf("→ <Server>: salvata parte %d del file: %s\n",
                        FIFO2 + 1, msg_map[msg_buffer.client][FIFO2].name);
-
-
+                semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL, 0); // TODO bloccano tutto
             }
 
-            semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL, 0); // TODO bloccano tutto
+
 
             if ((val = semctl(semid_counter, MAX_SEM_FIFO2, GETVAL, 0)) == -1) {
                 errExit("semctl GETVAL");
@@ -247,7 +242,6 @@ int main(void)
                 // trunc file attenzione un client potrebbe scrivere mentre si tronca, sezione critica?
 
             // }
-
 
 
             //--------------------------MESSAGE QUEUE----------------------------------------------
@@ -265,16 +259,14 @@ int main(void)
 
             res = semop(semid_sync, &sopi, 1);
 
-
             if (res == -1 && errno == EAGAIN) {
-                perror("→ <Server>: Message Queue occupata!: ");
-                //printf("→ <Server>: Message queue occupata!\n");
+                printf("→ <Server>: Message queue occupata!\n");
             }
             else if (res == -1){
                 errExit("semop failed: ");
             } else {
                 errno = 0;
-                // TODO controllare if(res == -1 && errno == ENOMSG) poi else if (res == -1)- error
+
                 res = msgrcv(msqid, &msg_buffer, MSGSIZE , 0, IPC_NOWAIT);
 
                 if (res == -1 && errno == ENOMSG) {
@@ -288,13 +280,10 @@ int main(void)
                     msg_map[msg_buffer.client][MSQ].pid = msg_buffer.pid;
 
                     printf("→ <Server>: salvata parte %d del file: %s\n", MSQ + 1, msg_map[msg_buffer.client][MSQ].name);
-
-
+                    semOp(semid_counter, MAX_SEM_MSQ, SIGNAL, 0);
+                    semOp(semid_sync, SEMMSQ, SIGNAL, 0);
                 }
 
-                semOp(semid_counter, MAX_SEM_MSQ, SIGNAL, 0);
-
-                semOp(semid_sync, SEMMSQ, SIGNAL, 0);
                 printf("→ <Server>: Ho liberato il mutex MSQ!\n");
             }
 
@@ -304,7 +293,6 @@ int main(void)
 
             //controlla se c'è un messaggio da leggere
             while (index < MAXMSG && supporto[index] == 0) {
-                //index = (index + 1) % MAXMSG;
                 index++;
             }
 

@@ -247,7 +247,7 @@ char* parts_header(int part, const char *path, pid_t pid)
 */
 
 /**
- * Verifica se il server ha memorizato tutte le parti <PARTS> di n client
+ * Verifica se il server ha memorizzato tutte le parti <PARTS> di n client
  * @param msg_map - matrice contenente le varie parti del file
  * @param rows - numero di client
  * @return 0 - se il server ha salvato tutte le parti dei vari file
@@ -266,10 +266,11 @@ int finish(msg_t **msg_map, size_t rows)
 }
 
 /**
- * TODO
- * @param matrice
- * @param child
- * @return
+ * Controlla se <child> ha finito di inviare le <PARTS> parti al server
+ * @param matrice - matrice N x PARTS che tiene traccia dei file inviati dal client
+ * @param child - identidicativo del processo figlio
+ * @return 1 - in caso <child> non abbia terminato l'invio delle parti del file
+ * @return 0 - in caso <child> abbia terminato l'invio delle parti del file
  */
 int child_finish(int **matrice, size_t child)
 {

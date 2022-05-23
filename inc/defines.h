@@ -26,8 +26,8 @@
 #define MAXMSG 50
 
 // FIFOs path
-#define FIFO_1 "/home/lotation/myDir/FIFO_1"
-#define FIFO_2 "/home/lotation/myDir/FIFO_2"
+#define FIFO_1 "/home/alessio/myDir/fifo1"
+#define FIFO_2 "/home/alessio/myDir/fifo2"
 
 // define IPCs index
 #define FIFO1 0
