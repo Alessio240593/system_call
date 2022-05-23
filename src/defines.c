@@ -265,6 +265,22 @@ int finish(msg_t **msg_map, size_t rows)
     return 0;
 }
 
+/**
+ * TODO
+ * @param matrice
+ * @param child
+ * @return
+ */
+int child_finish(int **matrice, int child)
+{
+    for (size_t i = 0; i < PARTS; ++i) {
+        if(matrice[child][i] != 1){
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
 int dump_dirlist(dirlist_t *dirlist, const char *filename)
 {

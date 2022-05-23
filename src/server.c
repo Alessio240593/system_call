@@ -162,8 +162,7 @@ int main(void)
 
         int val = 0;
         msg_t msg_buffer;
-        int e = 0;
-        while (/*finish(msg_map, n)*/e++ < 100) {
+        while (finish(msg_map, n)) {
             // ------------------------FIFO1-------------------------------------------
             // TODO problema sulle fifo
             printf("Sto per leggere su fifo1!\n");
