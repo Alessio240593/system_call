@@ -6,14 +6,6 @@
 ### _to do:_
 #### `CLIENT`
 
-◦ prepara i quattro messaggi per l’invio,
-◦ quando il semaforo consente al Client_i di proseguire esso invia il primo messaggio a
-FIFO1, il seconda a FIFO2, il terza a MsgQueue ed il quarto a ShdMem (frecce nere in
-Figura 1); all’interno dei messaggi, Client_i invia anche il proprio PID ed il nome del
-file “sendme_” (con percorso completo),
-◦ chiude il file,
-◦ termina.
-
 1. (Client_0) si mette in attesa sulla MsgQueue di un messaggio da parte del server che lo
 informa che tutti i file di output sono stati creati dal server stesso e che il server ha concluso.
 
@@ -23,8 +15,6 @@ in attesa di ricevere uno dei due segnali.
 
 
 #### `SERVER`
-
-- si mette in ricezione ciclicamente su ciascuno dei quattro canali (frecce nere in Figura 1)
 
 1. una volta ricevute tutte e quattro le parti di un file le riunisce nell’ordine corretto e le salva
 in un file di testo in cui ognuna delle quattro parti e’ separata dalla successiva da una riga
@@ -48,13 +38,14 @@ conclusione lavori.
 
 ### _to check:_
 ####  `CLIENT`
- 
-
+1. IL client i non scrive parts (è sempre NULL) 
+1. Da un certo punto in poi client stampa fifo1.name = " "
+1. 
 
 ---
 
 #### `SERVER`
-
+1. non termina il ciclo di ricezione messaggi 
 
 
 

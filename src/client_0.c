@@ -176,11 +176,11 @@ int main(int argc, char * argv[])
             }
             else if (waiting == (int) (dir_list->index - 1)) {
                 // Figlio prediletto forse è -1 perchè conta i file in attesa
-                //semOp(semid_sync, SEMCHILD, WAIT, 0);
+                semOp(semid_sync, SEMCHILD, WAIT, 0);
             }
             else {
                 // Figli diseredati
-                //semOp(semid_sync, SEMCHILD, SYNC, 0);
+                semOp(semid_sync, SEMCHILD, SYNC, 0);
             }
 
             // start sending messages
