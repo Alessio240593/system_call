@@ -1,4 +1,5 @@
-/** @file defines.h
+/**
+ * @file defines.h
  * @brief Contiene la definizioni di variabili
  *        e funzioni specifiche del progetto.
  */
@@ -25,8 +26,15 @@
 #define MAXMSG 50
 
 // FIFOs path
-#define FIFO1 "/home/alessio/myDir/fifo1"
-#define FIFO2 "/home/alessio/myDir/fifo2"
+#define FIFO_1 "/home/lotation/myDir/FIFO_1"
+#define FIFO_2 "/home/lotation/myDir/FIFO_2"
+
+// define IPCs index
+#define FIFO1 0
+#define FIFO2 1
+#define MSQ   2
+#define SHM   3
+
 
 #define MCHECK(ptr)  if (ptr == NULL) { \
                         perror("malloc "); \
@@ -45,7 +53,7 @@ typedef struct __dirlist_t {
 } dirlist_t;
 
 
-typedef struct mymsg {
+typedef struct __msg_t {
     long type;
 
     size_t client;
@@ -66,6 +74,6 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path);
 void fill_msg(msg_t **dest, msg_t *src, int pid, int part);
 int dump_dirlist(dirlist_t *dirlist, const char *filename);
 int finish(msg_t **msg_map, size_t rows);
-int child_finish(int **matrice, int child);
+int child_finish(int **matrice, size_t child);
 
 #endif

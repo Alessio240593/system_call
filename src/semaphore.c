@@ -10,7 +10,7 @@
  * Crea, se non esiste, un set di semafori
  * @param semKey - chiave per creare il set di semafori
  * @param num - numero di semafori da creare
- * @return semid - id del set di semafori
+ * @return semid_sync - id del set di semafori
  */
 int alloc_semaphore(key_t semKey, int num)
 {
@@ -29,7 +29,7 @@ int alloc_semaphore(key_t semKey, int num)
 * Sincronizza il chiamante sul set di semafori specificato da semKey
 * @param semKey - chiave del set di semafori
 * @param num - numero di semafori del set su cui sincronizzarsi(deve corrispondere all'originale)
-* @return semid - id del set di semafori
+* @return semid_sync - id del set di semafori
 */
 int get_semaphore(key_t semKey, int num)
 {

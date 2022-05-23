@@ -236,7 +236,7 @@ void fill_msg(msg_t **dest, msg_t *src, int pid, int part)
 /*
 char* parts_header(int part, const char *path, pid_t pid)
 {
-    const char *ipcs[] = {"FIFO1", "FIFO2", "MsgQueue", "ShdMem"};
+    const char *ipcs[] = {"FIFO_1", "FIFO_2", "MsgQueue", "ShdMem"};
     char result[MAX_LEN];
 
     snprintf(result, sizeof(result), "[Parte %d del file %s, spedita dal processo %ld tramite %s]",
@@ -271,7 +271,7 @@ int finish(msg_t **msg_map, size_t rows)
  * @param child
  * @return
  */
-int child_finish(int **matrice, int child)
+int child_finish(int **matrice, size_t child)
 {
     for (size_t i = 0; i < PARTS; ++i) {
         if(matrice[child][i] != 1){

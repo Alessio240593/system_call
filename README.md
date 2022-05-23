@@ -22,7 +22,7 @@ bianca (carattere newline) ed ha l’intestazione “[Parte j, del file NOMEFILE
 processo PID tramite CANALE]” (vedere esempio sotto), dove j è un numero da 1 a 4 in
 base alla parte del file, NOMEFILE è il nome del file di origine compreso di percorso
 completo, PID è il PID del processo mittente e CANALE è il canale di comunicazione (uno
-tra FIFO1, FIFO2, MsgQueue e ShdMem). Il file verrà chiamato con lo stesso nome (e
+tra FIFO_1, FIFO_2, MsgQueue e ShdMem). Il file verrà chiamato con lo stesso nome (e
 percorso) del file originale ma con l’aggiunta del postfisso “_out”.
 
 1. quando ha ricevuto e salvato tutti i file invia un messaggio di terminazione sulla coda di

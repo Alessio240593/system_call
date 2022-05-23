@@ -1,4 +1,5 @@
-/** @file semaphore.h
+/**
+ * @file semaphore.h
  * @brief Contiene la definizioni di variabili e funzioni
  *        specifiche per la gestione dei SEMAFORI.
 */
@@ -38,8 +39,8 @@
 #define SYNC_FIFO1 4
 #define SYNCH_MSQ 5
 
-// 1° semaforo => max messages in FIFO1
-// 2° semaforo => max messages in FIFO2
+// 1° semaforo => max messages in FIFO_1
+// 2° semaforo => max messages in FIFO_2
 // 3° semaforo => max messages in Shared Memory
 // 4° semaforo => max messages in Message Queue
 #define MAX_SEM_FIFO1 0
