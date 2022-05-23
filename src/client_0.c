@@ -176,11 +176,11 @@ int main(int argc, char * argv[])
             }
             else if (waiting == (int) (dir_list->index - 1)) {
                 // Figlio prediletto forse è -1 perchè conta i file in attesa
-                semOp(semid_sync, SEMCHILD, WAIT, 0);
+                //semOp(semid_sync, SEMCHILD, WAIT, 0);
             }
             else {
                 // Figli diseredati
-                semOp(semid_sync, SEMCHILD, SYNC, 0);
+                //semOp(semid_sync, SEMCHILD, SYNC, 0);
             }
 
             // start sending messages
@@ -197,7 +197,7 @@ int main(int argc, char * argv[])
             strcpy(fifo1_msg.message, parts[0]);
 
             // semaforo per tenere traccia delle scritture sulla FIFO1
-            //semOp(semid_counter, MAX_SEM_FIFO1, WAIT, 0); // TODO bloccano tutto
+            semOp(semid_counter, MAX_SEM_FIFO1, WAIT, 0); // TODO bloccano tutto
             printf("sono bloccato in scrittura su fifo1!\n");
             write_fifo(fifo1_fd, &fifo1_msg, sizeof(fifo1_msg));
 
@@ -214,7 +214,7 @@ int main(int argc, char * argv[])
             strcpy(fifo2_msg.message, parts[1]);
 
             // semaforo per tenere traccia delle scritture sulla FIFO2
-            //semOp(semid_counter, MAX_SEM_FIFO2, WAIT, 0); // TODO bloccano tutto
+            semOp(semid_counter, MAX_SEM_FIFO2, WAIT, 0); // TODO bloccano tutto
             printf("sono bloccato in scrittura su fifo2!\n");
             write_fifo(fifo2_fd, &fifo2_msg, sizeof (fifo2_msg));
 
@@ -310,6 +310,8 @@ int main(int argc, char * argv[])
     // Client-0 wait for server ack
     msg_t res;
     printf("<Client-0>: waiting for server ack...\n");
+    //semOp(semid_sync, SEMMSQ, SIGNAL, 0);
+    // TODO secondo me qui ci va un semaforo per la sincroizzazione
     semOp(semid_sync, SEMMSQ, WAIT, 0);
 
     msgrcv(msqid, &res, 0, MSGSIZE, 0);

@@ -36,6 +36,7 @@
 #define SEMCHILD 2
 #define SYNC_SHM 3
 #define SYNC_FIFO1 4
+#define SYNCH_MSQ 5
 
 // 1° semaforo => max messages in FIFO1
 // 2° semaforo => max messages in FIFO2
