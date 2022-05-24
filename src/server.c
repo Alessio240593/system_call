@@ -130,14 +130,17 @@ int main(void)
         fd1 = open(FIFO_1, O_RDONLY);
 
         // open fifo2 in read only mode
-        fd2 = open(FIFO_2, O_RDONLY | O_NONBLOCK);
+        fd2 = open(FIFO_2, O_RDONLY);
 
         ssize_t bR = read_fifo(fd1, 1, string_buffer, MAX_LEN);
         string_buffer[bR] = '\0';
 
         close_fd(fd1);
+        close_fd(fd2);
 
         fd1 = open(FIFO_1, O_RDONLY | O_NONBLOCK);
+
+        fd2 = open(FIFO_2, O_RDONLY | O_NONBLOCK);
 
         //from string to int
         size_t n = atoi(string_buffer);
@@ -168,7 +171,6 @@ int main(void)
         while (finish(msg_map, n))
         {
             // ------------------------FIFO_1-------------------------------------------
-            // TODO problema sulle fifo
             printf("→ <Server>: Sto per leggere su FIFO_1!\n");
 
             errno = 0;
@@ -176,70 +178,74 @@ int main(void)
 
             printf("→ <Server>: Sono uscito dalla FIFO_1!\n");
 
-            if (Br == -1 && errno == EAGAIN) {
-                printf("→ <Server>: FIFO_1 vuota!\n");
+            if (errno == EAGAIN) {
+                printf("→ <Server>: FIFO_1 occupata!\n");
             }
             else if(Br == -1) {
+                printf("sono morto e non lo sapevo");
                 errExit("read failed: ");
             }
             else {
-                // salvo il messaggio
-                strcpy(msg_map[msg_buffer.client][FIFO1].message , msg_buffer.message);
-                strcpy(msg_map[msg_buffer.client][FIFO1].name , msg_buffer.name);
-                msg_map[msg_buffer.client][FIFO1].type = msg_buffer.type;
-                msg_map[msg_buffer.client][FIFO1].pid = msg_buffer.pid;
-                //sblocco una posizione per la scrittura
+                if(Br != 0){
+                    // salvo il messaggio
+                    strcpy(msg_map[msg_buffer.client][FIFO1].message , msg_buffer.message);
+                    strcpy(msg_map[msg_buffer.client][FIFO1].name , msg_buffer.name);
+                    msg_map[msg_buffer.client][FIFO1].type = msg_buffer.type;
+                    msg_map[msg_buffer.client][FIFO1].pid = msg_buffer.pid;
+                    //sblocco una posizione per la scrittura
 
-                printf("→ <Server>: salvata parte %d del file: %s\n",
-                       FIFO1, msg_map[msg_buffer.client][FIFO1].name);
-                semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL, 0); // TODO bloccano tutto
+                    printf("→ <Server>: salvata parte %d del file: %s\n",
+                           FIFO1, msg_map[msg_buffer.client][FIFO1].name);
+                    semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL, 0);
+                }
+
             }
-
-
 
             if ((val = semctl(semid_counter, MAX_SEM_FIFO1, GETVAL, 0)) == -1)
                 errExit("semctl GETVAL");
 
             // if (val == MAXMSG) {
-                // trunc file attenzione un client potrebbe scrivere mentre si tronca, sezione critica?
+            // trunc file attenzione un client potrebbe scrivere mentre si tronca, sezione critica?
             //}
 
 
             //--------------------------FIFO_2-------------------------------------------
             // TODO problema sulle fifo
-                printf("→ <Server>: Sto per leggere su FIFO_2!\n");
+            printf("→ <Server>: Sto per leggere su FIFO_2!\n");
 
             errno = 0;
             Br = read(fd2, &msg_buffer, sizeof(msg_buffer));
 
             printf("→ <Server>: Sono uscito dalla fifo2!\n");
             if (Br == -1 && errno == EAGAIN) {
-                printf("→ <Server>: fifo2 vuota!\n");
+                printf("→ <Server>: fifo2 occupata!\n");
             }
             else if(Br == -1) {
+                printf("sono morto e non lo sapevo");
                 errExit("read failed: ");
             }
             else {
-                // salvo il messaggio
-                strcpy(msg_map[msg_buffer.client][FIFO2].message , msg_buffer.message);
-                strcpy(msg_map[msg_buffer.client][FIFO2].name , msg_buffer.name);
-                msg_map[msg_buffer.client][FIFO2].type = msg_buffer.type;
-                msg_map[msg_buffer.client][FIFO2].pid = msg_buffer.pid;
-                //sblocco una posizione per la scrittura
+                if(Br != 0){
+                    // salvo il messaggio
+                    strcpy(msg_map[msg_buffer.client][FIFO2].message , msg_buffer.message);
+                    strcpy(msg_map[msg_buffer.client][FIFO2].name , msg_buffer.name);
+                    msg_map[msg_buffer.client][FIFO2].type = msg_buffer.type;
+                    msg_map[msg_buffer.client][FIFO2].pid = msg_buffer.pid;
+                    //sblocco una posizione per la scrittura
 
-                printf("→ <Server>: salvata parte %d del file: %s\n",
-                       FIFO2 + 1, msg_map[msg_buffer.client][FIFO2].name);
-                semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL, 0); // TODO bloccano tutto
+                    printf("→ <Server>: salvata parte %d del file: %s\n",
+                           FIFO2 + 1, msg_map[msg_buffer.client][FIFO2].name);
+
+                    semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL, 0); // TODO bloccano tutto
+                }
             }
-
-
 
             if ((val = semctl(semid_counter, MAX_SEM_FIFO2, GETVAL, 0)) == -1) {
                 errExit("semctl GETVAL");
             }
 
             // if(val == MAXMSG) {
-                // trunc file attenzione un client potrebbe scrivere mentre si tronca, sezione critica?
+            // trunc file attenzione un client potrebbe scrivere mentre si tronca, sezione critica?
 
             // }
 
@@ -255,66 +261,74 @@ int main(void)
 
 //            res = semop(semid_sync, &sop[MSQ], 1);
 
-            struct sembuf sopi = {.sem_num = SEMMSQ, .sem_op = WAIT, .sem_flg = IPC_NOWAIT};
+            /*struct sembuf sopi = {.sem_num = SEMMSQ, .sem_op = WAIT, .sem_flg = IPC_NOWAIT};
 
+            errno = 0;
             res = semop(semid_sync, &sopi, 1);
 
             if (res == -1 && errno == EAGAIN) {
                 printf("→ <Server>: Message queue occupata!\n");
+                semOp(semid_sync, SEMMSQ, SIGNAL, 0);
             }
             else if (res == -1){
+                printf("sono morto e non lo sapevo");
                 errExit("semop failed: ");
+            } else {*/
+            errno = 0;
+
+            res = msgrcv(msqid, &msg_buffer, MSGSIZE , 0, IPC_NOWAIT);
+
+            if (res == -1 && errno == ENOMSG) {
+                printf("→ <Server>: Non ci sono messaggi nella Message Queue\n");
+                //printf("Ho letto su msgqueue %s anche se non ci sono messaggi\n", msg_map[msg_buffer.client][MSQ].message);
+                semOp(semid_sync, SEMMSQ, SIGNAL, 0);
             } else {
-                errno = 0;
 
-                res = msgrcv(msqid, &msg_buffer, MSGSIZE , 0, IPC_NOWAIT);
+                //salvo il messaggio
+                strcpy(msg_map[msg_buffer.client][MSQ].message , msg_buffer.message);
+                strcpy(msg_map[msg_buffer.client][MSQ].name , msg_buffer.name);
+                msg_map[msg_buffer.client][MSQ].type = msg_buffer.type;
+                msg_map[msg_buffer.client][MSQ].pid = msg_buffer.pid;
 
-                if (res == -1 && errno == ENOMSG) {
-                    printf("→ <Server>: Non ci sono messaggi nella Message Queue\n");
-                } else {
-
-                    //salvo il messaggio
-                    strcpy(msg_map[msg_buffer.client][MSQ].message , msg_buffer.message);
-                    strcpy(msg_map[msg_buffer.client][MSQ].name , msg_buffer.name);
-                    msg_map[msg_buffer.client][MSQ].type = msg_buffer.type;
-                    msg_map[msg_buffer.client][MSQ].pid = msg_buffer.pid;
-
-                    printf("→ <Server>: salvata parte %d del file: %s\n", MSQ + 1, msg_map[msg_buffer.client][MSQ].name);
-                    semOp(semid_counter, MAX_SEM_MSQ, SIGNAL, 0);
-                    semOp(semid_sync, SEMMSQ, SIGNAL, 0);
-                }
-
-                printf("→ <Server>: Ho liberato il mutex MSQ!\n");
+                printf("→ <Server>: salvata parte %d del file: %s\n", MSQ + 1, msg_map[msg_buffer.client][MSQ].name);
+                semOp(semid_counter, MAX_SEM_MSQ, SIGNAL, 0);
+                semOp(semid_sync, SEMMSQ, SIGNAL, 0);
             }
+
+            printf("→ <Server>: Ho liberato il mutex MSQ!\n");
+            //}
 
             //---------------------------SHARED MEMORY-----------------------------------------
 
-            index = 0;
+            // prova a prendere il mutex
+            printf("→ <Server>: Sto per prendere il mutex shmem!\n");
 
-            //controlla se c'è un messaggio da leggere
-            while (index < MAXMSG && supporto[index] == 0) {
-                index++;
+            sop[SHM].sem_num = SEMSHM;
+            sop[SHM].sem_op  = WAIT;
+            sop[SHM].sem_flg = IPC_NOWAIT;
+
+            errno = 0;
+
+            res = semop(semid_sync, &sop[SHM], 1);
+
+            if (res == -1 && errno == EAGAIN)
+            {
+                printf("→ <Server>: Shared memory occupata!\n");
             }
-
-            if (index != MAXMSG) {
-                // prova a prendere il mutex
-                printf("→ <Server>: Sto per prendere il mutex shmem!\n");
-
-                sop[SHM].sem_num = SEMSHM;
-                sop[SHM].sem_op  = WAIT;
-                sop[SHM].sem_flg = IPC_NOWAIT;
-
-                errno = 0;
-
-                res = semop(semid_sync, &sop[SHM], 1);
-
-                if (res == -1 && errno == EAGAIN)
-                {
-                    printf("→ <Server>: Shared memory occupata!\n");
+            else if(res == -1){
+                printf("sono morto e non lo sapevo");
+                semOp(semid_sync, SEMSHM, SIGNAL, 0);
+                errExit("semop failed: ");
+            } else{
+                index = 0;
+                //controlla se c'è un messaggio da leggere
+                while (index < MAXMSG && supporto[index] == 0) {
+                    index++;
                 }
-                else if(res == -1){
-                    errExit("semop failed: ");
-                } else{
+
+                //semop()
+
+                if (index < MAXMSG) {
                     // salvo il messaggio
                     msg_map[shmem[index].client][SHM].client = shmem[index].client;
                     msg_map[shmem[index].client][SHM].pid = shmem[index].pid;
@@ -325,13 +339,14 @@ int main(void)
                     // svuota il messaggio
                     supporto[index] = 0;
                     printf("→ <Server>: salvata parte %d del file: %s\n", SHM + 1, msg_map[shmem[index].client][SHM].name);
-
-                    semOp(semid_sync, SEMSHM, SIGNAL, 0);
-                    printf("→ <Server>: Ho liberato il mutex shmem!\n");
                 }
-            }
-            else {
-                printf("→ <Server>: Shared memory vuota\n");
+                else {
+                    printf("→ <Server>: Shared memory vuota\n");
+                    printf("\nContenuto shared memory %s\n", msg_map[shmem[index].client][SHM].name);
+                }
+
+                semOp(semid_sync, SEMSHM, SIGNAL, 0);
+                printf("→ <Server>: Ho liberato il mutex shmem!\n");
             }
 
             // c'è qualche client bloccato?
@@ -341,6 +356,7 @@ int main(void)
             //sleep(1);
             //semOp(semid_counter, MAX_SEM_SHM, SIGNAL, 0); // TODO secondo me non serve se abbiamo supporto
         }
+        printf("\n\n ho letto QUASI tutto!\n\n");
         //per ogni processo che ha consegnato tutte 4 le parti salvarle in un file (vedi pdf -> server)
     }
     //si mette in ascolto sulla msq

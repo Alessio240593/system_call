@@ -17,11 +17,11 @@
 
 //chiave e numero di semafori pr sincronizzazione
 #define KEYSEM_SYNC 100
-#define SEMNUM_SYNC 4
+#define SEMNUM_SYNC 5
 
 //chiave e numero di semafori per conteggio limite messaggi
 #define KEYSEM_COUNTER 101
-#define SEMNUM_COUNTER 6
+#define SEMNUM_COUNTER 3
 
 //operazioni sui semafori
 #define WAIT -1
@@ -38,6 +38,8 @@
 #define SYNC_SHM 3
 #define SYNC_FIFO1 4
 #define SYNCH_MSQ 5
+#define SEMFIFO1 6
+#define SEMFIFO2 7
 
 // 1° semaforo => max messages in FIFO_1
 // 2° semaforo => max messages in FIFO_2
@@ -46,8 +48,7 @@
 #define MAX_SEM_FIFO1 0
 #define MAX_SEM_FIFO2 1
 #define MAX_SEM_MSQ   2
-#define MAX_SEM_SHM   3 //potrebbe essere inutile
-
+#define MAX_SEM_SHMEM   3
 /**
  * Struttura per lavorare con semctl
  */

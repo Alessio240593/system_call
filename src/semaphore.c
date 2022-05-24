@@ -54,15 +54,16 @@ void semOp (int semid, unsigned short sem_num, short sem_op, int flag)
 {
     struct sembuf sop = {.sem_num = sem_num, .sem_op = sem_op, .sem_flg = flag};
 
-    errno = 0;
+    //errno = 0;
 
     int res = semop(semid, &sop, 1);
-
+/*
     if(res == -1 && errno == EAGAIN)
     {
         printf("→ <Server>: %s occupato!\n", sem_num == SEMSHM ? "Shared memory" : sem_num == SEMMSQ ? "Message Queue" : "Semaphore set");
     }
-    else if(res == -1){
+    else */
+if(res == -1){
         errExit("semop failed: ");
     }
 }

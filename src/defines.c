@@ -253,16 +253,21 @@ char* parts_header(int part, const char *path, pid_t pid)
  * @return 0 - se il server ha salvato tutte le parti dei vari file
  * @return 1 - se il server non ha salvato tutte le parti dei vari file
  */
-int finish(msg_t **msg_map, size_t rows)
+int finish(msg_t **msg_map, size_t rows) // TODO si potrebbe migliorare accettando un indice che tenga traccia dell'ultima posizione dove la matrice era arrivata (ciò che sta prima è gia stato controllato e non cambia)
 {
+    int trovato = 0;
+
     for (size_t i = 0; i < rows; ++i) {
+        printf("Cient%zu: ", i + 1);
         for (size_t j = 0; j < PARTS; ++j) {
+            printf("%ld ", msg_map[i][j].type);
             if(msg_map[i][j].type != 1){
-                return 1;
+                trovato = 1;
             }
         }
+        printf("\n");
     }
-    return 0;
+    return trovato;
 }
 
 /**
@@ -274,13 +279,39 @@ int finish(msg_t **msg_map, size_t rows)
  */
 int child_finish(int **matrice, size_t child)
 {
+    int trovato = 0;
+
     for (size_t i = 0; i < PARTS; ++i) {
         if(matrice[child][i] != 1){
-            return 1;
+            trovato = 1;
         }
     }
-    return 0;
+    return trovato;
 }
+
+/**
+ * Controlla se <child> ha finito di inviare le <PARTS> parti al server
+ * @param matrice - matrice N x PARTS che tiene traccia dei file inviati dal client
+ * @param child - identidicativo del processo figlio
+ * @return 1 - in caso <child> non abbia terminato l'invio delle parti del file
+ * @return 0 - in caso <child> abbia terminato l'invio delle parti del file
+ */
+int child2_finish(int **matrice, size_t child)
+{
+    int trovato = 0;
+
+    printf("Cient%zu: ", child);
+
+    for (size_t i = 0; i < PARTS; ++i) {
+        printf("%d ", matrice[child][i]);
+        if(matrice[child][i] != 1){
+            trovato = 1;
+        }
+    }
+    printf("\n");
+    return trovato;
+}
+
 
 /// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
 int dump_dirlist(dirlist_t *dirlist, const char *filename)
