@@ -179,7 +179,7 @@ int main(int argc, char * argv[])
                 struct sembuf shm_sync;
                 msg_t msgs[PARTS];
 
-                printf("\n\nshmid: %d, msgid: %d\n\n", shmid, msqid);
+                //printf("\n\nshmid: %d, msgid: %d\n\n", shmid, msqid);
 
                 // child-th child
                 int sendme_fd = open(dir_list->list[child], O_RDONLY);

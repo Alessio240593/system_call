@@ -289,6 +289,61 @@ int main(void)
             }
             //printf("post shared \n");
             printf("cont : %d\n", cont);
+            char msg[MAX_LEN];
+
+            for (size_t child = 0; child < n; child++) {
+                if(msg_map[child][FIFO1].type == 1 && msg_map[child][FIFO2].type == 1
+                   && msg_map[child][MSQ].type == 1 && msg_map[child][SHM].type == 1) {
+
+                    char* file_name = msg_map[child][FIFO1].name;
+                    int fid = open(strcat(file_name, "_out"), O_WRONLY | O_CREAT | O_TRUNC, S_IWRITE | S_IREAD);
+
+                    if( fid == -1)
+                        errExit("write failed frifo1\n");
+
+                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
+                             1, msg_map[child][FIFO1].name, msg_map[child][FIFO1].pid, "FIFO1", msg_map[child][FIFO1].message);
+
+                    Br = write(fid, msg, sizeof(msg));
+
+                    if(Br == -1){
+                        errExit("write failed fifo1\n");
+                    }
+
+                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
+                             1, msg_map[child][FIFO2].name, msg_map[child][FIFO2].pid, "FIFO2", msg_map[child][FIFO2].message);
+
+                    Br = write(fid, msg, sizeof(msg));
+
+                    if(Br == -1){
+                        errExit("write failed fifo2\n");
+                    }
+
+                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
+                             1, msg_map[child][MSQ].name, msg_map[child][MSQ].pid, "MSQ",  msg_map[child][MSQ].message);
+
+                    Br = write(fid, msg, sizeof(msg));
+
+                    if(Br == -1){
+                        errExit("write failed MSQ\n");
+                    }
+
+                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
+                             1, msg_map[child][SHM].name, msg_map[child][SHM].pid, "SHMEM", msg_map[child][SHM].message);
+
+                    Br = write(fid, msg, sizeof(msg));
+
+                    if(Br == -1){
+                        errExit("write failed SHMMEM\n");
+                    }
+
+                    //imposta type a 0 in modo che l'if iniziale non sia più true
+                    // per questo child dato che l'opeazione è stata completata
+                    msg_map[child][FIFO1].type = 0;
+
+                    close(fid);
+                }
+            }
         }
         printf("Ho finito la %d iterazione!!!!\n", times++);
 
@@ -305,6 +360,5 @@ int main(void)
         //printf("%s", result.message);
         //printf("\n\n ho letto QUASI tutto!\n\n");
         //per ogni processo che ha consegnato tutte 4 le parti salvarle in un file (vedi pdf -> server)
-        //...........
     }
 }

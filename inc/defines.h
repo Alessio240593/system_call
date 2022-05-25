@@ -71,9 +71,8 @@ void sigint_handler(int sig);
 int Chdir(const char *path);
 int split_file(char** parts, int fd, size_t tot_char);
 int init_dirlist(dirlist_t *dirlist, const char *start_path);
-void fill_msg(msg_t **dest, msg_t *src, int pid, int part);
 int dump_dirlist(dirlist_t *dirlist, const char *filename);
-int finish(int array[], size_t rows);
 int child_finish(int matrice[37][4], size_t child);
+char* parts_header(int part, const char *path, pid_t pid, char *message);
 
 #endif
