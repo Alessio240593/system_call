@@ -169,6 +169,7 @@ int main(void)
                     msg_map[msg_buffer.client][FIFO1].type = msg_buffer.type;
                     msg_map[msg_buffer.client][FIFO1].pid = msg_buffer.pid;
                     strcpy(msg_map[msg_buffer.client][FIFO1].message , msg_buffer.message);
+                    printf("\nfifo1: %s\n", msg_map[msg_buffer.client][FIFO1].message);
                     strcpy(msg_map[msg_buffer.client][FIFO1].name , msg_buffer.name);
                     //printf("Il processo %ld riceve su fifo1: <%ld> \n", msg_buffer.client + 1, msg_map[msg_buffer.client][FIFO1].type);
                     cont++;
@@ -207,6 +208,7 @@ int main(void)
                     msg_map[msg_buffer.client][FIFO2].type = msg_buffer.type;
                     msg_map[msg_buffer.client][FIFO2].pid = msg_buffer.pid;
                     strcpy(msg_map[msg_buffer.client][FIFO2].message , msg_buffer.message);
+                    printf("\nfifo2: %s\n", msg_map[msg_buffer.client][FIFO2].message);
                     strcpy(msg_map[msg_buffer.client][FIFO2].name , msg_buffer.name);
                     //printf("Il processo %ld riceve su fifo2: <%ld> \n", msg_buffer.client + 1, msg_map[msg_buffer.client][FIFO2].type);
                     //sblocco una posizione per la scrittura
@@ -249,6 +251,7 @@ int main(void)
                 msg_map[msg_buffer.client][MSQ].type = msg_buffer.type;
                 msg_map[msg_buffer.client][MSQ].pid = msg_buffer.pid;
                 strcpy(msg_map[msg_buffer.client][MSQ].message , msg_buffer.message);
+                printf("\nmsq: %s\n", msg_map[msg_buffer.client][MSQ].message);
                 strcpy(msg_map[msg_buffer.client][MSQ].name , msg_buffer.name);
                 cont++;
                 //printf("msq valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
@@ -278,6 +281,7 @@ int main(void)
                         msg_map[shmem[id].client][SHM].type = shmem[id].type;
                         strcpy(msg_map[shmem[id].client][SHM].name , shmem[id].name);
                         strcpy(msg_map[shmem[id].client][SHM].message, shmem[id].message);
+                        printf("\nsharedmem: %s\n", shmem[id].message);
                         shmem[id].type = 0;
                         cont++;
                         //printf("shared memory valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
@@ -295,43 +299,45 @@ int main(void)
                 if(msg_map[child][FIFO1].type == 1 && msg_map[child][FIFO2].type == 1
                    && msg_map[child][MSQ].type == 1 && msg_map[child][SHM].type == 1) {
 
-                    char* file_name = msg_map[child][FIFO1].name;
-                    int fid = open(strcat(file_name, "_out"), O_WRONLY | O_CREAT | O_TRUNC, S_IWRITE | S_IREAD);
+                    char file_name[PATH_MAX];
+                    strcpy(file_name, msg_map[child][FIFO1].name);
+
+                    int fid = open(strcat(file_name, "_out"), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 
                     if( fid == -1)
-                        errExit("write failed frifo1\n");
+                        errExit("open failed: \n");
 
                     snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
                              1, msg_map[child][FIFO1].name, msg_map[child][FIFO1].pid, "FIFO1", msg_map[child][FIFO1].message);
 
-                    Br = write(fid, msg, sizeof(msg));
+                    Br = write(fid, &msg, strlen(msg));
 
                     if(Br == -1){
                         errExit("write failed fifo1\n");
                     }
 
                     snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
-                             1, msg_map[child][FIFO2].name, msg_map[child][FIFO2].pid, "FIFO2", msg_map[child][FIFO2].message);
+                             2, msg_map[child][FIFO2].name, msg_map[child][FIFO2].pid, "FIFO2", msg_map[child][FIFO2].message);
 
-                    Br = write(fid, msg, sizeof(msg));
+                    Br = write(fid, &msg, strlen(msg));
 
                     if(Br == -1){
                         errExit("write failed fifo2\n");
                     }
 
                     snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
-                             1, msg_map[child][MSQ].name, msg_map[child][MSQ].pid, "MSQ",  msg_map[child][MSQ].message);
+                             3, msg_map[child][MSQ].name, msg_map[child][MSQ].pid, "MSQ",  msg_map[child][MSQ].message);
 
-                    Br = write(fid, msg, sizeof(msg));
+                    Br = write(fid, msg, strlen(msg));
 
                     if(Br == -1){
                         errExit("write failed MSQ\n");
                     }
 
-                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
-                             1, msg_map[child][SHM].name, msg_map[child][SHM].pid, "SHMEM", msg_map[child][SHM].message);
+                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s\n",
+                             4, msg_map[child][SHM].name, msg_map[child][SHM].pid, "SHMEM", msg_map[child][SHM].message);
 
-                    Br = write(fid, msg, sizeof(msg));
+                    Br = write(fid, &msg, strlen(msg));
 
                     if(Br == -1){
                         errExit("write failed SHMMEM\n");
