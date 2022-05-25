@@ -23,7 +23,6 @@ percorso) del file originale ma con l’aggiunta del postfisso “_out”.
 messaggi, in modo che possa essere riconosciuto da Client_0 come messaggio di
 conclusione lavori.
 
-1. si rimette in attesa su FIFO 1 di un nuovo valore n.
 
 ---
 ![alt_text](https://upload.wikimedia.org/wikipedia/commons/d/dd/Linux_logo.jpg)
