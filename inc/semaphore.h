@@ -15,13 +15,11 @@
 
 #include "defines.h"
 
+// TODO sistemare semafori attenzione ai risultati
+
 //chiave e numero di semafori pr sincronizzazione
 #define KEYSEM_SYNC 100
-#define SEMNUM_SYNC 5
-
-//chiave e numero di semafori per conteggio limite messaggi
-#define KEYSEM_COUNTER 101
-#define SEMNUM_COUNTER 3
+#define SEMNUM_SYNC 6
 
 //operazioni sui semafori
 #define WAIT -1
@@ -41,14 +39,17 @@
 #define SEMFIFO1 6
 #define SEMFIFO2 7
 
+//chiave e numero di semafori per conteggio limite messaggi
+#define KEYSEM_COUNTER 101
+#define SEMNUM_COUNTER 3
 // 1° semaforo => max messages in FIFO_1
 // 2° semaforo => max messages in FIFO_2
-// 3° semaforo => max messages in Shared Memory
-// 4° semaforo => max messages in Message Queue
+// 3° semaforo => max messages in Message Queue
 #define MAX_SEM_FIFO1 0
 #define MAX_SEM_FIFO2 1
 #define MAX_SEM_MSQ   2
-#define MAX_SEM_SHMEM   3
+
+
 /**
  * Struttura per lavorare con semctl
  */
@@ -58,7 +59,8 @@ union semun {
     unsigned short *array;
 };
 
-void semOp (int semid, unsigned short sem_num, short sem_op, int flag);
+void semOp (int semid, unsigned short sem_num, short sem_op);
+int semOp_no_wait (int semid, unsigned short sem_num, short sem_op);
 int alloc_semaphore(key_t semKey, int num);
 int get_semaphore(key_t semKey, int num);
 void remove_semaphore(int shmid);

@@ -20,8 +20,6 @@ int shmid = -1;
 int msqid = -1;
 int semid_sync = -1;
 int semid_counter = -1;
-int supporto_id = -1;
-int *supporto = NULL;
 msg_t *shmem = NULL;
 
 void sigint_handler(int sig)
@@ -47,11 +45,6 @@ void sigint_handler(int sig)
         remove_shared_memory(shmid);
     }
 
-    if(supporto_id >= 0 && supporto != NULL) {
-        free_shared_memory(supporto);
-        remove_shared_memory(supporto_id);
-    }
-
     if(semid_sync >= 0)
         remove_semaphore(semid_sync);
 
@@ -74,290 +67,244 @@ int main(void)
     shmid = alloc_shared_memory(KEYSHM,SHMSIZE);
     shmem = (msg_t *)attach_shared_memory(shmid, 0);
 
-    printf("→ <Server>: Waiting support shared memory allocation...\n");
-    // array di supporto shmem
-    supporto_id = alloc_shared_memory(KEY_SUPPORT, SUPPORTO_SIZE);
-    supporto = (int *) attach_shared_memory(supporto_id, 0);
-
-    // initialize supporto
-    for (size_t i = 0; i < MAXMSG; i++){
-        supporto[i] = 0;
-    }
+    // Create a semaphore semid_counter with 50 max messages
     printf("→ <Server>: Waiting semaphore counter set allocation...\n");
-    // Create a semaphore with 50 max messages
     semid_counter = alloc_semaphore(KEYSEM_COUNTER, SEMNUM_COUNTER);
 
-    // initialize semaphore
-    unsigned short values[] = { MAXMSG, MAXMSG, MAXMSG, MAXMSG};
+    // initialize semaphore semid_counter
+    unsigned short values[] = { MAXMSG, MAXMSG, MAXMSG};
     union semun arg;
     arg.array = values;
     semctl(semid_counter, 0, SETALL, arg);
 
+    // Create a semaphore semid_sync mutex/synchronization
     printf("→ <Server>: Waiting semaphore synchronization set allocation...\n");
-    // create synch server
     semid_sync = alloc_semaphore(KEYSEM_SYNC, SEMNUM_SYNC);
 
-    // set sem0 at 0 (semaforo per la sincronizzazione, poi diventerà un mutex)
+    // initialize semaphore semid_synch: synchronization
     arg.val = 0;
     semctl(semid_sync, SYNC_SHM, SETVAL, arg);
     semctl(semid_sync, SYNC_FIFO1, SETVAL, arg);
-
-    // set sem1 and sem2 at 1 (mutex)
+    semctl(semid_sync, SYNCH_MSQ, SETVAL, arg);
+    // initialize semaphore semid_synch: mutex
     arg.val = 1;
-    semctl(semid_sync, SEMMSQ, SETVAL, arg);
     semctl(semid_sync, SEMCHILD, SETVAL, arg);
     semctl(semid_sync, SEMSHM, SETVAL, arg);
 
-    printf("→ <Server>: Waiting message queue allocation...\n");
     // create message queue
+    printf("→ <Server>: Waiting message queue allocation...\n");
     msqid = alloc_message_queue(KEYMSQ);
 
-    printf("→ <Server>: Waiting fifo1 allocation...\n");
     // create FIFOs
+    printf("→ <Server>: Waiting fifo1 allocation...\n");
     make_fifo(FIFO_1, 1);
     printf("→ <Server>: Waiting fifo2 allocation...\n");
     make_fifo(FIFO_2, 2);
     // fifo create flag (used to check if fifo exists)
     fifo_flag = 1;
 
+    // set sigint signal handler
     sig_sethandler(SIGINT, sigint_handler);
 
-    struct sembuf sop[PARTS];
-    size_t index = 0;
+    struct sembuf sop[PARTS]; // useless ???
+    //size_t index = 0;// TODO da cancellare
 
+    // open fifo1 in read only mode & non block
+    fd1 = open(FIFO_1, O_RDONLY | O_NONBLOCK);
+    // open fifo2 in read only mode  & non block
+    fd2 = open(FIFO_2, O_RDONLY | O_NONBLOCK);
+
+    // only for debug (number of iteration)
+    int times = 1;
     while (1) {
-        // open fifo1 in read only mode
-        fd1 = open(FIFO_1, O_RDONLY);
-
-        // open fifo2 in read only mode
-        fd2 = open(FIFO_2, O_RDONLY);
-
+        //waiting server write on fifo1
+        printf("→ <Server>: Waiting Client response on FIFO1... \n");
+        semOp(semid_sync, SYNC_FIFO1, WAIT);
         ssize_t bR = read_fifo(fd1, 1, string_buffer, MAX_LEN);
         string_buffer[bR] = '\0';
-
-        close_fd(fd1);
-        close_fd(fd2);
-
-        fd1 = open(FIFO_1, O_RDONLY | O_NONBLOCK);
-
-        fd2 = open(FIFO_2, O_RDONLY | O_NONBLOCK);
+        printf("← <Client>: There are %s file to send\n", string_buffer);
 
         //from string to int
         size_t n = atoi(string_buffer);
 
-        //matrice del server per la memorizzazione dei messaggi
-        msg_t **msg_map = (msg_t **) calloc(n, sizeof(msg_t *));
-
+        //matrice del server per la memorizzazione dei messaggi fatta sullo heap
+        //msg_t** msg_map= (msg_t **) calloc(n, sizeof(msg_t *));
+        //matrice fatta sulllo stack
+        msg_t msg_map[37][4]; // TODO heap or stack? da sostituire row = 100
         //allocazione di 4 colonne per ogni client che conterrà la parte 1...4
-        for (size_t i = 0; i < n; i++) {
-            msg_map[i] = (msg_t *) calloc(PARTS, sizeof(msg_t));
-            MCHECK(msg_map[i]);
-        }
+        //for (size_t i = 0; i < n; i++) {
+        //    msg_map[i] = (msg_t *) calloc(PARTS, sizeof(msg_t));
+        //    MCHECK(msg_map[i]);
+        //}
 
         //costruzione messaggio da scrivere sulla shmem
         snprintf(string_buffer, sizeof(string_buffer), "← <Server>: Sono pronto per la ricezione di %zu file\n\n", n);
-
         // scrivo sulla shmem
         strcpy(shmem->message, string_buffer);
+        //sblocco il client in attesa di lettura
+        semOp(semid_sync, SYNC_SHM, SIGNAL);
 
-        //wake up client
-        semOp(semid_sync, SYNC_SHM, SIGNAL, 0);
-
-        int val = 0;
+        //serve per salvare il valore del semaforo per la trunc
+        //int val = 0;
+        // buffer di appoggio per i messaggi
         msg_t msg_buffer;
+        // Contiene i caratteri letti nelle fifo
         ssize_t Br = 0;
+        // risultato delle chiamate alle ipc
         int res = 0;
-
-        while (finish(msg_map, n))
+        //sup si può usare al posto di cont
+        //int sup[37] = {0};
+        // serve per vedere se server ha letto tutti i file
+        int cont = 0;
+        // TODO controllare le iterazioni, non sono deterministiche (a volte funziona a volte va in loop)
+        while (cont < (37 * 4))
         {
             // ------------------------FIFO_1-------------------------------------------
-            printf("→ <Server>: Sto per leggere su FIFO_1!\n");
-
             errno = 0;
-            Br = read(fd1, &msg_buffer, sizeof(msg_buffer));
-
-            printf("→ <Server>: Sono uscito dalla FIFO_1!\n");
-
-            if (errno == EAGAIN) {
-                printf("→ <Server>: FIFO_1 occupata!\n");
-            }
-            else if(Br == -1) {
-                printf("sono morto e non lo sapevo");
-                errExit("read failed: ");
-            }
-            else {
-                if(Br != 0){
+             if((Br = read(fd1, &msg_buffer, sizeof(msg_buffer))) != -1) {
+                if(Br > 0){
                     // salvo il messaggio
-                    strcpy(msg_map[msg_buffer.client][FIFO1].message , msg_buffer.message);
-                    strcpy(msg_map[msg_buffer.client][FIFO1].name , msg_buffer.name);
+                    //printf("Il processo %ld manda in fifo1: <%s> \n", msg_buffer.client, msg_buffer.message)
+                    msg_map[msg_buffer.client][FIFO1].client = msg_buffer.client;
                     msg_map[msg_buffer.client][FIFO1].type = msg_buffer.type;
                     msg_map[msg_buffer.client][FIFO1].pid = msg_buffer.pid;
+                    strcpy(msg_map[msg_buffer.client][FIFO1].message , msg_buffer.message);
+                    strcpy(msg_map[msg_buffer.client][FIFO1].name , msg_buffer.name);
+                    //printf("Il processo %ld riceve su fifo1: <%ld> \n", msg_buffer.client + 1, msg_map[msg_buffer.client][FIFO1].type);
+                    cont++;
+                    //printf("fifo1 valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
                     //sblocco una posizione per la scrittura
 
-                    printf("→ <Server>: salvata parte %d del file: %s\n",
-                           FIFO1, msg_map[msg_buffer.client][FIFO1].name);
-                    semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL, 0);
+                    //printf("→ <Server>: salvata parte %d del file: %s\n",FIFO1, msg_map[msg_buffer.client][FIFO1].name);
+                    semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL);
                 }
-
+                else{
+                    //printf("→ <Server>: ho letto 0 caratteri\n");
+                }
             }
+             else{
+                 if(errno != EAGAIN){
+                     errExit("read failed: \n");
+                 }
+             }
 
-            if ((val = semctl(semid_counter, MAX_SEM_FIFO1, GETVAL, 0)) == -1)
-                errExit("semctl GETVAL");
+            //if ((val = semctl(semid_counter, MAX_SEM_FIFO1, GETVAL, 0)) == -1)
+            //    errExit("semctl GETVAL");
 
             // if (val == MAXMSG) {
             // trunc file attenzione un client potrebbe scrivere mentre si tronca, sezione critica?
+            //posso chiudere il file descriptor e riaprirlo con trunc?
             //}
-
+            //printf("Post fifo1\n");
 
             //--------------------------FIFO_2-------------------------------------------
-            // TODO problema sulle fifo
-            printf("→ <Server>: Sto per leggere su FIFO_2!\n");
-
             errno = 0;
-            Br = read(fd2, &msg_buffer, sizeof(msg_buffer));
-
-            printf("→ <Server>: Sono uscito dalla fifo2!\n");
-            if (Br == -1 && errno == EAGAIN) {
-                printf("→ <Server>: fifo2 occupata!\n");
-            }
-            else if(Br == -1) {
-                printf("sono morto e non lo sapevo");
-                errExit("read failed: ");
-            }
-            else {
-                if(Br != 0){
+            if((Br = read(fd2, &msg_buffer, sizeof(msg_buffer))) != -1) {
+                if(Br > 0){
                     // salvo il messaggio
-                    strcpy(msg_map[msg_buffer.client][FIFO2].message , msg_buffer.message);
-                    strcpy(msg_map[msg_buffer.client][FIFO2].name , msg_buffer.name);
+                    //printf("Il processo %ld manda in fifo2: <%s> \n", msg_buffer.client, msg_buffer.message);
+                    msg_map[msg_buffer.client][FIFO2].client = msg_buffer.client;
                     msg_map[msg_buffer.client][FIFO2].type = msg_buffer.type;
                     msg_map[msg_buffer.client][FIFO2].pid = msg_buffer.pid;
+                    strcpy(msg_map[msg_buffer.client][FIFO2].message , msg_buffer.message);
+                    strcpy(msg_map[msg_buffer.client][FIFO2].name , msg_buffer.name);
+                    //printf("Il processo %ld riceve su fifo2: <%ld> \n", msg_buffer.client + 1, msg_map[msg_buffer.client][FIFO2].type);
                     //sblocco una posizione per la scrittura
+                    cont++;
+                    //printf("fifo2 valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
+                    //printf("→ <Server>: salvata parte %d del file: %s\n",FIFO2 + 1, msg_map[msg_buffer.client][FIFO2].name);
 
-                    printf("→ <Server>: salvata parte %d del file: %s\n",
-                           FIFO2 + 1, msg_map[msg_buffer.client][FIFO2].name);
-
-                    semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL, 0); // TODO bloccano tutto
+                    semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL);
+                }
+            }
+            else{
+                if(errno != EAGAIN){
+                    errExit("read failed: \n");
                 }
             }
 
-            if ((val = semctl(semid_counter, MAX_SEM_FIFO2, GETVAL, 0)) == -1) {
-                errExit("semctl GETVAL");
-            }
+            //if ((val = semctl(semid_counter, MAX_SEM_FIFO2, GETVAL, 0)) == -1) {
+            //    errExit("semctl GETVAL");
+            //}
 
-            // if(val == MAXMSG) {
-            // trunc file attenzione un client potrebbe scrivere mentre si tronca, sezione critica?
+            //printf("Post fifo2\n");
 
+             //if(val == MAXMSG) {
+             //trunc file attenzione un client potrebbe scrivere mentre si tronca, sezione critica?
+                 //close(fd2);
+            //     fd2 = open(FIFO_2, O_RDONLY | O_NONBLOCK | O_TRUNC);
+            //     printf("<Server>: Ho troncato la fifo2\n");
             // }
 
-
             //--------------------------MESSAGE QUEUE----------------------------------------------
-            //prova a prendere il mutex
-            printf("→ <Server>: sto per prendere il mutex MSQ!\n");
             errno = 0;
-
-//            sop[MSQ].sem_num = SEMMSQ;
-//            sop[MSQ].sem_op  = WAIT;
-//            sop[MSQ].sem_flg = IPC_NOWAIT;
-
-//            res = semop(semid_sync, &sop[MSQ], 1);
-
-            /*struct sembuf sopi = {.sem_num = SEMMSQ, .sem_op = WAIT, .sem_flg = IPC_NOWAIT};
-
-            errno = 0;
-            res = semop(semid_sync, &sopi, 1);
-
-            if (res == -1 && errno == EAGAIN) {
-                printf("→ <Server>: Message queue occupata!\n");
-                semOp(semid_sync, SEMMSQ, SIGNAL, 0);
-            }
-            else if (res == -1){
-                printf("sono morto e non lo sapevo");
-                errExit("semop failed: ");
-            } else {*/
-            errno = 0;
-
+            //printf("pre msq\n");
             res = msgrcv(msqid, &msg_buffer, MSGSIZE , 0, IPC_NOWAIT);
 
             if (res == -1 && errno == ENOMSG) {
-                printf("→ <Server>: Non ci sono messaggi nella Message Queue\n");
-                //printf("Ho letto su msgqueue %s anche se non ci sono messaggi\n", msg_map[msg_buffer.client][MSQ].message);
-                semOp(semid_sync, SEMMSQ, SIGNAL, 0);
-            } else {
-
+                //printf("→ <Server>: Non ci sono messaggi nella Message Queue\n");
+            } else if (res > 0){
                 //salvo il messaggio
-                strcpy(msg_map[msg_buffer.client][MSQ].message , msg_buffer.message);
-                strcpy(msg_map[msg_buffer.client][MSQ].name , msg_buffer.name);
+                msg_map[msg_buffer.client][MSQ].client = msg_buffer.client;
                 msg_map[msg_buffer.client][MSQ].type = msg_buffer.type;
                 msg_map[msg_buffer.client][MSQ].pid = msg_buffer.pid;
-
-                printf("→ <Server>: salvata parte %d del file: %s\n", MSQ + 1, msg_map[msg_buffer.client][MSQ].name);
-                semOp(semid_counter, MAX_SEM_MSQ, SIGNAL, 0);
-                semOp(semid_sync, SEMMSQ, SIGNAL, 0);
+                strcpy(msg_map[msg_buffer.client][MSQ].message , msg_buffer.message);
+                strcpy(msg_map[msg_buffer.client][MSQ].name , msg_buffer.name);
+                cont++;
+                //printf("msq valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
+                //printf("→ <Server>: salvata parte %d del file: %s\n", MSQ + 1, msg_map[msg_buffer.client][MSQ].name);
+                semOp(semid_counter, MAX_SEM_MSQ, SIGNAL);
             }
-
-            printf("→ <Server>: Ho liberato il mutex MSQ!\n");
+            //printf("post msq\n");
             //}
 
             //---------------------------SHARED MEMORY-----------------------------------------
 
             // prova a prendere il mutex
-            printf("→ <Server>: Sto per prendere il mutex shmem!\n");
-
             sop[SHM].sem_num = SEMSHM;
             sop[SHM].sem_op  = WAIT;
             sop[SHM].sem_flg = IPC_NOWAIT;
 
-            errno = 0;
-
-            res = semop(semid_sync, &sop[SHM], 1);
-
-            if (res == -1 && errno == EAGAIN)
-            {
-                printf("→ <Server>: Shared memory occupata!\n");
+            //printf("pre shared\n");
+            for (size_t id = 0; id < MAXMSG; id++) {
+                if(shmem[id].type == 1){
+                    if(semop(semid_sync, &sop[SHM], 1) == 0){
+                        //semop()
+                        //printf("Index: %zu: \n", id);
+                        //printf("Sono nella shared memory sono: %d  \n", shmem[id].pid);
+                        // salvo il messaggio
+                        msg_map[shmem[id].client][SHM].client = shmem[id].client;
+                        msg_map[shmem[id].client][SHM].pid = shmem[id].pid;
+                        msg_map[shmem[id].client][SHM].type = shmem[id].type;
+                        strcpy(msg_map[shmem[id].client][SHM].name , shmem[id].name);
+                        strcpy(msg_map[shmem[id].client][SHM].message, shmem[id].message);
+                        shmem[id].type = 0;
+                        cont++;
+                        //printf("shared memory valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
+                        // svuota il messaggio
+                        //printf("→ <Server>: salvata parte %d del file: %s\n", SHM + 1, msg_map[shmem[index].client][SHM].name);
+                        semOp(semid_sync, SEMSHM, SIGNAL);
+                    }
+                }
             }
-            else if(res == -1){
-                printf("sono morto e non lo sapevo");
-                semOp(semid_sync, SEMSHM, SIGNAL, 0);
-                errExit("semop failed: ");
-            } else{
-                index = 0;
-                //controlla se c'è un messaggio da leggere
-                while (index < MAXMSG && supporto[index] == 0) {
-                    index++;
-                }
-
-                //semop()
-
-                if (index < MAXMSG) {
-                    // salvo il messaggio
-                    msg_map[shmem[index].client][SHM].client = shmem[index].client;
-                    msg_map[shmem[index].client][SHM].pid = shmem[index].pid;
-                    msg_map[shmem[index].client][SHM].type = shmem[index].type;
-                    strcpy(msg_map[shmem[index].client][SHM].name , shmem[index].name);
-                    strcpy(msg_map[shmem[index].client][SHM].message, shmem[index].message);
-
-                    // svuota il messaggio
-                    supporto[index] = 0;
-                    printf("→ <Server>: salvata parte %d del file: %s\n", SHM + 1, msg_map[shmem[index].client][SHM].name);
-                }
-                else {
-                    printf("→ <Server>: Shared memory vuota\n");
-                    printf("\nContenuto shared memory %s\n", msg_map[shmem[index].client][SHM].name);
-                }
-
-                semOp(semid_sync, SEMSHM, SIGNAL, 0);
-                printf("→ <Server>: Ho liberato il mutex shmem!\n");
-            }
-
-            // c'è qualche client bloccato?
-            //if (semctl(semid_sync, SYNC_SHM, GETZCNT, 0) > 0)
-            //    semOp(semid_sync, SYNC_SHM, SIGNAL, 0); // ne libera solo 1?
-
-            //sleep(1);
-            //semOp(semid_counter, MAX_SEM_SHM, SIGNAL, 0); // TODO secondo me non serve se abbiamo supporto
+            //printf("post shared \n");
+            printf("cont : %d\n", cont);
         }
-        printf("\n\n ho letto QUASI tutto!\n\n");
+        printf("Ho finito la %d iterazione!!!!\n", times++);
+
+        //il server prepara il messaggio
+        msg_t result;
+        result.type = 1;
+        strcpy(result.message, "<Server>: Ho finito di leggere i file!\n");
+
+        // invia il messaggio
+        msgsnd(msqid, &result, MSGSIZE, 0);
+        //sblocca il client
+        semOp(semid_sync, SYNCH_MSQ, SIGNAL);
+
+        //printf("%s", result.message);
+        //printf("\n\n ho letto QUASI tutto!\n\n");
         //per ogni processo che ha consegnato tutte 4 le parti salvarle in un file (vedi pdf -> server)
+        //...........
     }
-    //si mette in ascolto sulla msq
 }

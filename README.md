@@ -5,12 +5,6 @@
 ---
 ### _to do:_
 #### `CLIENT`
-
-1. (Client_0) si mette in attesa sulla MsgQueue di un messaggio da parte del server che lo
-informa che tutti i file di output sono stati creati dal server stesso e che il server ha concluso.
-
-1. una volta ricevuto tale messaggio Client_0 sblocca i segnali SIGINT e SIGUSR1 e si rimette
-in attesa di ricevere uno dei due segnali.
 ---
 
 
@@ -39,13 +33,18 @@ conclusione lavori.
 ### _to check:_
 ####  `CLIENT`
 1. IL client i non scrive parts (è sempre NULL) 
-1. Da un certo punto in poi client stampa fifo1.name = " "
-1. 
+1. Da un certo punto in poi client stampa fifo1.name = " " in teoria sistemato
+2. controllare la funione int_dirlist, deve lavorare con al più 100 file 
+3. Completare client
+4. sistemare makefile per adattarci a replit
+5. Refactoring
 
 ---
 
 #### `SERVER`
 1. non termina il ciclo di ricezione messaggi 
+2. Completare server
+3. Refactoring
 
 
 

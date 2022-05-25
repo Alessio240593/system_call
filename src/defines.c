@@ -165,7 +165,7 @@ int split_file(char** parts, int fd, size_t tot_char)
 int init_dirlist(dirlist_t *dirlist, const char *start_path) {
     char new_path[PATH_MAX];
     struct dirent *de;
-
+    // TODO controllare se max 100 file bisogna uscire
     DIR *dp = opendir(start_path);
 
     if (!dp) {
@@ -253,19 +253,14 @@ char* parts_header(int part, const char *path, pid_t pid)
  * @return 0 - se il server ha salvato tutte le parti dei vari file
  * @return 1 - se il server non ha salvato tutte le parti dei vari file
  */
-int finish(msg_t **msg_map, size_t rows) // TODO si potrebbe migliorare accettando un indice che tenga traccia dell'ultima posizione dove la matrice era arrivata (ciò che sta prima è gia stato controllato e non cambia)
+int finish(int array[], size_t rows) // TODO si potrebbe migliorare accettando un indice che tenga traccia dell'ultima posizione dove la matrice era arrivata (ciò che sta prima è gia stato controllato e non cambia)
 {
     int trovato = 0;
-
-    for (size_t i = 0; i < rows; ++i) {
-        printf("Cient%zu: ", i + 1);
-        for (size_t j = 0; j < PARTS; ++j) {
-            printf("%ld ", msg_map[i][j].type);
-            if(msg_map[i][j].type != 1){
-                trovato = 1;
-            }
+    for (size_t i = 0; i < rows; i++) {
+        if(array[i] != 4){
+            printf("array[%ld] = %d\n", i, array[i]);
+            trovato =  1;
         }
-        printf("\n");
     }
     return trovato;
 }
@@ -277,7 +272,7 @@ int finish(msg_t **msg_map, size_t rows) // TODO si potrebbe migliorare accettan
  * @return 1 - in caso <child> non abbia terminato l'invio delle parti del file
  * @return 0 - in caso <child> abbia terminato l'invio delle parti del file
  */
-int child_finish(int **matrice, size_t child)
+int child_finish(int matrice[37][4], size_t child)
 {
     int trovato = 0;
 
@@ -300,7 +295,7 @@ int child2_finish(int **matrice, size_t child)
 {
     int trovato = 0;
 
-    printf("Cient%zu: ", child);
+    printf("Client%zu: ", child);
 
     for (size_t i = 0; i < PARTS; ++i) {
         printf("%d ", matrice[child][i]);
