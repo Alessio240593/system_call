@@ -10,7 +10,7 @@
  * Crea, se non esiste, un set di semafori
  * @param semKey - chiave per creare il set di semafori
  * @param num - numero di semafori da creare
- * @return semid - id del set di semafori
+ * @return semid_sync - id del set di semafori
  */
 int alloc_semaphore(key_t semKey, int num)
 {
@@ -29,7 +29,7 @@ int alloc_semaphore(key_t semKey, int num)
 * Sincronizza il chiamante sul set di semafori specificato da semKey
 * @param semKey - chiave del set di semafori
 * @param num - numero di semafori del set su cui sincronizzarsi(deve corrispondere all'originale)
-* @return semid - id del set di semafori
+* @return semid_sync - id del set di semafori
 */
 int get_semaphore(key_t semKey, int num)
 {
@@ -50,9 +50,28 @@ int get_semaphore(key_t semKey, int num)
  * @param sem_num - numero del semaforo su cui eseguire l'operazione
  * @param sem_op - tipo di operazione
  */
-void semOp (int semid, unsigned short sem_num, short sem_op, int flag)
+void semOp (int semid, unsigned short sem_num, short sem_op)
 {
-    struct sembuf sop = {.sem_num = sem_num, .sem_op = sem_op, .sem_flg = flag};
+    struct sembuf sop = {.sem_num = sem_num, .sem_op = sem_op, .sem_flg = 0};
+
+    int res = semop(semid, &sop, 1);
+
+if(res == -1){
+        printf("semaforo numero: %d\n", sem_num);
+        errExit("semop failed: ");
+    }
+}
+
+
+/**
+ * Esegue un operazione non bloccante sul set di semafori
+ * @param semid - id del set di semafori
+ * @param sem_num - numero del semaforo su cui eseguire l'operazione
+ * @param sem_op - tipo di operazione
+ */
+int semOp_no_wait (int semid, unsigned short sem_num, short sem_op)
+{
+    struct sembuf sop = {.sem_num = sem_num, .sem_op = sem_op, .sem_flg = IPC_NOWAIT};
 
     errno = 0;
 
@@ -60,11 +79,15 @@ void semOp (int semid, unsigned short sem_num, short sem_op, int flag)
 
     if(res == -1 && errno == EAGAIN)
     {
-        printf("→ <Server>: %s occupato!\n", sem_num == SEMSHM ? "Shared memory" : sem_num == SEMMSQ ? "Message Queue" : "Semaphore set");
+        //printf("→ <Server>: %s occupata!\n", sem_num == SEMSHM ? "Shared memory" : "Semaphore set");
+        return EAGAIN;
     }
     else if(res == -1){
+        printf("semaforo numero: %d: ", sem_num);
         errExit("semop failed: ");
     }
+
+    return 0;
 }
 
 /**

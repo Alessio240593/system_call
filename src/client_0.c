@@ -1,4 +1,5 @@
-/** @file client.c
+/**
+ * @file client.c
  * @brief Contiene l'implementazione del client.
  */
 
@@ -50,6 +51,7 @@ int main(int argc, char * argv[])
 
     //set path
     path = argv[1];
+
     //create an empty sigset
     sigset_t mySet;
     sigset_t oldSet;
@@ -61,279 +63,406 @@ int main(int argc, char * argv[])
     sig_remove(&mySet, 2, SIGINT, SIGUSR1);
 
     //set mask
-    printf("→ <Client>: Setting new mask UNBLOCK<SIGINT, SIGUSR1>...\n");
+    printf("→ <Client-0>: Setting new mask UNBLOCK<SIGINT, SIGUSR1>...\n");
     sig_setmask(SIG_SETMASK, &mySet, NULL);
     //set signal handler
     sig_sethandler(SIGINT, sigint_handler);
     sig_sethandler(SIGUSR1, sigusr1_handler);
 
-    //wait for a signal
-    //pause();
-
     char buffer[LEN_INT];
 
-    //open FIFO1 in write only mode
-    int fifo1_fd = open_fifo(FIFO1, O_WRONLY, 0);
-    SYSCHECK(fifo1_fd, "open: ");
-
     //get server shmem
-    printf("→ <Client>: Waiting shared memory synchronization...\n");
+    printf("→ <Client-0>: Waiting shared memory synchronization...\n");
     int shmid = get_shared_memory(KEYSHM, SHMSIZE);
     msg_t *shmem = (msg_t *)attach_shared_memory(shmid, 0);
 
-    //get supporto
-    printf("→ <Client>: Waiting support shared memory synchronization...\n");
-    int support_id = get_shared_memory(KEY_SUPPORT, SUPPORTO_SIZE);
-    int *supporto = (int *)attach_shared_memory(support_id, 0);
-
     // get message queue
-    printf("→ <Client>: Waiting message queue synchronization...\n");
+    printf("→ <Client-0>: Waiting message queue synchronization...\n");
     int msqid = get_message_queue(KEYMSQ);
 
     //get server semset
-    printf("→ <Client>: Waiting semaphore set synchronization...\n");
+    printf("→ <Client-0>: Waiting semaphore set synchronization...\n");
     int semid_sync = get_semaphore(KEYSEM_SYNC , SEMNUM_SYNC);
 
     //get sem count
-    printf("→ <Client>: Waiting semaphore counter set synchronization...\n");
+    printf("→ <Client-0>: Waiting semaphore counter set synchronization...\n");
     int semid_counter = get_semaphore(KEYSEM_COUNTER, SEMNUM_COUNTER);
 
-    // fill sigset
-    sig_fillset(&mySet);
+    while (1) {
+        //wait for a signal
+        pause();
 
-    // set signal mask
-    printf("→ <Client>: Setting new mask UNBLOCK<NONE>...\n");
-    sig_setmask(SIG_SETMASK, &mySet, &oldSet);
+        // fill sigset
+        sig_fillset(&mySet);
 
-    //change working directory
-    Chdir(path);
+        // set signal mask
+        printf("→ <Client-0>: Setting new mask UNBLOCK<NONE>...\n");
+        sig_setmask(SIG_SETMASK, &mySet, &oldSet);
 
-    printf("→ <Client-0>: Ciao %s, ora inizio l’invio dei file contenuti in %s\n\n", getenv("USER"), getenv("PWD"));
 
-    /* dirlist declaration and initialization */
-    dirlist_t *dir_list = (dirlist_t *) malloc(sizeof(dirlist_t));
-    MCHECK(dir_list);
+        //change working directory
+        Chdir(path);
 
-    dir_list->index = 0;
-    dir_list->size  = 1;
-    dir_list->list = (char **) calloc(dir_list->size, sizeof(char *));
-    MCHECK(dir_list->list);
+        printf("→ <Client-0>: Ciao %s, ora inizio l’invio dei file contenuti in %s\n\n", getenv("USER"), getenv("PWD"));
 
-    init_dirlist(dir_list, path);
+        /* dirlist declaration and initialization */
+        dirlist_t *dir_list = (dirlist_t *) malloc(sizeof(dirlist_t));
+        MCHECK(dir_list);
 
-#ifndef DEBUG
-    dump_dirlist(dir_list, "before.txt");
+        dir_list->index = 0;
+        dir_list->size = 1;
+        dir_list->list = (char **) calloc(dir_list->size, sizeof(char *));
+        MCHECK(dir_list->list);
 
-    /* printf("index (%zu) == size (%zu) ? %s\n", dir_list->index, dir_list->size,
-           dir_list->index == dir_list->size ? "sì" : "no");
-    */
+        init_dirlist(dir_list, path);
+
+#ifndef _DEBUG
+        dump_dirlist(dir_list, "before.txt");
+
+        /*printf("child (%zu) == size (%zu) ? %s\n", dir_list->index, dir_list->size,
+               dir_list->index == dir_list->size ? "sì" : "no");*/
 #endif
 
-    snprintf(buffer, LEN_INT, "%zu", dir_list->size);
+        //open FIFO_1 in write only mode
+        int fifo1_fd = open(FIFO_1, O_WRONLY | O_NONBLOCK);
+        SYSCHECK(fifo1_fd, "open1: ");
 
-    // open FIFO2 in write only mode
-    int fifo2_fd = open_fifo(FIFO2, O_WRONLY, 0);
-    SYSCHECK(fifo2_fd, "open: ");
+        snprintf(buffer, LEN_INT, "%zu", dir_list->size);
 
-    // write on fifo
-    write_fifo(fifo1_fd, buffer, LEN_INT);
+        // write on fifo
+        write_fifo(fifo1_fd, buffer, LEN_INT);
 
-    // waiting data
-    semOp(semid_sync, SYNC_SHM, WAIT, 0);
+        semOp(semid_sync, SYNC_FIFO1, SIGNAL);
 
-    // print shmem data
-    printf("%s", shmem->message);
+        close(fifo1_fd);
 
-    // start creation
-    size_t i;
-    pid_t pid;
-    pid_t proc_pid;
-    ssize_t tot_char;
-    int waiting;
+        // waiting data
+        semOp(semid_sync, SYNC_SHM, WAIT);
 
-    char **parts = (char **) calloc(PARTS, sizeof(char *));
-    MCHECK(parts);
+        // print shmem data
+        printf("%s", shmem->message);
 
-    for (i = 0; i < dir_list->index; i++) {
-        pid = fork();
+        // start creation
+        size_t child;
+        pid_t pid;
 
-        if (pid < 0) {
-            fprintf(stderr, "\t→ <Client-%zu> Not created", i);
-            errExit("fork failed: ");
+        // matrice del server per la memorizzazione dei messaggi
+        //int matrix_msg = (int **) calloc(dir_list->size, sizeof(int *));
+
+        int matrix_msg[37][4] = {0};
+
+        //allocazione di 4 colonne per ogni client che conterrà la parte 1...4
+        /*for (size_t i = 0; i < dir_list->size; i++) {
+            matrix_msg[i] = (int *) calloc(PARTS, sizeof(int));
+            MCHECK(matrix_msg[i]);
+        }*/
+
+        char **parts = (char **) calloc(PARTS, sizeof(char *));
+        MCHECK(parts);
+
+        for (child = 0; child < dir_list->index; child++) {
+            pid = fork();
+
+            if (pid < 0) {
+                fprintf(stderr, "\t→ <Client-%zu> Not created", child + 1);
+                errExit("fork failed: ");
+            } else if (pid == 0) {
+                pid_t proc_pid;
+                ssize_t tot_char;
+                int waiting;
+                // to store result
+                int res = 0;
+                // to store byte read
+                ssize_t Br = 0;
+                struct sembuf sop[PARTS]; // counter to MAX
+                struct sembuf msq_sync;
+                struct sembuf shm_sync;
+                msg_t msgs[PARTS];
+
+                //printf("\n\nshmid: %d, msgid: %d\n\n", shmid, msqid);
+
+                // child-th child
+                int sendme_fd = open(dir_list->list[child], O_RDONLY);
+                SYSCHECK(sendme_fd, "opensendme");
+
+                tot_char = count_char(sendme_fd);
+                split_file(parts, sendme_fd, tot_char);
+
+                waiting = semctl(semid_sync, SEMCHILD, GETZCNT, 0);
+                if (waiting == -1) {
+                    errExit("semctl failed: ");
+                } else if (waiting == (int) (dir_list->index - 1)) {
+                    // Figlio prediletto forse è -1 perchè conta child file in attesa
+                    semOp(semid_sync, SEMCHILD, WAIT);
+                } else {
+                    // Figli diseredati
+                    semOp(semid_sync, SEMCHILD, SYNC);
+                }
+
+                // start sending messages
+                proc_pid = getpid();
+
+                while (child_finish(matrix_msg, child)) {
+                    //-----------------------FIFO_1-----------------------------
+                    if (matrix_msg[child][FIFO1] != 1) {
+                        int fifo1_fd = open(FIFO_1, O_WRONLY | O_NONBLOCK);
+                        SYSCHECK(fifo1_fd, "open1: ");
+
+                        // semaforo per tenere traccia delle scritture sulla FIFO_1
+                        sop[FIFO1].sem_num = MAX_SEM_FIFO1;
+                        sop[FIFO1].sem_op = WAIT;
+                        sop[FIFO1].sem_flg = IPC_NOWAIT;
+
+                        errno = 0;
+
+                        res = semop(semid_counter, &sop[FIFO1], 1);
+
+                        if (res == -1 && errno == EAGAIN) {
+                            //printf("\t→ <Client-%zu>: FIFO_1 non disponibile, %s\n", child + 1, strerror(errno));
+                            semOp(semid_counter, MAX_SEM_FIFO1, IPC_NOWAIT);
+                        } else if (res == -1) {
+                            printf("sono morto e non lo sapevo");
+                            errExit("semop failed: ");
+                        } else {
+                            //preparo il messaggio da mandare su fifo1
+                            msg_t FIFO1_msg;
+                            FIFO1_msg.type = 1;
+                            FIFO1_msg.client = child;
+                            FIFO1_msg.pid = proc_pid;
+                            strcpy(FIFO1_msg.name, (dir_list->list[child]));
+                            strcpy(FIFO1_msg.message, parts[FIFO1]);
+                            printf("fifo 1 type: %d\n", FIFO1_msg.type);
+                            printf("fifo 1 name: %s\n", FIFO1_msg.name);
+                            printf("fifo 1 client: %d\n", FIFO1_msg.client );
+                            printf("fifo 1 messange: %s\n", FIFO1_msg.message);
+
+                            errno = 0;
+
+                            Br = write(fifo1_fd, &FIFO1_msg, sizeof(FIFO1_msg));
+
+                            if (Br == -1 && errno == EAGAIN) {
+                                //printf("\t→ <Client-%zu>: FIFO_1 piena!\n", child + 1);
+                                semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL);
+                            } else if (Br == -1) {
+                                errExit("write failed: ");
+                            } else {
+                                if (Br > 0) {
+                                    matrix_msg[child][FIFO1] = 1;
+                                    //printf("\t→ <Client-%zu>: Ho inviato il primo pezzo del file <%s> sulla FIFO_1\n",
+                                    //child + 1, dir_list->list[child]);
+                                    printf("Il processo %ld manda in fifo1: <%s> \n", FIFO1_msg.client,
+                                           FIFO1_msg.message);
+                                } else {
+                                    semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL);
+                                    printf("<Client%zu>HO LETTO 0\n", child);
+                                }
+                            }
+                        }
+                        close(fifo1_fd);
+                    }
+
+                    //-----------------------FIFO_2-----------------------------
+                    if (matrix_msg[child][FIFO2] != 1) {
+                        //open FIFO_2 in write only mode
+                        int fifo2_fd = open(FIFO_2, O_WRONLY | O_NONBLOCK);
+                        SYSCHECK(fifo2_fd, "open2: ");
+
+                        // semaforo per tenere traccia delle scritture sulla FIFO_2
+                        sop[FIFO2].sem_num = MAX_SEM_FIFO2;
+                        sop[FIFO2].sem_op = WAIT;
+                        sop[FIFO2].sem_flg = IPC_NOWAIT;
+
+                        errno = 0;
+
+                        res = semop(semid_counter, &sop[FIFO2], 1);
+
+                        if (res == -1 && errno == EAGAIN) {
+                            //printf("\t→ <Client-%zu>: FIFO_2 non disponibile, %s\n", child + 1, strerror(errno));
+                            semOp(semid_counter, MAX_SEM_FIFO2, IPC_NOWAIT);
+                        } else if (res == -1) {
+                            errExit("semop failed: ");
+                        } else {
+                            //preparo il messaggio da mandare su FIFO2
+                            msg_t FIFO2_msg;
+                            FIFO2_msg.type = 1;
+                            FIFO2_msg.client = child;
+                            FIFO2_msg.pid = proc_pid;
+                            strcpy(FIFO2_msg.name, (dir_list->list[child]));
+                            strcpy(FIFO2_msg.message, parts[FIFO2]);
+
+                            printf("fifo 2 type: %d\n", FIFO2_msg.type);
+                            printf("fifo 2 name: %s\n", FIFO2_msg.name);
+                            printf("fifo 2 client: %d\n", FIFO2_msg.client );
+                            printf("fifo 2 messange: %s\n", FIFO2_msg.message);
+
+                            errno = 0;
+
+                            //printf("\t→ <Client-%zu>: sono bloccato in scrittura su FIFO_2!\n", child + 1);
+                            Br = write(fifo2_fd, &FIFO2_msg, sizeof(FIFO2_msg));
+
+                            if (Br == -1 && errno == EAGAIN) {
+                                //printf("\t→ <Client-%zu>: FIFO_2 piena!\n", child + 1);
+                                semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL);
+                            } else if (Br == -1) {
+                                errExit("write failed: ");
+                            } else {
+                                if (Br > 0) {
+                                    matrix_msg[child][FIFO2] = 1;
+                                    //printf("\t→ <Client-%zu>: Ho inviato il secondo pezzo del file <%s> sulla FIFO_2\n",
+                                    //child + 1, dir_list->list[child]);
+                                    printf("Il processo %ld manda in fifo2: <%s> \n", FIFO2_msg.client,
+                                           FIFO2_msg.message);
+                                } else {
+                                    semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL);
+                                    printf("<Client%zu>HO LETTO 0\n", child);
+                                }
+                            }
+                        }
+                        close(fifo2_fd);
+                    }
+
+
+                    //-----------------------MESSAGE QUEUE-----------------------------
+                    if (matrix_msg[child][MSQ] != 1) {
+                        // semaforo per tenere traccia delle scritture sulla MSQ
+                        sop[MSQ].sem_num = MAX_SEM_MSQ;
+                        sop[MSQ].sem_op = WAIT;
+                        sop[MSQ].sem_flg = IPC_NOWAIT;
+
+                        errno = 0;
+
+                        res = semop(semid_counter, &sop[MSQ], 1);
+
+                        if (res == -1 && errno == EAGAIN) {
+                            //printf("\t→ <Client-%zu>: Message Queue non disponibile [%d], %s\n",
+                            //child + 1, errno, strerror(errno));
+                            semOp(semid_counter, MAX_SEM_MSQ, SIGNAL);
+                        } else if (res == -1) {
+                            //printf("sono morto e non lo sapevo");
+                            errExit("semop failed: ");
+                        } else {
+                            // preparo il messaggio da mandare su MSQ
+                            msgs[MSQ].type = 1;
+                            msgs[MSQ].client = child;
+                            msgs[MSQ].pid = proc_pid;
+                            strcpy(msgs[MSQ].name, (dir_list->list[child]));
+                            strcpy(msgs[MSQ].message, parts[MSQ]);
+
+                            errno = 0;
+
+                            res = msgsnd(msqid, &msgs[MSQ], MSGSIZE, IPC_NOWAIT);
+
+                            if (res == -1 && errno == EAGAIN) {
+                                //printf("\t→ <Client-%zu>: Message queue piena!\n", child + 1);
+                                semOp(semid_counter, MAX_SEM_MSQ, SIGNAL);
+                            } else if (res == -1) {
+                                errExit("msgsnd failed: ");
+                            } else {
+                                matrix_msg[child][MSQ] = 1;
+
+                                //printf("\t→ <Client-%zu>: Sono uscito dal mutex di msq!\n", child + 1);
+
+                                //printf("\t→ <Client-%zu>: Ho inviato il terzo pezzo del file <%s> su Message Queue\n",
+                                //child + 1, dir_list->list[child]);
+                            }
+                        }
+                    }
+                    //}
+
+
+                    //-----------------------SHARED MEMORY-----------------------------
+                    if (matrix_msg[child][SHM] != 1) {
+                        // inizio sezione critica
+                        shm_sync.sem_num = SEMSHM;
+                        shm_sync.sem_op = WAIT;
+                        shm_sync.sem_flg = IPC_NOWAIT;
+
+                        errno = 0;
+
+                        res = semop(semid_sync, &shm_sync, 1);
+                        // TODO controllare errore -1
+                        if (res == 0) {
+                            //printf("child n°: %ld\n", child);
+                            for (int id = 0; id < MAXMSG; id++) {
+                                if (shmem[id].type == 0) {
+                                    // preparo il messaggio da inviare sulla Shared Memory
+                                    msg_t *shm_msg = (msg_t *) malloc(sizeof(msg_t));
+                                    MCHECK(shm_msg);
+                                    //printf("Sono il pocesso:  %d\n", proc_pid);
+                                    // scrivo sula shared memory
+                                    shmem[id].type = 1;
+                                    shmem[id].client = child;
+                                    shmem[id].pid = proc_pid;
+                                    strcpy(shmem[id].name, (dir_list->list[child]));
+
+                                    matrix_msg[child][SHM] = 1; // e sulla matrice
+
+                                    if (parts[SHM] != NULL)
+                                        strcpy(shmem[id].message, parts[SHM]);
+                                    else {
+                                        strcpy(shmem[id].message, "sbagliato");
+                                        //printf("\t→ <Client-%zu>: parts[%d] è NULL\n", child, SHM);
+                                    }
+
+                                    //printf("\t→ <Client-%zu>: Ho inviato il quarto pezzo del file <%s> su Shared Memory\n",
+                                    //child, dir_list->list[child]);
+                                    id = MAXMSG;
+                                }
+                                //else {
+                                //printf("\t→ <Client-%zu>: Shared memory piena! [%d]: %s\n", child, errno, strerror(errno));
+                                //}
+
+                                // sblocca server per la lettura
+
+                                //printf("\t→ <Client-%zu>: Ho liberato il mutex Shared Memory!\n", child);
+
+                            }
+                            semOp(semid_sync, SEMSHM, SIGNAL);
+                        }
+                    }
+                }
+
+                // chiude il file
+                close(sendme_fd);
+                // termina
+                printf("\n\t→ <Client-%zu>: Ho finito di inviare il file <%s>\n\n", child + 1, dir_list->list[child]);
+
+                exit(EXIT_SUCCESS);
+            } else {
+                if (child == 0) {
+                    printf("→ <Client-0>: Waiting all child...\n");
+                }
+            }
         }
-        else if (pid == 0) {
-            // i-th child
-            int sendme_fd = open(dir_list->list[i], O_RDONLY);
-            SYSCHECK(sendme_fd, "open");
 
-            tot_char = count_char(sendme_fd);
-            split_file(parts, sendme_fd, tot_char);
-            split_file(parts, sendme_fd, tot_char);
+        // Parent wait children
+        while (wait(NULL) > 0);
+        // Client-0 wait for server ack
+        msg_t result;
+        printf("→ <Client-0>: waiting for server ack...\n");
+        //semOp(semid_sync, SEMMSQ, SIGNAL, 0);
+        semOp(semid_sync, SYNCH_MSQ, WAIT);
 
-            waiting = semctl(semid_sync, SEMCHILD, GETZCNT, 0);
-            if (waiting == -1) {
-                errExit("semctl failed: ");
-            }
-            else if (waiting == (int) (dir_list->index - 1)) {
-                // Figlio prediletto forse è -1 perchè conta i file in attesa
-                semOp(semid_sync, SEMCHILD, WAIT, 0);
-            }
-            else {
-                // Figli diseredati
-                semOp(semid_sync, SEMCHILD, SYNC, 0);
-            }
+        msgrcv(msqid, &result, MSGSIZE, 0, 0);
 
-            // start sending messages
-            proc_pid = getpid();
+        printf("%s", result.message);
 
-
-            //-----------------------FIFO1-----------------------------
-            //preparo il messaggio da mandare su fifo1
-            msg_t fifo1_msg;
-            fifo1_msg.type = 1;
-            fifo1_msg.client = i;
-            fifo1_msg.pid = proc_pid;
-            strcpy(fifo1_msg.name, (dir_list->list[i]));
-            strcpy(fifo1_msg.message, parts[0]);
-
-            // semaforo per tenere traccia delle scritture sulla FIFO1
-            //semOp(semid_counter, MAX_SEM_FIFO1, WAIT, 0); // TODO bloccano tutto
-            printf("sono bloccato in scrittura su fifo1!\n");
-            write_fifo(fifo1_fd, &fifo1_msg, sizeof(fifo1_msg));
-
-            printf("\t→ <Client-%zu>: Ho inviato il primo pezzo del file <%s> sulla FIFO1\n", i+1, dir_list->list[i]);
-
-
-            //-----------------------FIFO2-----------------------------
-            // preparo il messaggio da mandare su fifo2
-            msg_t fifo2_msg;
-            fifo2_msg.type = 1;
-            fifo2_msg.client = i;
-            fifo2_msg.pid = proc_pid;
-            strcpy(fifo2_msg.name, (dir_list->list[i]));
-            strcpy(fifo2_msg.message, parts[1]);
-
-            // semaforo per tenere traccia delle scritture sulla FIFO2
-            //semOp(semid_counter, MAX_SEM_FIFO2, WAIT, 0); // TODO bloccano tutto
-            printf("sono bloccato in scrittura su fifo2!\n");
-            write_fifo(fifo2_fd, &fifo2_msg, sizeof (fifo2_msg));
-
-            printf("\t→ <Client-%zu>: Ho inviato il secondo pezzo del file <%s> sulla FIFO2\n", i+1, dir_list->list[i]);
-
-            //-----------------------MESSAGE QUEUE-----------------------------
-            // TODO problemi nella msqueue
-            msg_t msq_msg ;
-            msq_msg .type = 1;
-            msq_msg .client = i;
-            msq_msg .pid = proc_pid;
-            strcpy(msq_msg.name, (dir_list->list[i]));
-            strcpy(msq_msg.message, parts[2]);
-
-            // semaforo per tenere traccia delle scritture sulla Message Queue
-            semOp(semid_counter, MAX_SEM_MSQ, WAIT, 0);
-
-            // inizio sezione critica
-            printf("Sto per prendere il mutex msq!\n");
-            semOp(semid_sync, SEMMSQ, WAIT, 0);
-            errno = 0;
-            int res = msgsnd(msqid, &msq_msg, MSGSIZE, 0);
-
-            if(res == -1 /*&& errno == EINVAL*/) {
-               perror("msgsnd failed: ");
-            }
-
-            semOp(semid_sync, SEMMSQ, SIGNAL, 0);
-            printf("Sono uscito dal mutex di msq!\n");
-
-            printf("\t→ <Client-%zu>: Ho inviato il terzo pezzo del file <%s> su Message Queue\n", i+1, dir_list->list[i]);
-
-
-            //-----------------------SHARED MEMORY-----------------------------
-            msg_t *shm_msg = (msg_t *) malloc(sizeof(msg_t));
-            MCHECK(shm_msg);
-
-            // semaforo per tenere traccia delle scritture sulla Shared Memory
-            //semOp(semid_counter, MAX_SEM_SHM, WAIT, 0); // TODO secondo me non serve se abbiamo supporto
-
-            size_t index = 0;
-
-            while (index < MAXMSG && supporto[index] == 1){
-                index++;
-            }
-            // se non c'è spazio il client i aspetta
-            if(index == MAXMSG){
-                semOp(semid_sync, SYNC_SHM, WAIT, 0);
-            }
-            // inizio sezione critica
-            printf("sto per prendere il mutex shmem!\n");
-            semOp(semid_sync, SEMSHM, WAIT, 0);
-
-            //marco la zona di memoria come piena
-            supporto[index] = 1;
-
-            //scrivo sula shared memory
-            shmem[index].type = 1;
-            shmem[index].client = i;
-            shmem[index].pid = proc_pid;
-            strcpy(shmem[index].name, (dir_list->list[i]));
-
-            if(parts[3] != NULL)
-                strcpy(shmem[index].message, parts[3]);
-            else
-                printf("parts[3] è NULL\n");
-
-            printf("\t→ <Client-%zu>: Ho inviato il quarto pezzo del file <%s> su Shared Memory\n", i+1, dir_list->list[i]);
-
-            semOp(semid_sync, SEMSHM, SIGNAL, 0);
-            printf("Ho liberato il mutex shmem!\n");
-
-            // sblocca server per la lettura
-            //semOp(semid_sync, SYNC_SHM, SIGNAL, 0);
-
-            // chiude il file
-            close(sendme_fd);
-
-            // termina
-            printf("\t→ <Client-%zu>: Ho finito di inviare il file <%s>\n", i+1, dir_list->list[i]);
-
-            exit(EXIT_SUCCESS);
+        // --------------Finish--------------
+        // free heap
+        for (size_t i = 0; i < dir_list->index; i++) {
+            free(dir_list->list[i]);
         }
-        else{
-            if(i == 0){
-                printf("→ <Client-0>: Waiting all child...\n");
-            }
+
+        for (size_t i = 0; i < PARTS; i++) {
+            free(parts[i]);
         }
+
+        free(parts);
+        free(dir_list->list);
+        free(dir_list);
+
+        // set old mask
+        printf("→ <Client-0>: Setting new mask UNBLOCK<SIGINT, SIGUSR1>...\n");
+        sig_setmask(SIG_SETMASK, &oldSet, NULL);
     }
-
-    // Parent wait children
-    while(wait(NULL) > 0);
-    // Client-0 wait for server ack
-    msg_t res;
-    printf("<Client-0>: waiting for server ack...\n");
-    semOp(semid_sync, SEMMSQ, WAIT, 0);
-
-    msgrcv(msqid, &res, 0, MSGSIZE, 0);
-
-    semOp(semid_sync, SEMMSQ, SIGNAL, 0);
-
-    printf("%s", res.message);
-
-    //then close all the IPCs
-    close_fd(fifo1_fd);
-    close_fd(fifo2_fd);
-    free_shared_memory(shmem);
-    free_shared_memory(supporto);
-
-    /* -------------------- */
-    //free heap
-    for (size_t indx = 0; indx < dir_list->index; indx++) {
-        free(dir_list->list[indx]);
-    }
-    free(dir_list);
-
-    // set old mask
-    printf("→ <Client>: Setting new mask UNBLOCK<SIGINT, SIGUSR1>...\n");
-    sig_setmask(SIG_SETMASK, &oldSet, NULL);
-    // wait for a signal
-    pause();
 }

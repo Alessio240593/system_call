@@ -15,7 +15,7 @@
 #include "defines.h"
 
 //#define MSG_LEN 1024
-#define MSGSIZE (sizeof(struct mymsg) - sizeof(long)) //controllare primo sizeof
+#define MSGSIZE (sizeof(struct __msg_t) - sizeof(long)) //controllare primo sizeof
 #define KEYMSQ 104
 
 

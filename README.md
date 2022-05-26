@@ -5,12 +5,6 @@
 ---
 ### _to do:_
 #### `CLIENT`
-
-1. (Client_0) si mette in attesa sulla MsgQueue di un messaggio da parte del server che lo
-informa che tutti i file di output sono stati creati dal server stesso e che il server ha concluso.
-
-1. una volta ricevuto tale messaggio Client_0 sblocca i segnali SIGINT e SIGUSR1 e si rimette
-in attesa di ricevere uno dei due segnali.
 ---
 
 
@@ -22,14 +16,13 @@ bianca (carattere newline) ed ha l’intestazione “[Parte j, del file NOMEFILE
 processo PID tramite CANALE]” (vedere esempio sotto), dove j è un numero da 1 a 4 in
 base alla parte del file, NOMEFILE è il nome del file di origine compreso di percorso
 completo, PID è il PID del processo mittente e CANALE è il canale di comunicazione (uno
-tra FIFO1, FIFO2, MsgQueue e ShdMem). Il file verrà chiamato con lo stesso nome (e
+tra FIFO_1, FIFO_2, MsgQueue e ShdMem). Il file verrà chiamato con lo stesso nome (e
 percorso) del file originale ma con l’aggiunta del postfisso “_out”.
 
 1. quando ha ricevuto e salvato tutti i file invia un messaggio di terminazione sulla coda di
 messaggi, in modo che possa essere riconosciuto da Client_0 come messaggio di
 conclusione lavori.
 
-1. si rimette in attesa su FIFO 1 di un nuovo valore n.
 
 ---
 ![alt_text](https://upload.wikimedia.org/wikipedia/commons/d/dd/Linux_logo.jpg)
@@ -39,13 +32,18 @@ conclusione lavori.
 ### _to check:_
 ####  `CLIENT`
 1. IL client i non scrive parts (è sempre NULL) 
-1. Da un certo punto in poi client stampa fifo1.name = " "
-1. 
+1. Da un certo punto in poi client stampa fifo1.name = " " in teoria sistemato
+2. controllare la funione int_dirlist, deve lavorare con al più 100 file 
+3. Completare client
+4. sistemare makefile per adattarci a replit
+5. Refactoring
 
 ---
 
 #### `SERVER`
 1. non termina il ciclo di ricezione messaggi 
+2. Completare server
+3. Refactoring
 
 
 

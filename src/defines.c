@@ -165,7 +165,7 @@ int split_file(char** parts, int fd, size_t tot_char)
 int init_dirlist(dirlist_t *dirlist, const char *start_path) {
     char new_path[PATH_MAX];
     struct dirent *de;
-
+    // TODO controllare se max 100 file bisogna uscire
     DIR *dp = opendir(start_path);
 
     if (!dp) {
@@ -187,9 +187,8 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
             init_dirlist(dirlist, new_path);
         }
         else if (de->d_type == DT_REG) {
-            if (check_string("sendme_", de->d_name) == 0) {
-                if (check_size(start_path) == 0) {
-
+            if (/*si potrebbe usare strncmp*/check_string("sendme_", de->d_name) == 0 && strstr(de->d_name, "_out") == NULL) {
+                if (check_size(start_path) == 0 && dirlist->index < MAX_FILE) {
                     if (dirlist->index + 1 > dirlist->size) {
                         dirlist->size *= 2;
                         dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
@@ -214,52 +213,39 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
     closedir(dp);
     return 0;
 }
-
 /**
- * Salva in <dest> alla posizione <pid, part> il messaggio <src>
- * @param dest - matrice di destinazione
- * @param src - messaggio da salvare nella matrice
- * @param pid - numero del processo figlio 1-n(riga)
- * @param part - parte del file 1-4(colonna)
+ *  Prepara il messaggio da scrivere sul file di output
+ * @param part -
+ * @param path -
+ * @param pid -
+ * @param message
+ * @return
  */
  /*
-void fill_msg(msg_t **dest, msg_t *src, int pid, int part)
-{
-   // dest[pid][part].message = strdup(src->message);
-    //dest[pid][part].name = strdup(src->name);
-    dest[pid][part].type = src->type;
-    dest[pid][part].pid = src->pid;
-}
-*/
-
-
-/*
 char* parts_header(int part, const char *path, pid_t pid)
 {
-    const char *ipcs[] = {"FIFO1", "FIFO2", "MsgQueue", "ShdMem"};
+    const char *ipcs[] = {"FIFO_1", "FIFO_2", "MsgQueue", "ShdMem"};
+    //char *result = (char*) calloc(sizeof(char), MAX_LEN);
     char result[MAX_LEN];
 
-    snprintf(result, sizeof(result), "[Parte %d del file %s, spedita dal processo %ld tramite %s]",
-           part, path, pid, ipcs[part - 1]);
+    snprintf(result, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n",
+             part, path, pid, ipcs[part - 1]);
 
-    return result;
+    return result ;
 }
 */
-
 /**
- * Verifica se il server ha memorizato tutte le parti <PARTS> di n client
- * @param msg_map - matrice contenente le varie parti del file
- * @param rows - numero di client
- * @return 0 - se il server ha salvato tutte le parti dei vari file
- * @return 1 - se il server non ha salvato tutte le parti dei vari file
+ * Controlla se <child> ha finito di inviare le <PARTS> parti al server
+ * @param matrice - matrice N x PARTS che tiene traccia dei file inviati dal client
+ * @param child - identidicativo del processo figlio
+ * @return 1 - in caso <child> non abbia terminato l'invio delle parti del file
+ * @return 0 - in caso <child> abbia terminato l'invio delle parti del file
  */
-int finish(msg_t **msg_map, size_t rows)
+int child_finish(int matrice[37][4], size_t child)
 {
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t j = 0; j < PARTS; ++j) {
-            if(msg_map[i][j].type != 1){
-                return 1;
-            }
+    for (size_t i = 0; i < PARTS; ++i) {
+        if(matrice[child][i] != 1){
+            return 1;
         }
     }
     return 0;
