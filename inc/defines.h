@@ -27,8 +27,8 @@
 #define MAX_FILE 100
 
 // FIFOs path
-#define FIFO_1 "/home/alessio/myDir/fifo1"
-#define FIFO_2 "/home/alessio/myDir/fifo2"
+#define FIFO_1 get_FIFO_1()
+#define FIFO_2 get_FIFO_2()
 
 // define IPCs index
 #define FIFO1 0
@@ -44,7 +44,7 @@
 // TODO da controllare
 #define SYSCHECK(ret, type)     if (ret == -1){  \
                                     perror(type); \
-                                return 1;      \
+                                    return 1;      \
                                 }
 
 typedef struct __dirlist_t {
@@ -59,10 +59,12 @@ typedef struct __msg_t {
 
     size_t client;
     pid_t pid;
-    char name[PATH_MAX];
+    char name[MAX_LEN];
     char message[MAX_LEN];
 } msg_t;
 
+char *get_FIFO_1(void);
+char *get_FIFO_2(void);
 int check_string(const char *string1, char *string2);
 int check_size(const char *path);
 ssize_t count_char(int fd);
