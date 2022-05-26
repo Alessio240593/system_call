@@ -166,9 +166,9 @@ int main(void)
                     //printf("Il processo %ld manda in fifo1: <%s> \n", msg_buffer.client, msg_buffer.message)
                     msg_map[msg_buffer.client][FIFO1].client = msg_buffer.client;
                     msg_map[msg_buffer.client][FIFO1].type = msg_buffer.type;
-                    printf("fifo 1 type: %d\n", msg_buffer.type);
+                    printf("fifo 1 type: %ld\n", msg_buffer.type);
                     printf("fifo 1 name: %s\n", msg_buffer.name);
-                    printf("fifo 1 client: %d\n", msg_buffer.client);
+                    printf("fifo 1 client: %ld\n", msg_buffer.client);
                     printf("fifo 1 messange: %s\n", msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO1].pid = msg_buffer.pid;
                     strcpy(msg_map[msg_buffer.client][FIFO1].message , msg_buffer.message);
@@ -209,9 +209,9 @@ int main(void)
                     //printf("Il processo %ld manda in fifo2: <%s> \n", msg_buffer.client, msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO2].client = msg_buffer.client;
                     msg_map[msg_buffer.client][FIFO2].type = msg_buffer.type;
-                    printf("fifo 2 type: %d\n", msg_buffer.type);
+                    printf("fifo 2 type: %ld\n", msg_buffer.type);
                     printf("fifo 2 name: %s\n", msg_buffer.name);
-                    printf("fifo 2 client: %d\n", msg_buffer.client);
+                    printf("fifo 2 client: %ld\n", msg_buffer.client);
                     printf("fifo 2 messange: %s\n", msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO2].pid = msg_buffer.pid;
                     strcpy(msg_map[msg_buffer.client][FIFO2].message , msg_buffer.message);
@@ -295,7 +295,7 @@ int main(void)
                 }
             }
             //printf("cont : %d\n", cont);
-            char msg[MAX_LEN];
+            char msg[PATH_MAX];
             char file_name[PATH_MAX];
             for (size_t child = 0; child < n; child++) {
                 if(msg_map[child][FIFO1].type == 1 && msg_map[child][FIFO2].type == 1
@@ -308,7 +308,7 @@ int main(void)
                     if( fid == -1)
                         errExit("open failed: \n");
 
-                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
+                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
                              1, msg_map[child][FIFO1].name, msg_map[child][FIFO1].pid, "FIFO1", msg_map[child][FIFO1].message);
 
                     Br = write(fid, &msg, strlen(msg));
@@ -317,7 +317,7 @@ int main(void)
                         errExit("write failed fifo1\n");
                     }
 
-                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
+                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
                              2, msg_map[child][FIFO2].name, msg_map[child][FIFO2].pid, "FIFO2", msg_map[child][FIFO2].message);
 
                     Br = write(fid, &msg, strlen(msg));
@@ -326,7 +326,7 @@ int main(void)
                         errExit("write failed fifo2\n");
                     }
 
-                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
+                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
                              3, msg_map[child][MSQ].name, msg_map[child][MSQ].pid, "MSQ",  msg_map[child][MSQ].message);
 
                     Br = write(fid, msg, strlen(msg));
@@ -335,7 +335,7 @@ int main(void)
                         errExit("write failed MSQ\n");
                     }
 
-                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
+                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
                              4, msg_map[child][SHM].name, msg_map[child][SHM].pid, "SHMEM", msg_map[child][SHM].message);
 
                     Br = write(fid, &msg, strlen(msg));

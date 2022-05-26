@@ -7,6 +7,34 @@
 #include "err_exit.h"
 
 /**
+ * Concatena $HOME al percorso relativo di myDir e FIFO_1
+ * @return - il percorso assoluto alla FIFO_1
+ */
+char *get_FIFO_1(void) {
+    char *path = (char *) calloc(MAX_LEN, sizeof(char));
+    if (!path)
+        errExit("malloc failed: ");
+
+    snprintf(path, MAX_LEN, "%s/myDir/fifo1", getenv("HOME"));
+
+    return path;
+}
+
+/**
+ * Concatena $HOME al percorso relativo di myDir e FIFO_2
+ * @return - il percorso assoluto alla FIFO_2
+ */
+char *get_FIFO_2(void) {
+    char *path = (char *) calloc(MAX_LEN, sizeof(char));
+    if (!path)
+        errExit("malloc failed: ");
+
+    snprintf(path, MAX_LEN, "%s/myDir/fifo2", getenv("HOME"));
+
+    return path;
+}
+
+/**
  * Controlla se string2 inizia con gli stessi caratteri di string1
  * @param string1 - stringa per il controllo
  * @param string2 - stringa da controllare
