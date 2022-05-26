@@ -231,6 +231,10 @@ int main(int argc, char * argv[])
                             FIFO1_msg.pid = proc_pid;
                             strcpy(FIFO1_msg.name, (dir_list->list[child]));
                             strcpy(FIFO1_msg.message, parts[FIFO1]);
+                            printf("fifo 1 type: %d\n", FIFO1_msg.type);
+                            printf("fifo 1 name: %s\n", FIFO1_msg.name);
+                            printf("fifo 1 client: %d\n", FIFO1_msg.client );
+                            printf("fifo 1 messange: %s\n", FIFO1_msg.message);
 
                             errno = 0;
 
@@ -285,6 +289,11 @@ int main(int argc, char * argv[])
                             FIFO2_msg.pid = proc_pid;
                             strcpy(FIFO2_msg.name, (dir_list->list[child]));
                             strcpy(FIFO2_msg.message, parts[FIFO2]);
+
+                            printf("fifo 2 type: %d\n", FIFO2_msg.type);
+                            printf("fifo 2 name: %s\n", FIFO2_msg.name);
+                            printf("fifo 2 client: %d\n", FIFO2_msg.client );
+                            printf("fifo 2 messange: %s\n", FIFO2_msg.message);
 
                             errno = 0;
 
@@ -415,7 +424,6 @@ int main(int argc, char * argv[])
 
                 // chiude il file
                 close(sendme_fd);
-
                 // termina
                 printf("\n\t→ <Client-%zu>: Ho finito di inviare il file <%s>\n\n", child + 1, dir_list->list[child]);
 
@@ -450,6 +458,7 @@ int main(int argc, char * argv[])
         }
 
         free(parts);
+        free(dir_list->list);
         free(dir_list);
 
         // set old mask

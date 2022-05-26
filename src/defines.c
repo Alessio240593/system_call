@@ -187,9 +187,8 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
             init_dirlist(dirlist, new_path);
         }
         else if (de->d_type == DT_REG) {
-            if (check_string("sendme_", de->d_name) == 0) {
-                if (check_size(start_path) == 0) {
-
+            if (/*si potrebbe usare strncmp*/check_string("sendme_", de->d_name) == 0 && strstr(de->d_name, "_out") == NULL) {
+                if (check_size(start_path) == 0 && dirlist->index < MAX_FILE) {
                     if (dirlist->index + 1 > dirlist->size) {
                         dirlist->size *= 2;
                         dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
@@ -222,7 +221,8 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
  * @param message
  * @return
  */
-char* parts_header(int part, const char *path, pid_t pid, char *message)
+ /*
+char* parts_header(int part, const char *path, pid_t pid)
 {
     const char *ipcs[] = {"FIFO_1", "FIFO_2", "MsgQueue", "ShdMem"};
     //char *result = (char*) calloc(sizeof(char), MAX_LEN);
@@ -231,9 +231,9 @@ char* parts_header(int part, const char *path, pid_t pid, char *message)
     snprintf(result, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n",
              part, path, pid, ipcs[part - 1]);
 
-    return result;
+    return result ;
 }
-
+*/
 /**
  * Controlla se <child> ha finito di inviare le <PARTS> parti al server
  * @param matrice - matrice N x PARTS che tiene traccia dei file inviati dal client
@@ -243,14 +243,12 @@ char* parts_header(int part, const char *path, pid_t pid, char *message)
  */
 int child_finish(int matrice[37][4], size_t child)
 {
-    int trovato = 0;
-
     for (size_t i = 0; i < PARTS; ++i) {
         if(matrice[child][i] != 1){
-            trovato = 1;
+            return 1;
         }
     }
-    return trovato;
+    return 0;
 }
 
 /// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE

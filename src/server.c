@@ -107,7 +107,6 @@ int main(void)
     sig_sethandler(SIGINT, sigint_handler);
 
     struct sembuf sop[PARTS]; // useless ???
-    //size_t index = 0;// TODO da cancellare
 
     // open fifo1 in read only mode & non block
     fd1 = open(FIFO_1, O_RDONLY | O_NONBLOCK);
@@ -156,7 +155,7 @@ int main(void)
         //int sup[37] = {0};
         // serve per vedere se server ha letto tutti i file
         int cont = 0;
-        // TODO controllare le iterazioni, non sono deterministiche (a volte funziona a volte va in loop)
+        // TODO controllare le iterazioni, non sono deterministiche (a volte funziona a volte va in loop) colpa di FIFO1 e FIFO2
         while (cont < (37 * 4))
         {
             // ------------------------FIFO_1-------------------------------------------
@@ -167,9 +166,13 @@ int main(void)
                     //printf("Il processo %ld manda in fifo1: <%s> \n", msg_buffer.client, msg_buffer.message)
                     msg_map[msg_buffer.client][FIFO1].client = msg_buffer.client;
                     msg_map[msg_buffer.client][FIFO1].type = msg_buffer.type;
+                    printf("fifo 1 type: %d\n", msg_buffer.type);
+                    printf("fifo 1 name: %s\n", msg_buffer.name);
+                    printf("fifo 1 client: %d\n", msg_buffer.client);
+                    printf("fifo 1 messange: %s\n", msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO1].pid = msg_buffer.pid;
                     strcpy(msg_map[msg_buffer.client][FIFO1].message , msg_buffer.message);
-                    printf("\nfifo1: %s\n", msg_map[msg_buffer.client][FIFO1].message);
+                    printf("\nsono fifo1: %s\n", msg_map[msg_buffer.client][FIFO1].message);
                     strcpy(msg_map[msg_buffer.client][FIFO1].name , msg_buffer.name);
                     //printf("Il processo %ld riceve su fifo1: <%ld> \n", msg_buffer.client + 1, msg_map[msg_buffer.client][FIFO1].type);
                     cont++;
@@ -206,9 +209,13 @@ int main(void)
                     //printf("Il processo %ld manda in fifo2: <%s> \n", msg_buffer.client, msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO2].client = msg_buffer.client;
                     msg_map[msg_buffer.client][FIFO2].type = msg_buffer.type;
+                    printf("fifo 2 type: %d\n", msg_buffer.type);
+                    printf("fifo 2 name: %s\n", msg_buffer.name);
+                    printf("fifo 2 client: %d\n", msg_buffer.client);
+                    printf("fifo 2 messange: %s\n", msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO2].pid = msg_buffer.pid;
                     strcpy(msg_map[msg_buffer.client][FIFO2].message , msg_buffer.message);
-                    printf("\nfifo2: %s\n", msg_map[msg_buffer.client][FIFO2].message);
+                    printf("\nsono fifo2: %s\n", msg_map[msg_buffer.client][FIFO2].message);
                     strcpy(msg_map[msg_buffer.client][FIFO2].name , msg_buffer.name);
                     //printf("Il processo %ld riceve su fifo2: <%ld> \n", msg_buffer.client + 1, msg_map[msg_buffer.client][FIFO2].type);
                     //sblocco una posizione per la scrittura
@@ -240,7 +247,6 @@ int main(void)
 
             //--------------------------MESSAGE QUEUE----------------------------------------------
             errno = 0;
-            //printf("pre msq\n");
             res = msgrcv(msqid, &msg_buffer, MSGSIZE , 0, IPC_NOWAIT);
 
             if (res == -1 && errno == ENOMSG) {
@@ -258,8 +264,6 @@ int main(void)
                 //printf("→ <Server>: salvata parte %d del file: %s\n", MSQ + 1, msg_map[msg_buffer.client][MSQ].name);
                 semOp(semid_counter, MAX_SEM_MSQ, SIGNAL);
             }
-            //printf("post msq\n");
-            //}
 
             //---------------------------SHARED MEMORY-----------------------------------------
 
@@ -268,7 +272,6 @@ int main(void)
             sop[SHM].sem_op  = WAIT;
             sop[SHM].sem_flg = IPC_NOWAIT;
 
-            //printf("pre shared\n");
             for (size_t id = 0; id < MAXMSG; id++) {
                 if(shmem[id].type == 1){
                     if(semop(semid_sync, &sop[SHM], 1) == 0){
@@ -291,23 +294,21 @@ int main(void)
                     }
                 }
             }
-            //printf("post shared \n");
-            printf("cont : %d\n", cont);
+            //printf("cont : %d\n", cont);
             char msg[MAX_LEN];
-
+            char file_name[PATH_MAX];
             for (size_t child = 0; child < n; child++) {
                 if(msg_map[child][FIFO1].type == 1 && msg_map[child][FIFO2].type == 1
                    && msg_map[child][MSQ].type == 1 && msg_map[child][SHM].type == 1) {
 
-                    char file_name[PATH_MAX];
                     strcpy(file_name, msg_map[child][FIFO1].name);
 
-                    int fid = open(strcat(file_name, "_out"), O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+                    int fid = open(strcat(file_name, "_out"), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 
                     if( fid == -1)
                         errExit("open failed: \n");
 
-                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
+                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
                              1, msg_map[child][FIFO1].name, msg_map[child][FIFO1].pid, "FIFO1", msg_map[child][FIFO1].message);
 
                     Br = write(fid, &msg, strlen(msg));
@@ -334,7 +335,7 @@ int main(void)
                         errExit("write failed MSQ\n");
                     }
 
-                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s\n",
+                    snprintf(msg, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
                              4, msg_map[child][SHM].name, msg_map[child][SHM].pid, "SHMEM", msg_map[child][SHM].message);
 
                     Br = write(fid, &msg, strlen(msg));
@@ -345,11 +346,14 @@ int main(void)
 
                     //imposta type a 0 in modo che l'if iniziale non sia più true
                     // per questo child dato che l'opeazione è stata completata
-                    msg_map[child][FIFO1].type = 0;
-
+                    // TODO linea 350 da decommentare sennò riscrive più volte
+                    //msg_map[child][MSQ].type = 0;
+                    //printf("processo %ld ha scritto il file\n", child + 1);
                     close(fid);
                 }
             }
+            printf("-------------------------------------------------------------------------------------------------\n\n%d\n\n", cont);
+
         }
         printf("Ho finito la %d iterazione!!!!\n", times++);
 

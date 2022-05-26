@@ -24,6 +24,7 @@
 #define LEN_INT 11
 #define PARTS 4
 #define MAXMSG 50
+#define MAX_FILE 100
 
 // FIFOs path
 #define FIFO_1 "/home/alessio/myDir/fifo1"
@@ -73,6 +74,6 @@ int split_file(char** parts, int fd, size_t tot_char);
 int init_dirlist(dirlist_t *dirlist, const char *start_path);
 int dump_dirlist(dirlist_t *dirlist, const char *filename);
 int child_finish(int matrice[37][4], size_t child);
-char* parts_header(int part, const char *path, pid_t pid, char *message);
+char* parts_header(int part, const char *path, pid_t pid);
 
 #endif
