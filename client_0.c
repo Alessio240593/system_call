@@ -88,6 +88,16 @@ int main(int argc, char * argv[])
     printf("→ <Client-0>: Waiting semaphore counter set synchronization...\n");
     int semid_counter = get_semaphore(KEYSEM_COUNTER, SEMNUM_COUNTER);
 
+
+    pid_t proc_pid = getpid();
+    msg_t pid_msg;
+    pid_msg.type = 1;
+    pid_msg.pid = proc_pid;
+
+    if (msgsnd(msqid, &pid_msg, MSGSIZE, 0) == -1) {
+        errExit("failed to send pid to server: ");
+    }
+
     while (1) {
         //wait for a signal
         pause();

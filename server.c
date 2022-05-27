@@ -20,6 +20,7 @@ int shmid = -1;
 int msqid = -1;
 int semid_sync = -1;
 int semid_counter = -1;
+pid_t client_pid = -1;
 msg_t *shmem = NULL;
 
 void sigint_handler(int sig)
@@ -54,8 +55,14 @@ void sigint_handler(int sig)
     if(msqid >= 0)
         remove_message_queue(msqid);
 
-    exit(EXIT_SUCCESS);
+    // uccide il client
+    if (client_pid != -1) {
+        if (kill(client_pid, SIGUSR1) == -1) {
+            errExit("couldn't kill client: ");
+        }
+    }
 
+    exit(EXIT_SUCCESS);
 }
 
 int main(void)
@@ -112,6 +119,12 @@ int main(void)
     fd1 = open(FIFO_1, O_RDONLY | O_NONBLOCK);
     // open fifo2 in read only mode  & non block
     fd2 = open(FIFO_2, O_RDONLY | O_NONBLOCK);
+
+    msg_t msg_client_pid;
+    if (msgrcv(msqid, &msg_client_pid, MSGSIZE, 0, 0) == -1) {
+        errExit("failed to receive pid from client: ");
+    }
+    client_pid = msg_client_pid.pid;
 
     // only for debug (number of iteration)
     int times = 1;
