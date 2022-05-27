@@ -190,7 +190,7 @@ int split_file(char** parts, int fd, size_t tot_char)
  * @return 0 - in caso affermativo
  * @return R \ {0} - altrimenti
  */
-int check_end(const char *str, const char *end)
+int ends_with(const char *str, const char *end)
 {
     if (!str || !end) {
         return -1;
@@ -200,7 +200,7 @@ int check_end(const char *str, const char *end)
     //return strncmp(str + strlen(token) - 4, "_out", 4);
 
     size_t out_len = strlen(end);
-    size_t offset = strlen(token) - out_len;
+    int offset = strlen(token) - out_len;
 
     if (offset < 0) {
         return -1;
@@ -248,11 +248,11 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
             init_dirlist(dirlist, new_path);
         }
         else if (de->d_type == DT_REG) {
-            /*if (check_string("sendme_", de->d_name) == 0 && strstr(de->d_name, "_out") == NULL) {
-                if (check_size(start_path) == 0 && dirlist->index < MAX_FILE) {
-                */
-            if (strncmp("sendme_", de->d_name, 8) == 0 && check_out(de->d_name) == 0
-                && check_size(start_path) == 0 && dirlist->index < MAX_FILE)
+            if (check_string("sendme_", de->d_name) == 0 &&
+                  ends_with(de->d_name, "_out") == 0 &&
+                    check_size(start_path) == 0 &&
+                      dirlist->index < MAX_FILE)
+            {
                     if (dirlist->index + 1 > dirlist->size) {
                         dirlist->size *= 2;
                         dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
@@ -266,7 +266,7 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
                     snprintf(dirlist->list[dirlist->index], to_alloc, "%s/%s", start_path, de->d_name);
 
                     dirlist->index++;
-                }
+                //}
             }
         }
     }

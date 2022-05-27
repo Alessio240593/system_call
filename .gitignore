@@ -2,4 +2,6 @@
 bin
 build
 .idea
+.vscode
+.nvimlog
 cmake-build-debug

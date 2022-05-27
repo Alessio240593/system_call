@@ -6,7 +6,6 @@
 #ifndef FIFO_H
 #define FIFO_H
 
-#include <fifo.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/types.h>
