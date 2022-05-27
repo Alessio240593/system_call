@@ -175,7 +175,7 @@ int main(int argc, char * argv[])
                 // to store byte read
                 ssize_t Br = 0;
                 struct sembuf sop[PARTS]; // counter to MAX
-                struct sembuf msq_sync;
+                //struct sembuf msq_sync;
                 struct sembuf shm_sync;
                 msg_t msgs[PARTS];
 
@@ -231,9 +231,9 @@ int main(int argc, char * argv[])
                             FIFO1_msg.pid = proc_pid;
                             strcpy(FIFO1_msg.name, (dir_list->list[child]));
                             strcpy(FIFO1_msg.message, parts[FIFO1]);
-                            printf("fifo 1 type: %d\n", FIFO1_msg.type);
+                            printf("fifo 1 type: %ld\n", FIFO1_msg.type);
                             printf("fifo 1 name: %s\n", FIFO1_msg.name);
-                            printf("fifo 1 client: %d\n", FIFO1_msg.client );
+                            printf("fifo 1 client: %ld\n", FIFO1_msg.client );
                             printf("fifo 1 messange: %s\n", FIFO1_msg.message);
 
                             errno = 0;
@@ -290,9 +290,9 @@ int main(int argc, char * argv[])
                             strcpy(FIFO2_msg.name, (dir_list->list[child]));
                             strcpy(FIFO2_msg.message, parts[FIFO2]);
 
-                            printf("fifo 2 type: %d\n", FIFO2_msg.type);
+                            printf("fifo 2 type: %ld\n", FIFO2_msg.type);
                             printf("fifo 2 name: %s\n", FIFO2_msg.name);
-                            printf("fifo 2 client: %d\n", FIFO2_msg.client );
+                            printf("fifo 2 client: %ld\n", FIFO2_msg.client );
                             printf("fifo 2 messange: %s\n", FIFO2_msg.message);
 
                             errno = 0;
