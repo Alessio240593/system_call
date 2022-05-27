@@ -156,30 +156,63 @@ int split_file(char** parts, int fd, size_t tot_char)
 
     if (reminder != 0)
         chunk++;
+    else
+        reminder = -1;
 
     for (size_t i = 0; i < PARTS; i++) {
         if(reminder > 0) {
-            parts[i] = (char *) calloc(chunk, sizeof(char));
-            MCHECK(parts[i]);
-
-            if ((Br = read(fd, parts[i], chunk)) == -1) {
-                return -1;
-            }
-
-            parts[i][Br] = '\0';
             reminder--;
         }
         else if(reminder == 0) {
             chunk--;
-            //in modo tale che poi non venga più modificato il valore di chunk
+            //in modo tale che poi non venga piÃ¹ modificato il valore di chunk
             reminder = -1;
         }
+        parts[i] = (char *) calloc(chunk, sizeof(char));
+        MCHECK(parts[i]);
+
+        if ((Br = read(fd, parts[i], chunk)) == -1) {
+            return -1;
+        }
+
+        parts[i][Br] = '\0';
     }
 
     // the fd is now reusable
     lseek(fd, 0, SEEK_SET);
 
     return 0;
+}
+
+/**
+ * Controlla se all'interno della stringa è presente "_out"
+ * @param str - stringa in input
+ * @return 0 - in caso affermativo
+ * @return R \ {0} - altrimenti
+ */
+int check_end(const char *str, const char *end)
+{
+    if (!str || !end) {
+        return -1;
+    }
+
+    char *token = strtok(strdup(str), ".");
+    //return strncmp(str + strlen(token) - 4, "_out", 4);
+
+    size_t out_len = strlen(end);
+    size_t offset = strlen(token) - out_len;
+
+    if (offset < 0) {
+        return -1;
+    }
+
+    size_t i = 0;
+    while (i < out_len && token[offset + i] == end[i]) {
+        i += 1;
+    }
+
+    //return strncmp(str + strlen(token) - 4, "_out", 4);
+    return i == out_len;
 }
 
 /**
@@ -215,8 +248,11 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
             init_dirlist(dirlist, new_path);
         }
         else if (de->d_type == DT_REG) {
-            if (/*si potrebbe usare strncmp*/check_string("sendme_", de->d_name) == 0 && strstr(de->d_name, "_out") == NULL) {
+            /*if (check_string("sendme_", de->d_name) == 0 && strstr(de->d_name, "_out") == NULL) {
                 if (check_size(start_path) == 0 && dirlist->index < MAX_FILE) {
+                */
+            if (strncmp("sendme_", de->d_name, 8) == 0 && check_out(de->d_name) == 0
+                && check_size(start_path) == 0 && dirlist->index < MAX_FILE)
                     if (dirlist->index + 1 > dirlist->size) {
                         dirlist->size *= 2;
                         dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));

@@ -53,7 +53,6 @@ typedef struct __dirlist_t {
     char **list;
 } dirlist_t;
 
-
 typedef struct __msg_t {
     long type;
 
@@ -62,6 +61,7 @@ typedef struct __msg_t {
     char name[MAX_LEN];
     char message[MAX_LEN];
 } msg_t;
+
 
 char *get_FIFO_1(void);
 char *get_FIFO_2(void);
@@ -76,6 +76,7 @@ int split_file(char** parts, int fd, size_t tot_char);
 int init_dirlist(dirlist_t *dirlist, const char *start_path);
 int dump_dirlist(dirlist_t *dirlist, const char *filename);
 int child_finish(int matrice[37][4], size_t child);
-char* parts_header(int part, const char *path, pid_t pid);
+int check_end(const char *str, const char *end);
+//char* parts_header(int part, const char *path, pid_t pid);
 
 #endif
