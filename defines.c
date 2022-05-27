@@ -12,10 +12,12 @@
  */
 char *get_FIFO_1(void) {
     char *path = (char *) calloc(MAX_LEN, sizeof(char));
-    if (!path)
+    if (!path) {
         errExit("malloc failed: ");
+    }
 
-    snprintf(path, MAX_LEN, "%s/myDir/fifo1", getenv("HOME"));
+    //snprintf(path, MAX_LEN, "%s/myDir/fifo1", getenv("HOME"));
+    snprintf(path, MAX_LEN, "/tmp/fifo1");
 
     return path;
 }
@@ -26,10 +28,11 @@ char *get_FIFO_1(void) {
  */
 char *get_FIFO_2(void) {
     char *path = (char *) calloc(MAX_LEN, sizeof(char));
-    if (!path)
+    if (!path) {
         errExit("malloc failed: ");
-
-    snprintf(path, MAX_LEN, "%s/myDir/fifo2", getenv("HOME"));
+    }
+    
+    snprintf(path, MAX_LEN, "/tmp/fifo2");
 
     return path;
 }
