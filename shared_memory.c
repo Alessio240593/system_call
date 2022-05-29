@@ -20,7 +20,7 @@ int alloc_shared_memory(key_t shmKey, size_t size)
     if(shmid == -1)
         errExit("shmget failed: ");
 
-    printf("→ <Server>: Shared memory n°%d create successfully!\n", shmKey);
+    printf("→ <Server>: Shared memory create successfully!\n");
 
     return shmid;
 }
@@ -39,7 +39,7 @@ int get_shared_memory(key_t shmKey, size_t size)
     if(shmid == -1)
         errExit("shmget failed: ");
 
-    printf("→ <Client>: Shared memory n°%d synchronization successfully!\n", shmKey);
+    printf("→ <Client>: Shared memory synchronization successfully!\n");
 
     return shmid;
 }
@@ -80,5 +80,5 @@ void remove_shared_memory(int shmid)
     if(shmctl(shmid, IPC_RMID, NULL) == -1)
         errExit("shmctl failed: ");
     else
-        printf("→ Shared memory removed successfully!\n");
+        printf("→ <Server>: Shared memory removed successfully!\n");
 }

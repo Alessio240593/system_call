@@ -97,6 +97,6 @@ void remove_fifo(const char *path, int num)
     if(unlink(path) == -1)
         errExit("unlink failed: ");
 
-    printf("→ Fifo%d removed successfully!\n", num);
+    printf("→ <Server>: Fifo%d removed successfully!\n", num);
 
 }
