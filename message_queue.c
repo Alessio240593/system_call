@@ -39,7 +39,7 @@ int get_message_queue(key_t msqKey)
     if(msqid == -1)
         errExit("msgget failed: ");
 
-    printf("→ <Client>: Message queue synchronization successfully!\n");
+    printf("→ <Client0>: Message queue synchronization successfully!\n");
 
     return msqid;
 }

@@ -18,6 +18,7 @@ const char *path;
 void sigusr1_handler(int sig)
 {
     printf("\n\t→ <Client-0>: Received signal %s\n\n", signame[sig]);
+    printf("→ <Client-0>: Exit success!\n");
     exit(EXIT_SUCCESS);
 }
 
