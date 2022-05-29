@@ -72,6 +72,8 @@ void sigint_handler(int sig)
             errExit("couldn't kill client: ");
         }
     }
+    
+    printf("→ <Server>: Exit success!\n");
 
     exit(EXIT_SUCCESS);
 }

@@ -39,7 +39,7 @@ int get_semaphore(key_t semKey, int num)
     if(semid == -1)
         errExit("semget failed: ");
 
-    printf("→ <Client>: Semaphore set synchronization successfully!\n");
+    printf("→ <Client0>: Semaphore set synchronization successfully!\n");
 
     return semid;
 }

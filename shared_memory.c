@@ -39,7 +39,7 @@ int get_shared_memory(key_t shmKey, size_t size)
     if(shmid == -1)
         errExit("shmget failed: ");
 
-    printf("→ <Client>: Shared memory synchronization successfully!\n");
+    printf("→ <Client0>: Shared memory synchronization successfully!\n");
 
     return shmid;
 }
