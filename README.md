@@ -10,20 +10,6 @@
 
 #### `SERVER`
 
-1. una volta ricevute tutte e quattro le parti di un file le riunisce nell’ordine corretto e le salva
-in un file di testo in cui ognuna delle quattro parti e’ separata dalla successiva da una riga
-bianca (carattere newline) ed ha l’intestazione “[Parte j, del file NOMEFILE, spedita dal
-processo PID tramite CANALE]” (vedere esempio sotto), dove j è un numero da 1 a 4 in
-base alla parte del file, NOMEFILE è il nome del file di origine compreso di percorso
-completo, PID è il PID del processo mittente e CANALE è il canale di comunicazione (uno
-tra FIFO_1, FIFO_2, MsgQueue e ShdMem). Il file verrà chiamato con lo stesso nome (e
-percorso) del file originale ma con l’aggiunta del postfisso “_out”.
-
-1. quando ha ricevuto e salvato tutti i file invia un messaggio di terminazione sulla coda di
-messaggi, in modo che possa essere riconosciuto da Client_0 come messaggio di
-conclusione lavori.
-
-
 ---
 ![alt_text](https://upload.wikimedia.org/wikipedia/commons/d/dd/Linux_logo.jpg)
 
@@ -31,17 +17,13 @@ conclusione lavori.
 
 ### _to check:_
 ####  `CLIENT`
-1. IL client i non scrive parts (è sempre NULL) 
-1. Da un certo punto in poi client stampa fifo1.name = " " in teoria sistemato
-2. controllare la funione int_dirlist, deve lavorare con al più 100 file 
-3. Completare client
-4. sistemare makefile per adattarci a replit
-5. Refactoring
+1. Completare client
+1. Refactoring
 
 ---
 
 #### `SERVER`
-1. non termina il ciclo di ricezione messaggi 
+1. Inserire funzione che appende _out
 2. Completare server
 3. Refactoring
 
