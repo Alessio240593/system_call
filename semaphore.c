@@ -20,7 +20,7 @@ int alloc_semaphore(key_t semKey, int num)
     if(semid == -1)
         errExit("semget failed: ");
 
-    printf("→ <Server>: Semaphore set n°%d create successfully!\n", semKey);
+    printf("→ <Server>: Semaphore set create successfully!\n");
 
     return semid;
 }
@@ -39,7 +39,7 @@ int get_semaphore(key_t semKey, int num)
     if(semid == -1)
         errExit("semget failed: ");
 
-    printf("→ <Client>: Semaphore set n°%d synchronization successfully!\n", semKey);
+    printf("→ <Client>: Semaphore set synchronization successfully!\n");
 
     return semid;
 }
@@ -99,6 +99,6 @@ void remove_semaphore(int semid)
     if(semctl(semid, 0, IPC_RMID, 0) == -1)
         errExit("semctl failed: ");
     else
-        printf("→ Semaphore set removed successfully!\n");
+        printf("→ <Server>: Semaphore set removed successfully!\n");
 }
 

@@ -7,7 +7,7 @@ set(BIN "${CMAKE_CURRENT_SOURCE_DIR}/bin")# aliasing ./bin -> BIN
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN})# set output directory -> bin
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)# set building type
 
-add_subdirectory(src)# add src subdir
+#add_subdirectory(src)# add src subdir
 
 add_executable(client0 src/client_0.c)# create client0 exe
 add_executable(server src/server.c)# create server exe

@@ -20,7 +20,7 @@ int alloc_message_queue(key_t msqKey)
     if(msqid == -1)
         errExit("msgget failed: ");
 
-    printf("→ <Server>: Message queue n°%d create successfully!\n", msqKey);
+    printf("→ <Server>: Message queue create successfully!\n");
 
     return msqid;
 }
@@ -39,7 +39,7 @@ int get_message_queue(key_t msqKey)
     if(msqid == -1)
         errExit("msgget failed: ");
 
-    printf("→ <Client>: Message queue n°%d synchronization successfully!\n", msqKey);
+    printf("→ <Client>: Message queue synchronization successfully!\n");
 
     return msqid;
 }
@@ -87,5 +87,5 @@ void remove_message_queue(int msqid)
     if(msgctl(msqid, IPC_RMID, NULL) == -1)
         errExit("msgctl failed: ");
     else
-        printf("→ Message queue removed successfully!\n");
+        printf("→ <Server>: Message queue removed successfully!\n");
 }

@@ -36,25 +36,36 @@ void sigint_handler(int sig)
     }
 
     if(fifo_flag){
+    	printf("→ <Server>: Waiting for FIFO1 removal...\n");
         remove_fifo(FIFO_1, 1);
+        printf("→ <Server>: Waiting for FIFO2 removal...\n");
         remove_fifo(FIFO_2, 2);
         fifo_flag = 0;
+    }
+    
+    if(msqid >= 0) {
+    	printf("→ <Server>: Waiting for message queue n°%d removal...\n", KEYMSQ);
+        remove_message_queue(msqid);
     }
 
     if(shmid >= 0 && shmem != NULL) {
         free_shared_memory(shmem);
+        printf("→ <Server>: Waiting for shared memory n°%d removal...\n", KEYSHM);
         remove_shared_memory(shmid);
     }
 
-    if(semid_sync >= 0)
+    if(semid_sync >= 0)	{
+    	printf("→ <Server>: Waiting for semaphore set n°%d removal...\n", KEYSEM_SYNC);
         remove_semaphore(semid_sync);
-
-    if(semid_counter >= 0)
+    }
+    	
+    if(semid_counter >= 0) {
+    	printf("→ <Server>: Waiting for semaphore set n°%d removal...\n", KEYSEM_COUNTER);
         remove_semaphore(semid_counter);
-
-    if(msqid >= 0)
-        remove_message_queue(msqid);
-
+    }
+    	
+    
+    	
     // uccide il client
     if (client_pid != -1) {
         if (kill(client_pid, SIGUSR1) == -1) {
@@ -68,14 +79,26 @@ void sigint_handler(int sig)
 int main(void)
 {
     char string_buffer[MAX_LEN];
+    
+    // create FIFOs
+    printf("→ <Server>: Waiting fifo1 allocation...\n");
+    make_fifo(FIFO_1, 1);
+    printf("→ <Server>: Waiting fifo2 allocation...\n");
+    make_fifo(FIFO_2, 2);
+    // fifo create flag (used to check if fifo exists)
+    fifo_flag = 1;
+    
+    // create message queue
+    printf("→ <Server>: Waiting message queue n°%d allocation...\n", KEYMSQ);
+    msqid = alloc_message_queue(KEYMSQ);
 
     // create shmem
-    printf("→ <Server>: Waiting shared memory allocation...\n");
+    printf("→ <Server>: Waiting shared memory n°%d allocation...\n", KEYSHM);
     shmid = alloc_shared_memory(KEYSHM,SHMSIZE);
     shmem = (msg_t *)attach_shared_memory(shmid, 0);
 
     // Create a semaphore semid_counter with 50 max messages
-    printf("→ <Server>: Waiting semaphore counter set allocation...\n");
+    printf("→ <Server>: Waiting semaphore set n°%d allocation...\n", KEYSEM_COUNTER);
     semid_counter = alloc_semaphore(KEYSEM_COUNTER, SEMNUM_COUNTER);
 
     // initialize semaphore semid_counter
@@ -85,7 +108,7 @@ int main(void)
     semctl(semid_counter, 0, SETALL, arg);
 
     // Create a semaphore semid_sync mutex/synchronization
-    printf("→ <Server>: Waiting semaphore synchronization set allocation...\n");
+    printf("→ <Server>: Waiting semaphore set n°%d allocation...\n", KEYSEM_SYNC);
     semid_sync = alloc_semaphore(KEYSEM_SYNC, SEMNUM_SYNC);
 
     // initialize semaphore semid_synch: synchronization
@@ -97,18 +120,8 @@ int main(void)
     arg.val = 1;
     semctl(semid_sync, SEMCHILD, SETVAL, arg);
     semctl(semid_sync, SEMSHM, SETVAL, arg);
-
-    // create message queue
-    printf("→ <Server>: Waiting message queue allocation...\n");
-    msqid = alloc_message_queue(KEYMSQ);
-
-    // create FIFOs
-    printf("→ <Server>: Waiting fifo1 allocation...\n");
-    make_fifo(FIFO_1, 1);
-    printf("→ <Server>: Waiting fifo2 allocation...\n");
-    make_fifo(FIFO_2, 2);
-    // fifo create flag (used to check if fifo exists)
-    fifo_flag = 1;
+  
+    printf("\n→ <Server>: Press <ctr+c> to terminate... \n");
 
     // set sigint signal handler
     sig_sethandler(SIGINT, sigint_handler);
@@ -131,10 +144,11 @@ int main(void)
     while (1) {
         //waiting server write on fifo1
         printf("→ <Server>: Waiting Client response on FIFO1... \n");
+        printf("\n→ <Server>: Press <ctr+c> to terminate... \n");
         semOp(semid_sync, SYNC_FIFO1, WAIT);
         ssize_t bR = read_fifo(fd1, 1, string_buffer, MAX_LEN);
         string_buffer[bR] = '\0';
-        printf("← <Client>: There are %s file to send\n", string_buffer);
+        printf("\n← <Client>: There are %s file to send\n", string_buffer);
 
         //from string to int
         size_t n = atoi(string_buffer);
@@ -179,13 +193,13 @@ int main(void)
                     //printf("Il processo %ld manda in fifo1: <%s> \n", msg_buffer.client, msg_buffer.message)
                     msg_map[msg_buffer.client][FIFO1].client = msg_buffer.client;
                     msg_map[msg_buffer.client][FIFO1].type = msg_buffer.type;
-                    printf("fifo 1 type: %ld\n", msg_buffer.type);
-                    printf("fifo 1 name: %s\n", msg_buffer.name);
-                    printf("fifo 1 client: %ld\n", msg_buffer.client);
-                    printf("fifo 1 messange: %s\n", msg_buffer.message);
+                    //printf("fifo 1 type: %ld\n", msg_buffer.type);
+                    //printf("fifo 1 name: %s\n", msg_buffer.name);
+                    //printf("fifo 1 client: %ld\n", msg_buffer.client);
+                    //printf("fifo 1 messange: %s\n", msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO1].pid = msg_buffer.pid;
                     strcpy(msg_map[msg_buffer.client][FIFO1].message , msg_buffer.message);
-                    printf("\nsono fifo1: %s\n", msg_map[msg_buffer.client][FIFO1].message);
+                    //printf("\nsono fifo1: %s\n", msg_map[msg_buffer.client][FIFO1].message);
                     strcpy(msg_map[msg_buffer.client][FIFO1].name , msg_buffer.name);
                     //printf("Il processo %ld riceve su fifo1: <%ld> \n", msg_buffer.client + 1, msg_map[msg_buffer.client][FIFO1].type);
                     cont++;
@@ -222,13 +236,13 @@ int main(void)
                     //printf("Il processo %ld manda in fifo2: <%s> \n", msg_buffer.client, msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO2].client = msg_buffer.client;
                     msg_map[msg_buffer.client][FIFO2].type = msg_buffer.type;
-                    printf("fifo 2 type: %ld\n", msg_buffer.type);
-                    printf("fifo 2 name: %s\n", msg_buffer.name);
-                    printf("fifo 2 client: %ld\n", msg_buffer.client);
-                    printf("fifo 2 messange: %s\n", msg_buffer.message);
+                    //printf("fifo 2 type: %ld\n", msg_buffer.type);
+                    //printf("fifo 2 name: %s\n", msg_buffer.name);
+                    //printf("fifo 2 client: %ld\n", msg_buffer.client);
+                    //printf("fifo 2 messange: %s\n", msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO2].pid = msg_buffer.pid;
                     strcpy(msg_map[msg_buffer.client][FIFO2].message , msg_buffer.message);
-                    printf("\nsono fifo2: %s\n", msg_map[msg_buffer.client][FIFO2].message);
+                    //printf("\nsono fifo2: %s\n", msg_map[msg_buffer.client][FIFO2].message);
                     strcpy(msg_map[msg_buffer.client][FIFO2].name , msg_buffer.name);
                     //printf("Il processo %ld riceve su fifo2: <%ld> \n", msg_buffer.client + 1, msg_map[msg_buffer.client][FIFO2].type);
                     //sblocco una posizione per la scrittura
@@ -270,7 +284,7 @@ int main(void)
                 msg_map[msg_buffer.client][MSQ].type = msg_buffer.type;
                 msg_map[msg_buffer.client][MSQ].pid = msg_buffer.pid;
                 strcpy(msg_map[msg_buffer.client][MSQ].message , msg_buffer.message);
-                printf("\nmsq: %s\n", msg_map[msg_buffer.client][MSQ].message);
+                //printf("\nmsq: %s\n", msg_map[msg_buffer.client][MSQ].message);
                 strcpy(msg_map[msg_buffer.client][MSQ].name , msg_buffer.name);
                 cont++;
                 //printf("msq valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
@@ -297,7 +311,7 @@ int main(void)
                         msg_map[shmem[id].client][SHM].type = shmem[id].type;
                         strcpy(msg_map[shmem[id].client][SHM].name , shmem[id].name);
                         strcpy(msg_map[shmem[id].client][SHM].message, shmem[id].message);
-                        printf("\nsharedmem: %s\n", shmem[id].message);
+                        //printf("\nsharedmem: %s\n", shmem[id].message);
                         shmem[id].type = 0;
                         cont++;
                         //printf("shared memory valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
@@ -365,7 +379,7 @@ int main(void)
                     close(fid);
                 }
             }
-            printf("-------------------------------------------------------------------------------------------------\n\n%d\n\n", cont);
+            //("-------------------------------------------------------------------------------------------------\n\n%d\n\n", cont);
 
         }
         printf("Ho finito la %d iterazione!!!!\n", times++);
@@ -373,7 +387,7 @@ int main(void)
         //il server prepara il messaggio
         msg_t result;
         result.type = 1;
-        strcpy(result.message, "<Server>: Ho finito di leggere i file!\n");
+        strcpy(result.message, "← <Server>: Ho finito di leggere i file!\n\n");
 
         // invia il messaggio
         msgsnd(msqid, &result, MSGSIZE, 0);
