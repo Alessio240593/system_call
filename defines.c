@@ -72,13 +72,18 @@ int check_size(const char *path)
     }
 
     struct stat buffer;
+    errno = 0;
 
-    if ((stat(path, &buffer)) == -1) {
+    if ((stat(path, &buffer)) == -1 && errno != 0) {
         perror("stat failed: ");
         return -1;
     }
     else {
-        return buffer.st_size <= MAX_FILE_SIZE;
+        if (buffer.st_size <= MAX_FILE_SIZE) {
+            return 0;
+        } else {
+            return 1;
+        }
     }
 }
 
@@ -193,8 +198,8 @@ int split_file(char** parts, int fd, size_t tot_char)
 /**
  * Controlla se all'interno della stringa è presente "_out"
  * @param str - stringa in input
- * @return 0 - in caso affermativo
- * @return R \ {0} - altrimenti
+ * @return 1 - in caso affermativo
+ * @return R \ {1} - altrimenti
  */
 int ends_with(const char *str, const char *end)
 {
@@ -218,7 +223,7 @@ int ends_with(const char *str, const char *end)
     }
 
     //return strncmp(str + strlen(token) - 4, "_out", 4);
-    return i == out_len;
+    return i != out_len;
 }
 
 /**
@@ -256,8 +261,8 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
         else if (de->d_type == DT_REG) {
 
             if (check_string("sendme_", de->d_name) == 0 &&
-                  ends_with(de->d_name, "_out") == 0 &&
-                    check_size(start_path) == 0 &&
+                  ends_with(de->d_name, "_out") != 0 &&
+                    check_size(de->d_name) == 0 &&
                       dirlist->index < MAX_FILE)
             {
                 if (dirlist->index + 1 > dirlist->size) {
@@ -294,7 +299,7 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
 int has_child_finished(int **matrice, size_t child)
 {
     for (size_t i = 0; i < PARTS; ++i) {
-        if(matrice[child][i] != 1){
+        if (matrice[child][i] != 1) {
             return 1;
         }
     }

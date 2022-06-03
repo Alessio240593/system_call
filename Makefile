@@ -1,4 +1,4 @@
-CFLAGS   = -Wall -Wextra -std=gnu99
+CFLAGS   = -Wall -Wextra -g -std=gnu99
 INCLUDES = -I .
 OBJDIR   = obj
 
