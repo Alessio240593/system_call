@@ -156,10 +156,10 @@ int main(int argc, char * argv[])
 
         // matrice del server per la memorizzazione dei messaggi
         //int matrix_msg[37][4] = {0};
-        int **matrix_msg = (int **) calloc(dir_list->size, sizeof(int *));
+        int **matrix_msg = (int **) calloc(dir_list->index, sizeof(int *));
         MCHECK(matrix_msg);
 
-        for (size_t i = 0; i < dir_list->size; i++) {
+        for (size_t i = 0; i < dir_list->index; i++) {
             matrix_msg[i] = (int *) malloc(sizeof(int));
             MCHECK(matrix_msg[i]);
         }
@@ -243,7 +243,7 @@ int main(int argc, char * argv[])
                             if (parts[FIFO1] != NULL) {
                                 strcpy(FIFO1_msg.message, parts[FIFO1]);
                             } else {
-                                printf("parts[%d] è NULL\n", FIFO1);
+                                //printf("parts[%d] è NULL\n", FIFO1);
                                 strcpy(msgs[FIFO1].message, "");
                             }
 
@@ -296,7 +296,7 @@ int main(int argc, char * argv[])
                             if (parts[FIFO2] != NULL)
                                 strcpy(FIFO2_msg.message, parts[FIFO2]);
                             else {
-                                printf("parts[%d] è NULL\n", FIFO2);
+                                //printf("parts[%d] è NULL\n", FIFO2);
                                 strcpy(msgs[FIFO2].message, "");
                             }
 
@@ -345,7 +345,7 @@ int main(int argc, char * argv[])
                             if (parts[MSQ] != NULL)
                                 strcpy(msgs[MSQ].message, parts[MSQ]);
                             else {
-                                printf("parts[%d] è NULL\n", MSQ);
+                                //printf("parts[%d] è NULL\n", MSQ);
                                 strcpy(msgs[MSQ].message, "");
                             }
 
@@ -389,7 +389,7 @@ int main(int argc, char * argv[])
                                     if (parts[SHM] != NULL)
                                         strcpy(shmem[id].message, parts[SHM]);
                                     else {
-                                        printf("parts[%d] è NULL\n", SHM);
+                                        //printf("parts[%d] è NULL\n", SHM);
                                         strcpy(shmem[id].message, "");
                                     }
 
@@ -429,21 +429,15 @@ int main(int argc, char * argv[])
         printf("%s", result.message);
 
         // --------------Finish--------------
-        // free heap
-        /*
+        // free HEAP
         for (size_t i = 0; i < dir_list->index; i++) {
             free(dir_list->list[i]);
+            free(matrix_msg[i]);
         }
 
         for (size_t i = 0; i < PARTS; i++) {
-            printf("Devo deallocare parts[%zu] ? ", i);
-            if (parts[i] != NULL) {
-                printf("sì\n");
+            if (parts[i] != NULL)
                 free(parts[i]);
-            }
-            printf("no\n");
-
-            free(matrix_msg[i]);
         }
 
         free(shm_msg);
@@ -451,7 +445,7 @@ int main(int argc, char * argv[])
         free(matrix_msg);
         free(dir_list->list);
         free(dir_list);
-         */
+
 
         // set old mask
         printf("→ <Client-0>: Setting new mask UNBLOCK<SIGINT, SIGUSR1>...\n");
