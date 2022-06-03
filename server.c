@@ -64,8 +64,6 @@ void sigint_handler(int sig)
         remove_semaphore(semid_counter);
     }
     	
-    
-    	
     // uccide il client
     if (client_pid != -1) {
         if (kill(client_pid, SIGUSR1) == -1) {
@@ -78,10 +76,9 @@ void sigint_handler(int sig)
     exit(EXIT_SUCCESS);
 }
 
+
 int main(void)
 {
-    char string_buffer[MAX_LEN];
-    
     // create FIFOs
     printf("→ <Server>: Waiting fifo1 allocation...\n");
     make_fifo(FIFO_1, 1);
@@ -128,8 +125,6 @@ int main(void)
     // set sigint signal handler
     sig_sethandler(SIGINT, sigint_handler);
 
-    struct sembuf sop[PARTS]; // useless ???
-
     // open fifo1 in read only mode & non block
     fd1 = open(FIFO_1, O_RDONLY | O_NONBLOCK);
     // open fifo2 in read only mode  & non block
@@ -141,8 +136,12 @@ int main(void)
     }
     client_pid = msg_client_pid.pid;
 
-    // only for debug (number of iteration)
-    //int times = 1;
+
+    // big declaration
+    char string_buffer[MAX_LEN];
+    size_t n;
+    struct sembuf sop[PARTS];
+
 
     while (1) {
         //waiting server write on fifo1
@@ -154,7 +153,7 @@ int main(void)
         printf("\n← <Client>: There are %s file to send\n", string_buffer);
 
         //from string to int
-        size_t n = atoi(string_buffer);
+        n = atoi(string_buffer);
 
         //matrice del server per la memorizzazione dei messaggi fatta sullo heap
         //msg_t msg_map[37][4];
@@ -187,8 +186,8 @@ int main(void)
         {
             // ------------------------FIFO_1-------------------------------------------
             errno = 0;
-             if((Br = read(fd1, &msg_buffer, sizeof(msg_buffer))) != -1) {
-                if(Br > 0){
+             if ((Br = read(fd1, &msg_buffer, sizeof(msg_buffer))) != -1) {
+                if (Br > 0) {
                     // salvo il messaggio
                     //printf("Il processo %ld manda in fifo1: <%s> \n", msg_buffer.client, msg_buffer.message)
                     msg_map[msg_buffer.client][FIFO1].client = msg_buffer.client;
@@ -209,12 +208,12 @@ int main(void)
                     //printf("→ <Server>: salvata parte %d del file: %s\n",FIFO1, msg_map[msg_buffer.client][FIFO1].name);
                     semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL);
                 }
-                else{
+                else {
                     //printf("→ <Server>: ho letto 0 caratteri\n");
                 }
             }
-             else{
-                 if(errno != EAGAIN){
+             else {
+                 if (errno != EAGAIN) {
                      errExit("read failed: \n");
                  }
              }
@@ -230,8 +229,8 @@ int main(void)
 
             //--------------------------FIFO_2-------------------------------------------
             errno = 0;
-            if((Br = read(fd2, &msg_buffer, sizeof(msg_buffer))) != -1) {
-                if(Br > 0){
+            if ((Br = read(fd2, &msg_buffer, sizeof(msg_buffer))) != -1) {
+                if (Br > 0) {
                     // salvo il messaggio
                     //printf("Il processo %ld manda in fifo2: <%s> \n", msg_buffer.client, msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO2].client = msg_buffer.client;
@@ -253,8 +252,8 @@ int main(void)
                     semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL);
                 }
             }
-            else{
-                if(errno != EAGAIN){
+            else {
+                if (errno != EAGAIN) {
                     errExit("read failed: \n");
                 }
             }
@@ -279,7 +278,7 @@ int main(void)
 
             if (res == -1 && errno == ENOMSG) {
                 //printf("→ <Server>: Non ci sono messaggi nella Message Queue\n");
-            } else if (res > 0){
+            } else if (res > 0) {
 
                 //salvo il messaggio
                 msg_map[msg_buffer.client][MSQ].client = msg_buffer.client;
@@ -302,8 +301,8 @@ int main(void)
             sop[SHM].sem_flg = IPC_NOWAIT;
 
             for (size_t id = 0; id < MAXMSG; id++) {
-                if(shmem[id].type == 1){
-                    if(semop(semid_sync, &sop[SHM], 1) == 0){
+                if (shmem[id].type == 1) {
+                    if (semop(semid_sync, &sop[SHM], 1) == 0) {
                         //semop()
                         //printf("Index: %zu: \n", id);
                         //printf("Sono nella shared memory sono: %d  \n", shmem[id].pid);
@@ -349,7 +348,7 @@ int main(void)
 
                     Br = write(fid, &msg, strlen(msg));
 
-                    if(Br == -1){
+                    if (Br == -1) {
                         errExit("write failed fifo1\n");
                     }
 
@@ -358,7 +357,7 @@ int main(void)
 
                     Br = write(fid, &msg, strlen(msg));
 
-                    if(Br == -1){
+                    if (Br == -1) {
                         errExit("write failed fifo2\n");
                     }
 
@@ -367,7 +366,7 @@ int main(void)
 
                     Br = write(fid, msg, strlen(msg));
 
-                    if(Br == -1){
+                    if (Br == -1) {
                         errExit("write failed MSQ\n");
                     }
 
@@ -376,7 +375,7 @@ int main(void)
 
                     Br = write(fid, &msg, strlen(msg));
 
-                    if(Br == -1){
+                    if (Br == -1) {
                         errExit("write failed SHMMEM\n");
                     }
 
