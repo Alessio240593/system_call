@@ -78,7 +78,7 @@ int check_size(const char *path)
         return -1;
     }
     else {
-        return buffer.st_size > MAX_FILE_SIZE;
+        return buffer.st_size <= MAX_FILE_SIZE;
     }
 }
 
@@ -171,14 +171,17 @@ int split_file(char** parts, int fd, size_t tot_char)
             //in modo tale che poi non venga piÃ¹ modificato il valore di chunk
             reminder = -1;
         }
-        parts[i] = (char *) calloc(chunk, sizeof(char));
-        MCHECK(parts[i]);
 
-        if ((Br = read(fd, parts[i], chunk)) == -1) {
-            return -1;
+        if (chunk != 0) {
+            parts[i] = (char *) calloc(chunk, sizeof(char));
+            MCHECK(parts[i]);
+
+            if ((Br = read(fd, parts[i], chunk)) == -1) {
+                return -1;
+            }
+
+            parts[i][Br] = '\0';
         }
-
-        parts[i][Br] = '\0';
     }
 
     // the fd is now reusable
@@ -229,7 +232,7 @@ int ends_with(const char *str, const char *end)
 int init_dirlist(dirlist_t *dirlist, const char *start_path) {
     char new_path[PATH_MAX];
     struct dirent *de;
-    // TODO controllare se max 100 file bisogna uscire
+
     DIR *dp = opendir(start_path);
 
     if (!dp) {
@@ -251,25 +254,25 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
             init_dirlist(dirlist, new_path);
         }
         else if (de->d_type == DT_REG) {
+
             if (check_string("sendme_", de->d_name) == 0 &&
                   ends_with(de->d_name, "_out") == 0 &&
                     check_size(start_path) == 0 &&
                       dirlist->index < MAX_FILE)
             {
-                    if (dirlist->index + 1 > dirlist->size) {
-                        dirlist->size *= 2;
-                        dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
-                        MCHECK(dirlist->list);
-                    }
+                if (dirlist->index + 1 > dirlist->size) {
+                    dirlist->size *= 2;
+                    dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
+                    MCHECK(dirlist->list);
+                }
 
-                    size_t to_alloc =  strlen(start_path) + strlen(de->d_name) + 1 + 1 + 1;
-                    dirlist->list[dirlist->index] = (char *) calloc(to_alloc , sizeof(char));
-                    MCHECK(dirlist->list[dirlist->index]);
+                size_t to_alloc =  strlen(start_path) + strlen(de->d_name) + 1 + 1 + 1;
+                dirlist->list[dirlist->index] = (char *) calloc(to_alloc , sizeof(char));
+                MCHECK(dirlist->list[dirlist->index]);
 
-                    snprintf(dirlist->list[dirlist->index], to_alloc, "%s/%s", start_path, de->d_name);
+                snprintf(dirlist->list[dirlist->index], to_alloc, "%s/%s", start_path, de->d_name);
 
-                    dirlist->index++;
-                //}
+                dirlist->index++;
             }
         }
     }
@@ -280,27 +283,7 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
     closedir(dp);
     return 0;
 }
-/**
- *  Prepara il messaggio da scrivere sul file di output
- * @param part -
- * @param path -
- * @param pid -
- * @param message
- * @return
- */
- /*
-char* parts_header(int part, const char *path, pid_t pid)
-{
-    const char *ipcs[] = {"FIFO_1", "FIFO_2", "MsgQueue", "ShdMem"};
-    //char *result = (char*) calloc(sizeof(char), MAX_LEN);
-    char result[MAX_LEN];
 
-    snprintf(result, MAX_LEN, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n",
-             part, path, pid, ipcs[part - 1]);
-
-    return result ;
-}
-*/
 /**
  * Controlla se <child> ha finito di inviare le <PARTS> parti al server
  * @param matrice - matrice N x PARTS che tiene traccia dei file inviati dal client
@@ -308,7 +291,7 @@ char* parts_header(int part, const char *path, pid_t pid)
  * @return 1 - in caso <child> non abbia terminato l'invio delle parti del file
  * @return 0 - in caso <child> abbia terminato l'invio delle parti del file
  */
-int child_finish(int matrice[37][4], size_t child)
+int has_child_finished(int **matrice, size_t child)
 {
     for (size_t i = 0; i < PARTS; ++i) {
         if(matrice[child][i] != 1){
@@ -318,23 +301,50 @@ int child_finish(int matrice[37][4], size_t child)
     return 0;
 }
 
-/// FUNZIONE DI DEBUG => NON CI SARÀ SUL PROGETTO FINALE
-int dump_dirlist(dirlist_t *dirlist, const char *filename)
+/**
+ * Appende la striga "_out" alla stringa passata come parametro
+ * @param string - stringa dove verrà appeso "_out"
+ * @return la stringa modificata
+ **/
+char *append_out(const char *string)
 {
-    FILE *fp;
-    size_t i;
+    //contiene il risultato
+    char result[PATH_MAX] = {0};
+    //array di supporto
+    char tmp[PATH_MAX] = {0};
+    //conta quanti caratteri ha letto per l'estensione
+    int occ = 0;
+    //copio la stringa passata in result
+    strncpy(result, string, strlen(string));
+    int i = strlen(result) - 1;
 
-    fp = fopen(filename, "w");
-    if (fp == NULL) {
-        fprintf(stderr, "Failed to open file %s\n", filename);
-        exit(EXIT_FAILURE);
+    //caso in cui la stringa non contenga l'estensione
+    if (strrchr(result, '.') == NULL || string[strlen(string) - 1] == '.') {
+        return strdup(strcat(result, "_out"));
     }
+        //altrimenti la stringa ha l'estensione
+    else {
+        //scorro finche non trovo il primo punto e salvo l'estensione in tmp
+        while (result[i] != '.') {
+            tmp[i] = result[i];
+            i--;
+            occ++;
+        }
 
-    for (i = 0; i < dirlist->index; i++) {
-        fprintf(fp, "%s\n", dirlist->list[i]);
+        int j = i;
+        //copio il punto e copio in tmp alla posizione giusta "_out"
+        tmp[i] = result[i];
+        result[i++] = '_';
+        result[i++] = 'o';
+        result[i++] = 'u';
+        result[i++] = 't';
+
+        // copio in result l'estensione dopo "_out"
+        for (int k = 0; k <= occ; k++) {
+            result[i++] = tmp[j++];
+        }
+
+        return strdup(result);
     }
-
-    fclose(fp);
-
-    return 0;
 }
+
