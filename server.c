@@ -27,15 +27,15 @@ void sigint_handler(int sig)
 {
     printf("\t→ <Server>: Received signal %s\n\n", signame[sig]);
 
-    if(fd1 >= 0) {
+    if (fd1 >= 0) {
         close_fd(fd1);
     }
 
-    if(fd2 >= 0) {
+    if (fd2 >= 0) {
         close_fd(fd2);
     }
 
-    if(fifo_flag){
+    if (fifo_flag){
     	printf("→ <Server>: Waiting for FIFO1 removal...\n");
         remove_fifo(FIFO_1, 1);
         printf("→ <Server>: Waiting for FIFO2 removal...\n");
@@ -43,23 +43,23 @@ void sigint_handler(int sig)
         fifo_flag = 0;
     }
     
-    if(msqid >= 0) {
+    if (msqid >= 0) {
     	printf("→ <Server>: Waiting for message queue n°%d removal...\n", KEYMSQ);
         remove_message_queue(msqid);
     }
 
-    if(shmid >= 0 && shmem != NULL) {
+    if (shmid >= 0 && shmem != NULL) {
         free_shared_memory(shmem);
         printf("→ <Server>: Waiting for shared memory n°%d removal...\n", KEYSHM);
         remove_shared_memory(shmid);
     }
 
-    if(semid_sync >= 0)	{
+    if (semid_sync >= 0)	{
     	printf("→ <Server>: Waiting for semaphore set n°%d removal...\n", KEYSEM_SYNC);
         remove_semaphore(semid_sync);
     }
     	
-    if(semid_counter >= 0) {
+    if (semid_counter >= 0) {
     	printf("→ <Server>: Waiting for semaphore set n°%d removal...\n", KEYSEM_COUNTER);
         remove_semaphore(semid_counter);
     }
@@ -142,7 +142,8 @@ int main(void)
     client_pid = msg_client_pid.pid;
 
     // only for debug (number of iteration)
-    int times = 1;
+    //int times = 1;
+
     while (1) {
         //waiting server write on fifo1
         printf("→ <Server>: Waiting Client response on FIFO1... \n");
@@ -156,14 +157,13 @@ int main(void)
         size_t n = atoi(string_buffer);
 
         //matrice del server per la memorizzazione dei messaggi fatta sullo heap
-        //msg_t** msg_map= (msg_t **) calloc(n, sizeof(msg_t *));
-        //matrice fatta sulllo stack
-        msg_t msg_map[37][4]; // TODO heap or stack? da sostituire row = 100
-        //allocazione di 4 colonne per ogni client che conterrà la parte 1...4
-        //for (size_t i = 0; i < n; i++) {
-        //    msg_map[i] = (msg_t *) calloc(PARTS, sizeof(msg_t));
-        //    MCHECK(msg_map[i]);
-        //}
+        //msg_t msg_map[37][4];
+        msg_t** msg_map= (msg_t **) calloc(n, sizeof(msg_t *));
+
+        for (size_t i = 0; i < n; i++) {
+            msg_map[i] = (msg_t *) calloc(PARTS, sizeof(msg_t));
+            MCHECK(msg_map[i]);
+        }
 
         //costruzione messaggio da scrivere sulla shmem
         snprintf(string_buffer, sizeof(string_buffer), "← <Server>: Sono pronto per la ricezione di %zu file\n\n", n);
@@ -172,8 +172,6 @@ int main(void)
         //sblocco il client in attesa di lettura
         semOp(semid_sync, SYNC_SHM, SIGNAL);
 
-        //serve per salvare il valore del semaforo per la trunc
-        //int val = 0;
         // buffer di appoggio per i messaggi
         msg_t msg_buffer;
         // Contiene i caratteri letti nelle fifo
@@ -183,9 +181,9 @@ int main(void)
         //sup si può usare al posto di cont
         //int sup[37] = {0};
         // serve per vedere se server ha letto tutti i file
-        int cont = 0;
-        // TODO controllare le iterazioni, non sono deterministiche (a volte funziona a volte va in loop) colpa di FIFO1 e FIFO2
-        while (cont < (37 * 4))
+        size_t cont = 0;
+
+        while (cont < (n * PARTS))
         {
             // ------------------------FIFO_1-------------------------------------------
             errno = 0;
@@ -276,11 +274,13 @@ int main(void)
 
             //--------------------------MESSAGE QUEUE----------------------------------------------
             errno = 0;
+
             res = msgrcv(msqid, &msg_buffer, MSGSIZE , 0, IPC_NOWAIT);
 
             if (res == -1 && errno == ENOMSG) {
                 //printf("→ <Server>: Non ci sono messaggi nella Message Queue\n");
             } else if (res > 0){
+
                 //salvo il messaggio
                 msg_map[msg_buffer.client][MSQ].client = msg_buffer.client;
                 msg_map[msg_buffer.client][MSQ].type = msg_buffer.type;
@@ -323,19 +323,26 @@ int main(void)
                     }
                 }
             }
+
+
             //printf("cont : %d\n", cont);
             char msg[PATH_MAX];
             char file_name[PATH_MAX];
+
             for (size_t child = 0; child < n; child++) {
-                if(msg_map[child][FIFO1].type == 1 && msg_map[child][FIFO2].type == 1
-                   && msg_map[child][MSQ].type == 1 && msg_map[child][SHM].type == 1) {
+                if (msg_map[child][FIFO1].type == 1 && msg_map[child][FIFO2].type == 1
+                   && msg_map[child][MSQ].type == 1 && msg_map[child][SHM].type == 1)
+                {
+                    //printf("msg_map[%zu][%d].name => %s\n", child, FIFO1, msg_map[child][FIFO1].name);
+                    //snprintf(file_name, PATH_MAX, "%s_out", msg_map[child][FIFO1].name);
+                    strncpy(file_name, append_out(msg_map[child][FIFO1].name), PATH_MAX);
+                    //printf("%s [%zu]\n", file_name, strlen(file_name));
 
-                    strcpy(file_name, msg_map[child][FIFO1].name);
+                    int fid = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 
-                    int fid = open(strcat(file_name, "_out"), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-
-                    if( fid == -1)
+                    if (fid == -1) {
                         errExit("open failed: \n");
+                    }
 
                     snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
                              1, msg_map[child][FIFO1].name, msg_map[child][FIFO1].pid, "FIFO1", msg_map[child][FIFO1].message);
@@ -346,7 +353,7 @@ int main(void)
                         errExit("write failed fifo1\n");
                     }
 
-                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
+                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
                              2, msg_map[child][FIFO2].name, msg_map[child][FIFO2].pid, "FIFO2", msg_map[child][FIFO2].message);
 
                     Br = write(fid, &msg, strlen(msg));
@@ -355,7 +362,7 @@ int main(void)
                         errExit("write failed fifo2\n");
                     }
 
-                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n %s \n",
+                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
                              3, msg_map[child][MSQ].name, msg_map[child][MSQ].pid, "MSQ",  msg_map[child][MSQ].message);
 
                     Br = write(fid, msg, strlen(msg));
@@ -373,18 +380,14 @@ int main(void)
                         errExit("write failed SHMMEM\n");
                     }
 
-                    //imposta type a 0 in modo che l'if iniziale non sia più true
-                    // per questo child dato che l'opeazione è stata completata
-                    // TODO linea 350 da decommentare sennò riscrive più volte
-                    //msg_map[child][MSQ].type = 0;
-                    //printf("processo %ld ha scritto il file\n", child + 1);
+
                     close(fid);
                 }
             }
             //("-------------------------------------------------------------------------------------------------\n\n%d\n\n", cont);
 
         }
-        printf("Ho finito la %d iterazione!!!!\n", times++);
+        //printf("Ho finito la %d iterazione!!!!\n", times++);
 
         //il server prepara il messaggio
         msg_t result;
