@@ -131,7 +131,6 @@ int main(int argc, char * argv[])
         printf("→ <Client-0>: Setting new mask UNBLOCK<NONE>...\n\n");
         sig_setmask(SIG_SETMASK, &mySet, &oldSet);
 
-
         // change working directory
         Chdir(path);
 
@@ -243,7 +242,6 @@ int main(int argc, char * argv[])
                             if (parts[FIFO1] != NULL) {
                                 strcpy(msgs[FIFO1].message, parts[FIFO1]);
                             } else {
-                                //printf("parts[%d] è NULL\n", FIFO1);
                                 strcpy(msgs[FIFO1].message, "");
                             }
 
@@ -268,7 +266,6 @@ int main(int argc, char * argv[])
 
                     //-----------------------FIFO_2-----------------------------
                     if (matrix_msg[child][FIFO2] != 1) {
-                        //open FIFO_2 in write only mode
                         fifo2_fd = open(FIFO_2, O_WRONLY | O_NONBLOCK);
                         SYSCHECK(fifo2_fd, "open2: ");
 
@@ -295,7 +292,6 @@ int main(int argc, char * argv[])
                             if (parts[FIFO2] != NULL)
                                 strcpy(msgs[FIFO2].message, parts[FIFO2]);
                             else {
-                                //printf("parts[%d] è NULL\n", FIFO2);
                                 strcpy(msgs[FIFO2].message, "");
                             }
 
@@ -344,7 +340,6 @@ int main(int argc, char * argv[])
                             if (parts[MSQ] != NULL)
                                 strcpy(msgs[MSQ].message, parts[MSQ]);
                             else {
-                                //printf("parts[%d] è NULL\n", MSQ);
                                 strcpy(msgs[MSQ].message, "");
                             }
 
@@ -388,7 +383,6 @@ int main(int argc, char * argv[])
                                     if (parts[SHM] != NULL)
                                         strcpy(shmem[id].message, parts[SHM]);
                                     else {
-                                        //printf("parts[%d] è NULL\n", SHM);
                                         strcpy(shmem[id].message, "");
                                     }
 
