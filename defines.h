@@ -75,7 +75,7 @@ int Chdir(const char *path);
 int split_file(char** parts, int fd, size_t tot_char);
 int init_dirlist(dirlist_t *dirlist, const char *start_path);
 int has_child_finished(int **matrice, size_t child);
-int ends_with(const char *str, const char *end);
+int ends_with(const char *str);
 char *append_out(const char *string);
 
 

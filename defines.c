@@ -47,6 +47,10 @@ char *get_FIFO_2(void) {
 **/
 int check_string(const char *string1, char *string2)
 {
+    if(strcmp(string1, string2) == 0){
+        return 0;
+    }
+
     if (string1 == NULL || string2 == NULL ||
         strlen(string1) > strlen(string2)) {
         return -1;
@@ -201,6 +205,7 @@ int split_file(char** parts, int fd, size_t tot_char)
  * @return 1 - in caso affermativo
  * @return R \ {1} - altrimenti
  */
+ /*
 int ends_with(const char *str, const char *end)
 {
     if (!str || !end) {
@@ -224,6 +229,23 @@ int ends_with(const char *str, const char *end)
 
     //return strncmp(str + strlen(token) - 4, "_out", 4);
     return i != out_len;
+}*/
+
+int ends_with(const char *str){
+     if (!str) {
+        return -1;
+    }
+
+    for (size_t i = 0; i < strlen(str); i++)
+    {
+        if(i < strlen(str) - 3 && str[i] ==  '_'){
+            if(str[i + 1] ==  'o' && str[i + 2] ==  'u' && str[i + 3] ==  't'){
+                return 0;
+            }
+        }
+    }
+
+    return 1;
 }
 
 /**
@@ -261,7 +283,7 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
         else if (de->d_type == DT_REG) {
 
             if (check_string("sendme_", de->d_name) == 0 &&
-                  ends_with(de->d_name, "_out") != 0 &&
+                  ends_with(de->d_name) == 1 &&
                     check_size(de->d_name) == 0 &&
                       dirlist->index < MAX_FILE)
             {

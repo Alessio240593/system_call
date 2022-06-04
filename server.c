@@ -156,7 +156,6 @@ int main(void)
         n = atoi(string_buffer);
 
         //matrice del server per la memorizzazione dei messaggi fatta sullo heap
-        //msg_t msg_map[37][4];
         msg_t** msg_map= (msg_t **) calloc(n, sizeof(msg_t *));
 
         for (size_t i = 0; i < n; i++) {
@@ -177,8 +176,6 @@ int main(void)
         ssize_t Br = 0;
         // risultato delle chiamate alle ipc
         int res = 0;
-        //sup si può usare al posto di cont
-        //int sup[37] = {0};
         // serve per vedere se server ha letto tutti i file
         size_t cont = 0;
 
@@ -186,69 +183,37 @@ int main(void)
         {
             // ------------------------FIFO_1-------------------------------------------
             errno = 0;
-             if ((Br = read(fd1, &msg_buffer, sizeof(msg_buffer))) != -1) {
+            if ((Br = read(fd1, &msg_buffer, sizeof(msg_buffer))) != -1) {
                 if (Br > 0) {
                     // salvo il messaggio
-                    //printf("Il processo %ld manda in fifo1: <%s> \n", msg_buffer.client, msg_buffer.message)
                     msg_map[msg_buffer.client][FIFO1].client = msg_buffer.client;
                     msg_map[msg_buffer.client][FIFO1].type = msg_buffer.type;
-                    //printf("fifo 1 type: %ld\n", msg_buffer.type);
-                    //printf("fifo 1 name: %s\n", msg_buffer.name);
-                    //printf("fifo 1 client: %ld\n", msg_buffer.client);
-                    //printf("fifo 1 messange: %s\n", msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO1].pid = msg_buffer.pid;
-                    strcpy(msg_map[msg_buffer.client][FIFO1].message , msg_buffer.message);
-                    //printf("\nsono fifo1: %s\n", msg_map[msg_buffer.client][FIFO1].message);
+                    strcpy(msg_map[msg_buffer.client][FIFO1].message , msg_buffer.message);                   
                     strcpy(msg_map[msg_buffer.client][FIFO1].name , msg_buffer.name);
-                    //printf("Il processo %ld riceve su fifo1: <%ld> \n", msg_buffer.client + 1, msg_map[msg_buffer.client][FIFO1].type);
                     cont++;
-                    //printf("fifo1 valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
                     //sblocco una posizione per la scrittura
-
-                    //printf("→ <Server>: salvata parte %d del file: %s\n",FIFO1, msg_map[msg_buffer.client][FIFO1].name);
                     semOp(semid_counter, MAX_SEM_FIFO1, SIGNAL);
-                }
-                else {
-                    //printf("→ <Server>: ho letto 0 caratteri\n");
                 }
             }
              else {
-                 if (errno != EAGAIN) {
-                     errExit("read failed: \n");
-                 }
+                if (errno != EAGAIN) {
+                    errExit("read failed: \n");
+                }
              }
-
-            //if ((val = semctl(semid_counter, MAX_SEM_FIFO1, GETVAL, 0)) == -1)
-            //    errExit("semctl GETVAL");
-
-            // if (val == MAXMSG) {
-            // trunc file attenzione un client potrebbe scrivere mentre si tronca, sezione critica?
-            //posso chiudere il file descriptor e riaprirlo con trunc?
-            //}
-            //printf("Post fifo1\n");
 
             //--------------------------FIFO_2-------------------------------------------
             errno = 0;
             if ((Br = read(fd2, &msg_buffer, sizeof(msg_buffer))) != -1) {
                 if (Br > 0) {
                     // salvo il messaggio
-                    //printf("Il processo %ld manda in fifo2: <%s> \n", msg_buffer.client, msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO2].client = msg_buffer.client;
                     msg_map[msg_buffer.client][FIFO2].type = msg_buffer.type;
-                    //printf("fifo 2 type: %ld\n", msg_buffer.type);
-                    //printf("fifo 2 name: %s\n", msg_buffer.name);
-                    //printf("fifo 2 client: %ld\n", msg_buffer.client);
-                    //printf("fifo 2 messange: %s\n", msg_buffer.message);
                     msg_map[msg_buffer.client][FIFO2].pid = msg_buffer.pid;
                     strcpy(msg_map[msg_buffer.client][FIFO2].message , msg_buffer.message);
-                    //printf("\nsono fifo2: %s\n", msg_map[msg_buffer.client][FIFO2].message);
                     strcpy(msg_map[msg_buffer.client][FIFO2].name , msg_buffer.name);
-                    //printf("Il processo %ld riceve su fifo2: <%ld> \n", msg_buffer.client + 1, msg_map[msg_buffer.client][FIFO2].type);
                     //sblocco una posizione per la scrittura
                     cont++;
-                    //printf("fifo2 valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
-                    //printf("→ <Server>: salvata parte %d del file: %s\n",FIFO2 + 1, msg_map[msg_buffer.client][FIFO2].name);
-
                     semOp(semid_counter, MAX_SEM_FIFO2, SIGNAL);
                 }
             }
@@ -258,38 +223,21 @@ int main(void)
                 }
             }
 
-            //if ((val = semctl(semid_counter, MAX_SEM_FIFO2, GETVAL, 0)) == -1) {
-            //    errExit("semctl GETVAL");
-            //}
-
-            //printf("Post fifo2\n");
-
-             //if(val == MAXMSG) {
-             //trunc file attenzione un client potrebbe scrivere mentre si tronca, sezione critica?
-                 //close(fd2);
-            //     fd2 = open(FIFO_2, O_RDONLY | O_NONBLOCK | O_TRUNC);
-            //     printf("<Server>: Ho troncato la fifo2\n");
-            // }
-
             //--------------------------MESSAGE QUEUE----------------------------------------------
             errno = 0;
 
             res = msgrcv(msqid, &msg_buffer, MSGSIZE , 0, IPC_NOWAIT);
 
-            if (res == -1 && errno == ENOMSG) {
-                //printf("→ <Server>: Non ci sono messaggi nella Message Queue\n");
+            if (res == -1 && errno != ENOMSG) {
+                errExit("msgrcv failed:");
             } else if (res > 0) {
-
                 //salvo il messaggio
                 msg_map[msg_buffer.client][MSQ].client = msg_buffer.client;
                 msg_map[msg_buffer.client][MSQ].type = msg_buffer.type;
                 msg_map[msg_buffer.client][MSQ].pid = msg_buffer.pid;
                 strcpy(msg_map[msg_buffer.client][MSQ].message , msg_buffer.message);
-                //printf("\nmsq: %s\n", msg_map[msg_buffer.client][MSQ].message);
                 strcpy(msg_map[msg_buffer.client][MSQ].name , msg_buffer.name);
                 cont++;
-                //printf("msq valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
-                //printf("→ <Server>: salvata parte %d del file: %s\n", MSQ + 1, msg_map[msg_buffer.client][MSQ].name);
                 semOp(semid_counter, MAX_SEM_MSQ, SIGNAL);
             }
 
@@ -303,28 +251,19 @@ int main(void)
             for (size_t id = 0; id < MAXMSG; id++) {
                 if (shmem[id].type == 1) {
                     if (semop(semid_sync, &sop[SHM], 1) == 0) {
-                        //semop()
-                        //printf("Index: %zu: \n", id);
-                        //printf("Sono nella shared memory sono: %d  \n", shmem[id].pid);
-                        // salvo il messaggio
                         msg_map[shmem[id].client][SHM].client = shmem[id].client;
                         msg_map[shmem[id].client][SHM].pid = shmem[id].pid;
                         msg_map[shmem[id].client][SHM].type = shmem[id].type;
                         strcpy(msg_map[shmem[id].client][SHM].name , shmem[id].name);
                         strcpy(msg_map[shmem[id].client][SHM].message, shmem[id].message);
-                        //printf("\nsharedmem: %s\n", shmem[id].message);
                         shmem[id].type = 0;
                         cont++;
-                        //printf("shared memory valore : %d processo n %ld\n", (sup[msg_buffer.client]), msg_buffer.client);
-                        // svuota il messaggio
-                        //printf("→ <Server>: salvata parte %d del file: %s\n", SHM + 1, msg_map[shmem[index].client][SHM].name);
                         semOp(semid_sync, SEMSHM, SIGNAL);
                     }
                 }
             }
-
-
-            //printf("cont : %d\n", cont);
+            
+            //scrivo nei file out i vari messaggi
             char msg[PATH_MAX];
             char file_name[PATH_MAX];
 
@@ -332,11 +271,8 @@ int main(void)
                 if (msg_map[child][FIFO1].type == 1 && msg_map[child][FIFO2].type == 1
                    && msg_map[child][MSQ].type == 1 && msg_map[child][SHM].type == 1)
                 {
-                    //printf("msg_map[%zu][%d].name => %s\n", child, FIFO1, msg_map[child][FIFO1].name);
-                    //snprintf(file_name, PATH_MAX, "%s_out", msg_map[child][FIFO1].name);
                     strncpy(file_name, append_out(msg_map[child][FIFO1].name), PATH_MAX);
-                    //printf("%s [%zu]\n", file_name, strlen(file_name));
-
+					
                     int fid = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 
                     if (fid == -1) {
@@ -383,10 +319,8 @@ int main(void)
                     close(fid);
                 }
             }
-            //("-------------------------------------------------------------------------------------------------\n\n%d\n\n", cont);
 
         }
-        //printf("Ho finito la %d iterazione!!!!\n", times++);
 
         //il server prepara il messaggio
         msg_t result;
@@ -397,9 +331,5 @@ int main(void)
         msgsnd(msqid, &result, MSGSIZE, 0);
         //sblocca il client
         semOp(semid_sync, SYNCH_MSQ, SIGNAL);
-
-        //printf("%s", result.message);
-        //printf("\n\n ho letto QUASI tutto!\n\n");
-        //per ogni processo che ha consegnato tutte 4 le parti salvarle in un file (vedi pdf -> server)
     }
 }
