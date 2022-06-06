@@ -7,37 +7,6 @@
 #include "err_exit.h"
 
 /**
- * Concatena $HOME al percorso relativo di myDir e FIFO_1
- * @return - il percorso assoluto alla FIFO_1
- */
-char *get_FIFO_1(void) {
-    char *path = (char *) calloc(MAX_LEN, sizeof(char));
-    if (!path) {
-        errExit("malloc failed: ");
-    }
-
-    //snprintf(path, MAX_LEN, "%s/myDir/fifo1", getenv("HOME"));
-    snprintf(path, MAX_LEN, "/tmp/fifo1");
-
-    return path;
-}
-
-/**
- * Concatena $HOME al percorso relativo di myDir e FIFO_2
- * @return - il percorso assoluto alla FIFO_2
- */
-char *get_FIFO_2(void) {
-    char *path = (char *) calloc(MAX_LEN, sizeof(char));
-    if (!path) {
-        errExit("malloc failed: ");
-    }
-    
-    snprintf(path, MAX_LEN, "/tmp/fifo2");
-
-    return path;
-}
-
-/**
  * Controlla se string2 inizia con gli stessi caratteri di string1
  * @param string1 - stringa per il controllo
  * @param string2 - stringa da controllare
@@ -204,35 +173,9 @@ int split_file(char** parts, int fd, size_t tot_char)
 /**
  * Controlla se all'interno della stringa è presente "_out"
  * @param str - stringa in input
- * @return 1 - in caso affermativo
- * @return R \ {1} - altrimenti
+ * @return 0 - in caso affermativo
+ * @return 1- altrimenti
  */
- /*
-int ends_with(const char *str, const char *end)
-{
-    if (!str || !end) {
-        return -1;
-    }
-
-    char *token = strtok(strdup(str), ".");
-    //return strncmp(str + strlen(token) - 4, "_out", 4);
-
-    size_t out_len = strlen(end);
-    int offset = strlen(token) - out_len;
-
-    if (offset < 0) {
-        return -1;
-    }
-
-    size_t i = 0;
-    while (i < out_len && token[offset + i] == end[i]) {
-        i += 1;
-    }
-
-    //return strncmp(str + strlen(token) - 4, "_out", 4);
-    return i != out_len;
-}*/
-
 int ends_with(const char *str){
      if (!str) {
         return -1;
@@ -248,23 +191,6 @@ int ends_with(const char *str){
     }
 
     return 1;
-}
-
-/**
- * Costruisce il percorso assoluto al file
- * @param file_path - cartella dove risieda il file
- * @param file_name - nome del file
- * @return abs_path - percorso assoluto al file
- */
-char *new_filename(const char *file_path, const char *file_name)
-{
-    size_t to_alloc =  strlen(file_path) + strlen(file_name) + 1 + 1 + 1;
-    char *abs_path = (char *) calloc(to_alloc, sizeof(char));
-
-    if (abs_path)
-        snprintf(abs_path, to_alloc, "%s/%s", file_path, file_name);
-
-    return abs_path;
 }
 
 /**
@@ -302,29 +228,25 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path)
         }
         else if (de->d_type == DT_REG) {
 
-            char *candidate = strdup(new_filename(start_path, de->d_name));
+            //char *candidate = strdup(new_filename(start_path, de->d_name));
 
             if (check_string("sendme_", de->d_name) == 0 &&
                   ends_with(de->d_name) == 1 &&
-                    candidate != NULL &&
-                      check_size(candidate) == 0 &&
-                        dirlist->index < MAX_FILE)
-            {
+                      check_size(start_path) == 0 &&
+                        dirlist->index < MAX_FILE) {
                 if (dirlist->index + 1 > dirlist->size) {
                     dirlist->size *= 2;
                     dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
                     MCHECK(dirlist->list);
                 }
 
-                dirlist->list[dirlist->index] = strdup(candidate);
-                // meglio copiare l'indirizzo che la stringa, peccato che vada in segfault
-                //*(dirlist->list[dirlist->index]) = *candidate;
+                size_t to_alloc =  strlen(start_path) + strlen(de->d_name) + 1 + 1 + 1;
+                dirlist->list[dirlist->index] = (char *) calloc(to_alloc , sizeof(char));
                 MCHECK(dirlist->list[dirlist->index]);
 
+                snprintf(dirlist->list[dirlist->index], to_alloc, "%s/%s", start_path, de->d_name);
                 dirlist->index++;
             }
-
-            free(candidate);
         }
     }
 

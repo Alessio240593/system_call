@@ -142,7 +142,6 @@ int main(void)
     size_t n;
     struct sembuf sop[PARTS];
 
-
     while (1) {
         //waiting server write on fifo1
         printf("→ <Server>: Waiting Client response on FIFO1... \n");
@@ -314,7 +313,6 @@ int main(void)
                     if (Br == -1) {
                         errExit("write failed SHMMEM\n");
                     }
-
 
                     close(fid);
                 }

@@ -46,27 +46,6 @@ void sig_remove(sigset_t *mySet, int num, ...)
 }
 
 /**
- * aggiunge dei segnali al set passato come argomento
- * @param mySet - identificatore dell'insieme dei segnali
- * @param num - numero di segnali da rimuovere
- * @param ... - uno o più segnali da rimuovere
- */
-void sig_add(sigset_t *mySet, int num, ...)
-{
-    va_list valist;
-
-    va_start(valist, num);
-
-    for (int i = 0; i < num; i++) {
-        if((sigaddset(mySet,va_arg(valist, int) == -1))) {
-            errExit("siaddset failed: ");
-        }
-    }
-
-    va_end(valist);
-}
-
-/**
  * imposta <myset> come maschera dei segnali per il processo corrente
  * @param flag - determina il cambiamento che la funzione apporta alla maschera
  * @param mySet - identificatore dell'insieme dei segnali per il processo corrente

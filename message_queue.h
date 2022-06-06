@@ -14,15 +14,11 @@
 
 #include "defines.h"
 
-//#define MSG_LEN 1024
-#define MSGSIZE (sizeof(struct __msg_t) - sizeof(long)) //controllare primo sizeof
+#define MSGSIZE (sizeof(struct __msg_t) - sizeof(long))
 #define KEYMSQ 104
-
 
 int alloc_message_queue(key_t msqKey);
 int get_message_queue(key_t msqKey);
-void msg_send(int msqid, void *msg, int msgflg);
-void msg_receive(int msqid, void *msg, long msgtype, int msgflg);
 void remove_message_queue(int msqid);
 
 #endif //SYSTEM_CALL_MESSAGE_QUEUE_H

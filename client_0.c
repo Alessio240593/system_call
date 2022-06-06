@@ -12,7 +12,6 @@
 #include "err_exit.h"
 #include <string.h>
 
-
 extern const char *signame[];
 const char *path;
 
@@ -54,7 +53,6 @@ int main(int argc, char * argv[])
     // set path
     path = strdup(argv[1]);
 
-
     // create an empty signal set
     sigset_t mySet;
     sigset_t oldSet;
@@ -90,7 +88,6 @@ int main(int argc, char * argv[])
     printf("→ <Client-0>: Waiting semaphore set n°%d synchronization...\n", KEYSEM_COUNTER);
     int semid_counter = get_semaphore(KEYSEM_COUNTER, SEMNUM_COUNTER);
 
-
     pid_t proc_pid = getpid();
     msg_t pid_msg;
     pid_msg.type = 1;
@@ -119,7 +116,6 @@ int main(int argc, char * argv[])
     size_t child;
     pid_t pid;
 
-
     while (1) {
         //wait for a signal
         pause();
@@ -144,12 +140,10 @@ int main(int argc, char * argv[])
         dir_list->size = 1;
         dir_list->list = (char **) calloc(dir_list->size, sizeof(char *));
         MCHECK(dir_list->list);
-
         init_dirlist(dir_list, path);
-
         // open FIFO_1 in write only mode
         fifo1_fd = open(FIFO_1, O_WRONLY | O_NONBLOCK);
-        SYSCHECK(fifo1_fd, "open1: ");
+        SYSCHECK(fifo1_fd, "open: ");
 
         snprintf(buffer, LEN_INT, "%zu", dir_list->size);
 
@@ -179,7 +173,6 @@ int main(int argc, char * argv[])
             MCHECK(matrix_msg[i]);
         }
 
-
         // start creation
         for (child = 0; child < dir_list->index; child++) {
             pid = fork();
@@ -198,7 +191,7 @@ int main(int argc, char * argv[])
                 waiting = semctl(semid_sync, SEMCHILD, GETZCNT, 0);
                 if (waiting == -1) {
                     errExit("semctl failed: ");
-                } else if (waiting == 0 && dir_list->index == 0) {
+                } else if (waiting == 0 && dir_list->index == 1) {
                     // no-OP
                 } else if (waiting == (int) (dir_list->index - 1)) {
                     // Figlio prediletto forse è -1 perchè conta child file in attesa
@@ -229,7 +222,7 @@ int main(int argc, char * argv[])
                         res = semop(semid_counter, &sop[FIFO1], 1);
 
                         if (res == -1 && errno == EAGAIN) {
-                            semOp(semid_counter, MAX_SEM_FIFO1, IPC_NOWAIT);
+                            //no-Op
                         } else if (res == -1) {
                             errExit("semop failed: ");
                         } else {
@@ -279,7 +272,7 @@ int main(int argc, char * argv[])
                         res = semop(semid_counter, &sop[FIFO2], 1);
 
                         if (res == -1 && errno == EAGAIN) {
-                            semOp(semid_counter, MAX_SEM_FIFO2, IPC_NOWAIT);
+                            ////no-Op
                         } else if (res == -1) {
                             errExit("semop failed: ");
                         } else {
