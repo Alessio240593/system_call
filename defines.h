@@ -74,6 +74,7 @@ void sigint_handler(int sig);
 int Chdir(const char *path);
 int split_file(char** parts, int fd, size_t tot_char);
 int init_dirlist(dirlist_t *dirlist, const char *start_path);
+char *new_filename(const char *file_path, const char *file_name);
 int has_child_finished(int **matrice, size_t child);
 int ends_with(const char *str);
 char *append_out(const char *string);

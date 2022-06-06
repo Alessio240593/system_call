@@ -79,7 +79,9 @@ int check_size(const char *path)
     errno = 0;
 
     if ((stat(path, &buffer)) == -1 && errno != 0) {
-        perror("stat failed: ");
+        char msg[PATH_MAX];
+        snprintf(msg, PATH_MAX, "stat failed: %s ", path);
+        perror(msg);
         return -1;
     }
     else {
@@ -249,6 +251,23 @@ int ends_with(const char *str){
 }
 
 /**
+ * Costruisce il percorso assoluto al file
+ * @param file_path - cartella dove risieda il file
+ * @param file_name - nome del file
+ * @return abs_path - percorso assoluto al file
+ */
+char *new_filename(const char *file_path, const char *file_name)
+{
+    size_t to_alloc =  strlen(file_path) + strlen(file_name) + 1 + 1 + 1;
+    char *abs_path = (char *) calloc(to_alloc, sizeof(char));
+
+    if (abs_path)
+        snprintf(abs_path, to_alloc, "%s/%s", file_path, file_name);
+
+    return abs_path;
+}
+
+/**
  * Ricerca ricorsivamente i file che iniziano con sendme_ e hanno # inferiore a 4K
  * @param dirlist - struttura contenente i percorsi dei file
  * @param start_path - percorso di partenza della ricerca
@@ -256,7 +275,8 @@ int ends_with(const char *str){
  * @return 1 - in caso di errore di allocazione della memoria
  * @return 2 - in caso la system call opendir fallisca
 **/
-int init_dirlist(dirlist_t *dirlist, const char *start_path) {
+int init_dirlist(dirlist_t *dirlist, const char *start_path)
+{
     char new_path[PATH_MAX];
     struct dirent *de;
 
@@ -282,10 +302,13 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
         }
         else if (de->d_type == DT_REG) {
 
+            char *candidate = strdup(new_filename(start_path, de->d_name));
+
             if (check_string("sendme_", de->d_name) == 0 &&
                   ends_with(de->d_name) == 1 &&
-                    check_size(de->d_name) == 0 &&
-                      dirlist->index < MAX_FILE)
+                    candidate != NULL &&
+                      check_size(candidate) == 0 &&
+                        dirlist->index < MAX_FILE)
             {
                 if (dirlist->index + 1 > dirlist->size) {
                     dirlist->size *= 2;
@@ -293,14 +316,15 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path) {
                     MCHECK(dirlist->list);
                 }
 
-                size_t to_alloc =  strlen(start_path) + strlen(de->d_name) + 1 + 1 + 1;
-                dirlist->list[dirlist->index] = (char *) calloc(to_alloc , sizeof(char));
+                dirlist->list[dirlist->index] = strdup(candidate);
+                // meglio copiare l'indirizzo che la stringa, peccato che vada in segfault
+                //*(dirlist->list[dirlist->index]) = *candidate;
                 MCHECK(dirlist->list[dirlist->index]);
-
-                snprintf(dirlist->list[dirlist->index], to_alloc, "%s/%s", start_path, de->d_name);
 
                 dirlist->index++;
             }
+
+            free(candidate);
         }
     }
 

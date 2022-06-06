@@ -198,7 +198,7 @@ int main(int argc, char * argv[])
                 waiting = semctl(semid_sync, SEMCHILD, GETZCNT, 0);
                 if (waiting == -1) {
                     errExit("semctl failed: ");
-                } else if (waiting == 0) {
+                } else if (waiting == 0 && dir_list->index == 0) {
                     // no-OP
                 } else if (waiting == (int) (dir_list->index - 1)) {
                     // Figlio prediletto forse è -1 perchè conta child file in attesa
