@@ -15,10 +15,7 @@
 #include "defines.h"
 
 #define SHMSIZE MAXMSG * sizeof(msg_t) //controllare sizeof
-#define SUPPORTO_SIZE MAXMSG * sizeof(int)
 #define KEYSHM 100
-#define KEY_SUPPORT 101
-
 
 int alloc_shared_memory(key_t shmKey, size_t size);
 int get_shared_memory(key_t shmKey, size_t size);

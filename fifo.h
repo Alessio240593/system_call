@@ -12,7 +12,6 @@
 #include <fcntl.h>
 
 void make_fifo(const char *path, int num);
-int open_fifo(const char *path, int mode, int block);
 ssize_t write_fifo(int fd, void *buf, ssize_t size);
 ssize_t read_fifo(int fd, int num, void *buf, ssize_t size);
 void close_fd(int fd);

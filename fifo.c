@@ -20,23 +20,6 @@ void make_fifo(const char *path, int num)
 }
 
 /**
- * Apre una fifo nella modalità passata da <mode>
- * @param path - fifo path
- * @param mode - modalità di apertura della fifo
- * @return fd - file descriptor associato alla fifo
- */
-int open_fifo(const char *path, int mode, int block)
-{
-    int fd = open(path, mode, block);
-
-    if(fd == -1){
-        errExit("open failed: ");
-    }
-
-    return fd;
-}
-
-/**
  * Scrivi sulla fifo <size> byte
  * @param fd - fifo file descriptor
  * @param buf - buffer contenente i dati da scrivere

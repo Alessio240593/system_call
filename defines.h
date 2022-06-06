@@ -27,8 +27,8 @@
 #define MAX_FILE 100
 
 // FIFOs path
-#define FIFO_1 get_FIFO_1()
-#define FIFO_2 get_FIFO_2()
+#define FIFO_1 "/tmp/fifo1"
+#define FIFO_2 "/tmp/fifo2"
 
 // define IPCs index
 #define FIFO1 0
@@ -38,10 +38,10 @@
 
 
 #define MCHECK(ptr)  if (ptr == NULL) { \
-                        perror("malloc "); \
+                        perror("malloc"); \
                         return 1;       \
                      }
-// TODO da controllare
+
 #define SYSCHECK(ret, type)     if (ret == -1){  \
                                     perror(type); \
                                     return 1;      \
@@ -63,8 +63,6 @@ typedef struct __msg_t {
 } msg_t;
 
 
-char *get_FIFO_1(void);
-char *get_FIFO_2(void);
 int check_string(const char *string1, char *string2);
 int check_size(const char *path);
 ssize_t count_char(int fd);
@@ -74,7 +72,6 @@ void sigint_handler(int sig);
 int Chdir(const char *path);
 int split_file(char** parts, int fd, size_t tot_char);
 int init_dirlist(dirlist_t *dirlist, const char *start_path);
-char *new_filename(const char *file_path, const char *file_name);
 int has_child_finished(int **matrice, size_t child);
 int ends_with(const char *str);
 char *append_out(const char *string);

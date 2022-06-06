@@ -62,34 +62,6 @@ if(res == -1){
     }
 }
 
-
-/**
- * Esegue un operazione non bloccante sul set di semafori
- * @param semid - id del set di semafori
- * @param sem_num - numero del semaforo su cui eseguire l'operazione
- * @param sem_op - tipo di operazione
- */
-int semOp_no_wait (int semid, unsigned short sem_num, short sem_op)
-{
-    struct sembuf sop = {.sem_num = sem_num, .sem_op = sem_op, .sem_flg = IPC_NOWAIT};
-
-    errno = 0;
-
-    int res = semop(semid, &sop, 1);
-
-    if(res == -1 && errno == EAGAIN)
-    {
-        //printf("→ <Server>: %s occupata!\n", sem_num == SEMSHM ? "Shared memory" : "Semaphore set");
-        return EAGAIN;
-    }
-    else if(res == -1){
-        printf("semaforo numero: %d: ", sem_num);
-        errExit("semop failed: ");
-    }
-
-    return 0;
-}
-
 /**
  * Elimina il set di semafori
  * @param semid - id del set di semafori
