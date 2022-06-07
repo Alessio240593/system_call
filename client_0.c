@@ -160,11 +160,6 @@ int main(int argc, char * argv[])
         // print shmem data
         printf("%s", shmem->message);
 
-        // allocazione
-        //parts = (char **) calloc(PARTS, sizeof(char *));
-        //MCHECK(parts);
-        //char parts[PARTS][];
-
         // matrice del server per la memorizzazione dei messaggi
         matrix_msg = (int **) calloc(dir_list->index, sizeof(int *));
         MCHECK(matrix_msg);

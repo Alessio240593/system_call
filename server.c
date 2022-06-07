@@ -281,7 +281,7 @@ int main(void)
                         errExit("open failed: \n");
                     }
 
-                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
+                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n\n",
                              1, msg_map[child][FIFO1].name, msg_map[child][FIFO1].pid, "FIFO1", msg_map[child][FIFO1].message);
 
                     Br = write(fid, &msg, strlen(msg));
@@ -290,7 +290,7 @@ int main(void)
                         errExit("write failed fifo1\n");
                     }
 
-                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
+                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n\n",
                              2, msg_map[child][FIFO2].name, msg_map[child][FIFO2].pid, "FIFO2", msg_map[child][FIFO2].message);
 
                     Br = write(fid, &msg, strlen(msg));
@@ -299,7 +299,7 @@ int main(void)
                         errExit("write failed fifo2\n");
                     }
 
-                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
+                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n\n",
                              3, msg_map[child][MSQ].name, msg_map[child][MSQ].pid, "MSQ",  msg_map[child][MSQ].message);
 
                     Br = write(fid, msg, strlen(msg));
@@ -308,7 +308,7 @@ int main(void)
                         errExit("write failed MSQ\n");
                     }
 
-                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n",
+                    snprintf(msg, PATH_MAX, "[Parte %d del file %s, spedita dal processo %d tramite %s]\n%s\n\n",
                              4, msg_map[child][SHM].name, msg_map[child][SHM].pid, "SHMEM", msg_map[child][SHM].message);
 
                     Br = write(fid, &msg, strlen(msg));

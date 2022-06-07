@@ -153,8 +153,6 @@ int split_file(char parts[][1025], int fd, size_t tot_char)
         }
 
         if (chunk != 0) {
-            //parts[i] = (char *) calloc(chunk, sizeof(char));
-            //MCHECK(parts[i]);
 
             if ((Br = read(fd, parts[i], chunk)) == -1) {
                 return -1;
@@ -228,18 +226,10 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path)
         }
         else if (de->d_type == DT_REG) {
 
-            //char *candidate = strdup(new_filename(start_path, de->d_name));
-
             if (check_string("sendme_", de->d_name) == 0 &&
                   ends_with(de->d_name) == 1 &&
                       check_size(start_path) == 0 &&
                         dirlist->index < MAX_FILE) {
-                /*if (dirlist->index + 1 > dirlist->size) {
-                    dirlist->size *= 2;
-                    dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
-                    printf("pre malloc1\n");
-                    MCHECK(dirlist->list);
-                }*/
 
                 size_t to_alloc =  strlen(start_path) + strlen(de->d_name) + 1 + 1 + 1;
                 dirlist->list[dirlist->index] = (char *) calloc(to_alloc , sizeof(char));
@@ -251,8 +241,6 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path)
         }
     }
 
-    //dirlist->size = dirlist->index;
-    //dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
 
     closedir(dp);
     return 0;
