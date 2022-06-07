@@ -137,7 +137,7 @@ int main(int argc, char * argv[])
         MCHECK(dir_list);
 
         dir_list->index = 0;
-        dir_list->size = 1;
+        dir_list->size = 100;
         dir_list->list = (char **) calloc(dir_list->size, sizeof(char *));
         MCHECK(dir_list->list);
         init_dirlist(dir_list, path);

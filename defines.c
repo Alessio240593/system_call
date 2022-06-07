@@ -234,11 +234,12 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path)
                   ends_with(de->d_name) == 1 &&
                       check_size(start_path) == 0 &&
                         dirlist->index < MAX_FILE) {
-                if (dirlist->index + 1 > dirlist->size) {
+                /*if (dirlist->index + 1 > dirlist->size) {
                     dirlist->size *= 2;
                     dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
+                    printf("pre malloc1\n");
                     MCHECK(dirlist->list);
-                }
+                }*/
 
                 size_t to_alloc =  strlen(start_path) + strlen(de->d_name) + 1 + 1 + 1;
                 dirlist->list[dirlist->index] = (char *) calloc(to_alloc , sizeof(char));
@@ -250,8 +251,8 @@ int init_dirlist(dirlist_t *dirlist, const char *start_path)
         }
     }
 
-    dirlist->size = dirlist->index;
-    dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
+    //dirlist->size = dirlist->index;
+    //dirlist->list = (char **) realloc(dirlist->list, dirlist->size * sizeof(char *));
 
     closedir(dp);
     return 0;
