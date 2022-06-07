@@ -101,7 +101,7 @@ int main(int argc, char * argv[])
     char buffer[LEN_INT];
     dirlist_t *dir_list;
     int **matrix_msg;
-    char **parts;
+    char parts[PARTS][1025];
     msg_t result;
     msg_t msgs[PARTS];
     struct sembuf sop[PARTS]; // counter to MAX
@@ -145,7 +145,7 @@ int main(int argc, char * argv[])
         fifo1_fd = open(FIFO_1, O_WRONLY | O_NONBLOCK);
         SYSCHECK(fifo1_fd, "open: ");
 
-        snprintf(buffer, LEN_INT, "%zu", dir_list->size);
+        snprintf(buffer, LEN_INT, "%zu", dir_list->index);
 
         // write on fifo
         write_fifo(fifo1_fd, buffer, LEN_INT);
@@ -161,8 +161,9 @@ int main(int argc, char * argv[])
         printf("%s", shmem->message);
 
         // allocazione
-        parts = (char **) calloc(PARTS, sizeof(char *));
-        MCHECK(parts);
+        //parts = (char **) calloc(PARTS, sizeof(char *));
+        //MCHECK(parts);
+        //char parts[PARTS][];
 
         // matrice del server per la memorizzazione dei messaggi
         matrix_msg = (int **) calloc(dir_list->index, sizeof(int *));
@@ -421,12 +422,12 @@ int main(int argc, char * argv[])
             free(matrix_msg[i]);
         }
 
-        for (size_t i = 0; i < PARTS; i++) {
+        /*for (size_t i = 0; i < PARTS; i++) {
             if (parts[i] != NULL)
                 free(parts[i]);
-        }
+        }*/
 
-        free(parts);
+        //free(parts);
         free(matrix_msg);
         free(dir_list->list);
         free(dir_list);

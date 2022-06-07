@@ -131,12 +131,12 @@ int Chdir(const char *path)
  * @return 0 - in caso di successo
  * @return R \ {0} - altrimenti
  */
-int split_file(char** parts, int fd, size_t tot_char)
+int split_file(char parts[][1025], int fd, size_t tot_char)
 {
     size_t chunk = tot_char / PARTS;
     ssize_t Br;
     size_t reminder = tot_char % PARTS;
-
+    
     if (reminder != 0)
         chunk++;
     else
@@ -153,8 +153,8 @@ int split_file(char** parts, int fd, size_t tot_char)
         }
 
         if (chunk != 0) {
-            parts[i] = (char *) calloc(chunk, sizeof(char));
-            MCHECK(parts[i]);
+            //parts[i] = (char *) calloc(chunk, sizeof(char));
+            //MCHECK(parts[i]);
 
             if ((Br = read(fd, parts[i], chunk)) == -1) {
                 return -1;
