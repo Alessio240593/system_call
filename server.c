@@ -155,12 +155,15 @@ int main(void)
         n = atoi(string_buffer);
 
         //matrice del server per la memorizzazione dei messaggi fatta sullo heap
+        /*
         msg_t** msg_map= (msg_t **) calloc(n, sizeof(msg_t *));
 
         for (size_t i = 0; i < n; i++) {
             msg_map[i] = (msg_t *) calloc(PARTS, sizeof(msg_t));
             MCHECK(msg_map[i]);
         }
+        */
+        msg_t msg_map[100][PARTS];
 
         //costruzione messaggio da scrivere sulla shmem
         snprintf(string_buffer, sizeof(string_buffer), "← <Server>: Sono pronto per la ricezione di %zu file\n\n", n);

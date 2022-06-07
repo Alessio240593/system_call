@@ -20,6 +20,7 @@
 #include <linux/limits.h>
 
 #define MAX_FILE_SIZE 4096
+#define MAX_IPC_SIZE 1025
 #define MAX_LEN 512
 #define LEN_INT 11
 #define PARTS 4
@@ -59,7 +60,7 @@ typedef struct __msg_t {
     size_t client;
     pid_t pid;
     char name[MAX_LEN];
-    char message[MAX_LEN];
+    char message[MAX_IPC_SIZE];
 } msg_t;
 
 
@@ -70,7 +71,7 @@ int is_dir(const char *_path);
 void sigusr1_handler(int sig);
 void sigint_handler(int sig);
 int Chdir(const char *path);
-int split_file(char** parts, int fd, size_t tot_char);
+int split_file(char parts[][1025], int fd, size_t tot_char);
 int init_dirlist(dirlist_t *dirlist, const char *start_path);
 int has_child_finished(int **matrice, size_t child);
 int ends_with(const char *str);
