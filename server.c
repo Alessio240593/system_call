@@ -317,6 +317,11 @@ int main(void)
                         errExit("write failed SHMMEM\n");
                     }
 
+                    msg_map[child][FIFO1].type = 0;
+                    msg_map[child][FIFO2].type = 0;
+                    msg_map[child][MSQ].type = 0;
+                    msg_map[child][SHM].type = 0;
+                    
                     close(fid);
                 }
             }
