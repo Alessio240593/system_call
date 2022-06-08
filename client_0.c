@@ -70,7 +70,6 @@ int main(int argc, char * argv[])
     sig_sethandler(SIGINT, sigint_handler);
     sig_sethandler(SIGUSR1, sigusr1_handler);
 
-
     // get message queue
     printf("→ <Client-0>: Waiting message queue n°%d synchronization...\n", KEYMSQ);
     int msqid = get_message_queue(KEYMSQ);
@@ -88,6 +87,7 @@ int main(int argc, char * argv[])
     printf("→ <Client-0>: Waiting semaphore set n°%d synchronization...\n", KEYSEM_COUNTER);
     int semid_counter = get_semaphore(KEYSEM_COUNTER, SEMNUM_COUNTER);
 
+    // preparo il pid da inviare al server
     pid_t proc_pid = getpid();
     msg_t pid_msg;
     pid_msg.type = 1;
@@ -104,7 +104,7 @@ int main(int argc, char * argv[])
     char parts[PARTS][1025];
     msg_t result;
     msg_t msgs[PARTS];
-    struct sembuf sop[PARTS]; // counter to MAX
+    struct sembuf sop[PARTS];
     struct sembuf shm_sync;
     int waiting;
     int res = 0;
@@ -115,6 +115,20 @@ int main(int argc, char * argv[])
     int sendme_fd = 0;
     size_t child;
     pid_t pid;
+
+    // togliere i commenti per far funzionare il path relativo (119-131 // 162)
+    /*char current_wd[PATH_MAX];
+    char path_tmp[PATH_MAX];
+    char* tmp = strdup(path);
+
+    if(tmp[0] != 47) {
+        getcwd(current_wd, PATH_MAX);
+        strcpy(path_tmp, strcat(current_wd , "/"));
+        strcat(path_tmp, path);
+    }
+    else{
+        strcpy(path_tmp, path);
+    }*/
 
     while (1) {
         //wait for a signal
@@ -140,7 +154,13 @@ int main(int argc, char * argv[])
         dir_list->size = 100;
         dir_list->list = (char **) calloc(dir_list->size, sizeof(char *));
         MCHECK(dir_list->list);
+
+        // commentare se si usa path assoluto e relativo
         init_dirlist(dir_list, path);
+
+        //togliere i commenti per usare il path assoluto e relativo
+        //init_dirlist(dir_list, path_tmp);
+
         // open FIFO_1 in write only mode
         fifo1_fd = open(FIFO_1, O_WRONLY | O_NONBLOCK);
         SYSCHECK(fifo1_fd, "open: ");
@@ -417,16 +437,9 @@ int main(int argc, char * argv[])
             free(matrix_msg[i]);
         }
 
-        /*for (size_t i = 0; i < PARTS; i++) {
-            if (parts[i] != NULL)
-                free(parts[i]);
-        }*/
-
-        //free(parts);
         free(matrix_msg);
         free(dir_list->list);
         free(dir_list);
-
 
         // set old mask
         printf("→ <Client-0>: Setting new mask UNBLOCK<SIGINT, SIGUSR1>...\n");

@@ -1,0 +1,12 @@
+[Parte 1 del file /home/alessio/Scrivania/progetto/system_call/tester_folder//sendme_225.txt, spedita dal processo 119541 tramite FIFO1]
+IGWBHAUWJBJUUPOCKAOLMZTRVSBJMIEUSBZKEQWBRVZLGIPGMXTWVLMOBPNOJUGQVCQJSLXHCWSMFDSSEINJVJOYPJ
+
+[Parte 2 del file /home/alessio/Scrivania/progetto/system_call/tester_folder//sendme_225.txt, spedita dal processo 119541 tramite FIFO2]
+MOTTCNWSMOCNVEGMTORLEZVRVQQFNDFJSYQULONZKPFTVQDMCWZGTRJMEPUTTJQLWFDFTQBRBGIJYOHALDGAVFMXVC
+
+[Parte 3 del file /home/alessio/Scrivania/progetto/system_call/tester_folder//sendme_225.txt, spedita dal processo 119541 tramite MSQ]
+SOBEWJNKECRFTUPCROQJOJCVJJALYVQQFRWCQGBULUJCMPEAXZJNVBGUXHCJASOIHHMYPPSKFQDSDHSCCRPJSZSTB
+
+[Parte 4 del file /home/alessio/Scrivania/progetto/system_call/tester_folder//sendme_225.txt, spedita dal processo 119541 tramite SHMEM]
+URDMBNVMKTXPIKVKBNBMDDQUUOMOCCRYTVIZGDEGWFZDDRBGAEVDHHJXWHQXNFWEAFKHLERGMLNRKQKAUTDBACCYM
+
