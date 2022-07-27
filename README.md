@@ -6,7 +6,7 @@
 ---
 ### SOFTWARE SPECIFICATION
 - Go inside project and run **make** in bash session
-- Run ./server in the same session
+- Run **./server** in the same session
 - In other bash session run **./client0 path-to-folder** 
 - In client session press **ctrl-c** (SIGINT signal)
 - Server will produce "_out" file in "path-to-folder"
